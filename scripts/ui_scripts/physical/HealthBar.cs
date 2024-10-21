@@ -21,6 +21,6 @@ public partial class HealthBar : Sprite3D
 	public void SetHealthPoint(float CurrentHealth, float MaxHealth)
 	{
 		HealthProgressBar.Value = (CurrentHealth / MaxHealth) * 100;
-		HealthText.Text = CurrentHealth.ToString();	
+		HealthText.Text = Mathf.RoundToInt(CurrentHealth).ToString();	
 	}
 }

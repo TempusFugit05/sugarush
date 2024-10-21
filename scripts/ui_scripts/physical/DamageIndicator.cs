@@ -22,7 +22,7 @@ public partial class DamageIndicator : Label3D
 	private Color OutlineColor = new(0.0f, 0.0f, 0.0f, 1);
 
 	[Export]
-	private float MaxDistanceFromOrigin = 0.75f; // This is used to slow down the indicator as it moves away from its spawnpoint
+	private float MaxDistanceFromOrigin = 0.1f; // This is used to slow down the indicator as it moves away from its spawnpoint
 
 	[Export]
 	private float MinDistanceToOrigin = 0.1f; // This distance will be used in the first iteration as the distance from the origin will be 0
@@ -39,7 +39,7 @@ public partial class DamageIndicator : Label3D
 	{
 		InitRandomSpeeds();
 		Modulate = IndicatorColor;
-		Text = damage.ToString();
+		Text = Mathf.RoundToInt(damage).ToString();
 	}
 
 	/// <summary>
@@ -52,16 +52,6 @@ public partial class DamageIndicator : Label3D
     }
 
 	/// <summary>
-    /// 	Add random movement to all directions, slowing down as the label gets further from the origin
-    /// </summary>
-	private void ApplyAnimation(double delta)
-	{
-		Vector3 NewPos = GlobalPosition;
-        NewPos += RandSpeedFactor * (Speed / Mathf.Clamp(PositionOrigin.DistanceTo(GlobalPosition) / MaxDistanceFromOrigin, MinDistanceToOrigin, MaxDistanceFromOrigin)) * (float)delta;
-        GlobalPosition = NewPos;
-	}
-
-	/// <summary>
     /// 	Creates the tweens for the fading and scaling animations.
     /// </summary>
     /// <returns>The tween to which the QueueFree callback should be attached</returns>
@@ -69,15 +59,24 @@ public partial class DamageIndicator : Label3D
 	{
         Tween FadeTween;
 		Tween ScaleTween;
+        Tween AccellerationTween;
+
         /*Fade label and then destroy at the end*/
         FadeTween = GetTree().CreateTween();
         FadeTween.TweenProperty(this, "modulate", new Color(IndicatorColor.R, IndicatorColor.G, IndicatorColor.B, 0), LifeTime);
 		FadeTween.Parallel().TweenProperty(this, "outline_modulate", new Color(OutlineColor.R, OutlineColor.G, OutlineColor.B, 0), LifeTime);
 
-		/*Scaling animation to make the label shrink*/
+        /*Shrink label*/
         ScaleTween = GetTree().CreateTween();
-        ScaleTween.SetTrans(Tween.TransitionType.Spring);
+        ScaleTween.SetTrans(Tween.TransitionType.Bounce);
+        ScaleTween.SetEase(Tween.EaseType.InOut);
         ScaleTween.TweenProperty(this, "scale", new Vector3(EndScale, EndScale, EndScale), LifeTime);
+		
+		/*Accellerate label from the origin outwards*/
+        AccellerationTween = GetTree().CreateTween();
+        AccellerationTween.SetTrans(Tween.TransitionType.Quint);
+		AccellerationTween.SetEase(Tween.EaseType.Out);
+        AccellerationTween.TweenProperty(this, "global_position", PositionOrigin + (RandSpeedFactor * MaxDistanceFromOrigin), LifeTime);
 
         return FadeTween;
     }
@@ -89,7 +88,7 @@ public partial class DamageIndicator : Label3D
 	private void InitNode()
 	{
 		PositionOrigin = GlobalPosition; // Get current (initialized) position
-        MaxDistanceFromOrigin *= PositionOrigin.DistanceTo(PlayerCamera.GlobalPosition); // Scale the max distance by the distance from the camera to prevent indicators looking too close at a distance
+        MaxDistanceFromOrigin *= Mathf.Abs(2 * PositionOrigin.DistanceTo(PlayerCamera.GlobalPosition) * Mathf.Sin(Mathf.DegToRad(PlayerCamera.Fov/2))); // Scale the max distance by the distance from the camera to prevent indicators looking too close at a distance
         InitAnimations().Finished += QueueFree; // Attach signal to destroy node at the end of fading animation
         IsInitialized = true;
 
@@ -105,16 +104,7 @@ public partial class DamageIndicator : Label3D
 		NoDepthTest = true; // This will cause the label to be drawn in front of other objects
 
 		PlayerCamera = GetViewport().GetCamera3D();
-		MaxDistanceFromOrigin += PositionOrigin.DistanceTo(GlobalPosition) * (Mathf.Pi / 180.0f) * (PlayerCamera.Fov / 2) * 2; // Scale distance from origin by distance from camera to prevend idicators bunching up when far away from enemy
 		
         GetTree().ProcessFrame += InitNode;
-    }
-
-    public override void _Process(double delta)
-    {
-        if (IsInitialized)
-        {
-			ApplyAnimation(delta);
-        }
     }
 }

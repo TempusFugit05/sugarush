@@ -22,7 +22,10 @@ public partial class Weapon : Node3D
 	[Export]
 	private Camera3D CameraNode = null;
 
-	private bool CanShoot = true;
+	[Export]
+	private float DamageFalloffStart = 10;
+
+    private bool CanShoot = true;
 
 
 	public override void _Ready()
@@ -40,7 +43,10 @@ public partial class Weapon : Node3D
 			Node HitObject = (Node)RayDict["collider"];
 			if(HitObject is IHurtable hurtable)
 			{
-				hurtable.Hurt(Damage, (Vector3)RayDict["position"]); // Hurtable is a special method for objects which are damage-able
+                Vector3 HitPosition = (Vector3)RayDict["position"];
+                float DistanceToTarget = GlobalPosition.DistanceTo(HitPosition);
+                float DamageToApply = (DistanceToTarget > DamageFalloffStart) ? Damage - ((Damage / Range) * (DistanceToTarget - DamageFalloffStart)) : Damage;
+				hurtable.Hurt(DamageToApply, (Vector3)RayDict["position"]); // Hurtable is a special method for objects which are damage-able
 			}
 		}
 	}

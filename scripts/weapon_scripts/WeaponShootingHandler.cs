@@ -13,12 +13,12 @@ public partial class Weapon : Node3D
 	private void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
 		Node3D ObjectHit = (Node3D)RayDict["collider"];
-		Vector3 ObjectNormal = (Vector3)RayDict["normal"]; // Normal of the surface hit for bullet hole decal
 		BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
 		ObjectHit.AddChild(ChildDecal);
 		ChildDecal.InitDecal((Vector3)RayDict["normal"]);
 		ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
 	}
+	
 	private void ShootFromCamera()
 	{
 		Vector3 ProjectileStartPos = CameraNode.ProjectRayOrigin(CameraNode.GetViewport().GetMousePosition()); // Convert the middle of the screen into a point in 3d space

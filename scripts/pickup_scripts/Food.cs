@@ -31,14 +31,14 @@ public partial class Food : Pickup
 				break;
 			case FoodType.GummyBear:
 				SugarAmount = 15;
-				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/gummy_bear.obj");
+				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/models/gummy_bear.obj");
 				break;
 			case FoodType.Cupcake:
 				SugarAmount = 30;
 				break;
 			case FoodType.Cake:
 				SugarAmount = 60;
-				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/cake.obj");
+				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/models/cake.obj");
 				Scale = new Vector3(5,5,5);
 				break;
 		}
