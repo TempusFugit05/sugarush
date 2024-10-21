@@ -1,0 +1,79 @@
+[gd_scene load_steps=7 format=3 uid="uid://dsyaxk5fxx2qh"]
+
+[ext_resource type="Texture2D" uid="uid://7mtuoifcr57a" path="res://assets/kenney_prototype_textures/orange/texture_05.png" id="1_g4tgb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_6w4sd"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fh1aj"]
+albedo_texture = ExtResource("1_g4tgb")
+uv1_scale = Vector3(5, 5, 5)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_7omah"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_lcgln"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_l31l6"]
+points = PackedVector3Array(-1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0, 1)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.394562, 0, 0)
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+mesh = SubResource("BoxMesh_6w4sd")
+surface_material_override/0 = SubResource("StandardMaterial3D_fh1aj")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_7omah")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="StaticBody3D"]
+transform = Transform3D(-0.0893115, -0.996004, 0, 0.996004, -0.0893115, 0, 0, 0, 1, 0.394562, 0, 0)
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D/StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+mesh = SubResource("BoxMesh_6w4sd")
+surface_material_override/0 = SubResource("StandardMaterial3D_fh1aj")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D/StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_7omah")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="StaticBody3D/StaticBody3D"]
+transform = Transform3D(0.0287952, -0.996612, 0.0770434, 0.505202, 0.0810168, 0.85919, -0.862521, 0.0141819, 0.505823, 0.394562, 0, 0)
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D/StaticBody3D/StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+mesh = SubResource("BoxMesh_6w4sd")
+surface_material_override/0 = SubResource("StandardMaterial3D_fh1aj")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D/StaticBody3D/StaticBody3D"]
+transform = Transform3D(38.8796, 0, 0, 0, -1.69948e-06, 0.563794, 0, -38.8796, -2.46442e-08, 19.563, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_7omah")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.472, 0, 0)
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D2"]
+transform = Transform3D(38.8796, 0, 0, 0, 38.8796, 0, 0, 0, 38.8796, 0, 0, 0)
+mesh = SubResource("PlaneMesh_lcgln")
+surface_material_override/0 = SubResource("StandardMaterial3D_fh1aj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
+transform = Transform3D(38.8796, 0, 0, 0, 38.8796, 0, 0, 0, 38.8796, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_l31l6")

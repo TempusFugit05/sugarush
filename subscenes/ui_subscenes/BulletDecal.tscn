@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://b7b5e2ex6nfoa"]
+
+[ext_resource type="Texture2D" uid="uid://dspw4tvt3yrpa" path="res://assets/decals/pngimg.com - bullet_hole_PNG6063.png" id="1_m65ea"]
+[ext_resource type="Script" path="res://scripts/ui_scripts/physical/BulletHole.cs" id="2_ls4b4"]
+
+[node name="BulletDecal" type="Decal"]
+top_level = true
+size = Vector3(0.2, 0.2, 0.2)
+texture_albedo = ExtResource("1_m65ea")
+emission_energy = 0.0
+upper_fade = 1e-05
+lower_fade = 1e-05
+script = ExtResource("2_ls4b4")

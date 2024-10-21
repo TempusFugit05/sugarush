@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://dfaq6af80psgv"]
+
+[ext_resource type="PackedScene" uid="uid://dk5hj8j68kpji" path="res://subscenes/pickup_subscenes/Pickup.tscn" id="1_qh5um"]
+[ext_resource type="Script" path="res://scripts/pickup_scripts/Food.cs" id="2_7vs5p"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_43ey5"]
+
+[node name="Pickup" instance=ExtResource("1_qh5um")]
+script = ExtResource("2_7vs5p")
+
+[node name="MeshInstance3D" parent="." index="0"]
+transform = Transform3D(0.0976226, 0, 0, 0, 0.0976226, 0, 0, 0, 0.0976226, 0, 0, 0)
+mesh = SubResource("BoxMesh_43ey5")

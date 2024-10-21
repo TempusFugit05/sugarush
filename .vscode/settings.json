@@ -1,0 +1,8 @@
+{
+    // "omnisharp.useGlobalMono": "always",
+    "godotTools.editorPath.godot4": "/usr/bin/godot-mono",
+
+    "workbench.colorCustomizations": {
+    "editorUnnecessaryCode.border": "#dd7aab"
+    },
+}

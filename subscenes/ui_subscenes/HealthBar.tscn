@@ -1,0 +1,84 @@
+[gd_scene load_steps=7 format=3 uid="uid://c336h7rc5hwsl"]
+
+[ext_resource type="Script" path="res://scripts/ui_scripts/physical/HealthBar.cs" id="1_58vk7"]
+[ext_resource type="FontFile" uid="uid://bcw5mt5628f7v" path="res://assets/fonts/SIXTY.TTF" id="2_3wi3a"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_2vntv"]
+viewport_path = NodePath("ViewPort")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_46cbn"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.7, 0, 0, 1)
+border_width_left = 2
+border_width_top = 4
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+corner_detail = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vmf88"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1001, 0.91, 0.235083, 1)
+border_width_left = 2
+border_width_top = 4
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+corner_detail = 10
+
+[sub_resource type="LabelSettings" id="LabelSettings_c5t1l"]
+font = ExtResource("2_3wi3a")
+font_size = 42
+
+[node name="HealthBar" type="Sprite3D"]
+billboard = 1
+double_sided = false
+texture = SubResource("ViewportTexture_2vntv")
+script = ExtResource("1_58vk7")
+
+[node name="ViewPort" type="SubViewport" parent="."]
+transparent_bg = true
+use_occlusion_culling = true
+size = Vector2i(1024, 128)
+size_2d_override = Vector2i(192, 25)
+
+[node name="Control" type="Control" parent="ViewPort"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(1.75198, 1.75198)
+
+[node name="ProgressBar" type="ProgressBar" parent="ViewPort/Control"]
+offset_right = 584.0
+offset_bottom = 64.0
+scale = Vector2(1.00103, 1.14006)
+theme_override_styles/background = SubResource("StyleBoxFlat_46cbn")
+theme_override_styles/fill = SubResource("StyleBoxFlat_vmf88")
+value = 100.0
+show_percentage = false
+
+[node name="Label" type="Label" parent="ViewPort/Control"]
+offset_left = 9.13253
+offset_top = 13.6988
+offset_right = 577.133
+offset_bottom = 61.6988
+text = "HEALTH"
+label_settings = SubResource("LabelSettings_c5t1l")
+vertical_alignment = 2

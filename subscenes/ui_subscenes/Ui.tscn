@@ -1,0 +1,90 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddl0obnlx7ke8"]
+
+[ext_resource type="Script" path="res://scripts/ui_scripts/SugarLabel.cs" id="1_7i4lu"]
+[ext_resource type="Script" path="res://scripts/ui_scripts/SugarushStatus.cs" id="2_6x33i"]
+[ext_resource type="Script" path="res://scripts/ui_scripts/FpsLabel.cs" id="2_848jl"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_g6khy"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_ftpbk"]
+font_size = 30
+font_color = Color(0.72, 0, 0, 1)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_b6act"]
+
+[node name="UiControl" type="Control"]
+layout_mode = 3
+anchor_right = 1.667
+anchor_bottom = 1.654
+offset_right = -0.384033
+offset_bottom = 8.20801
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FpsLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "FPS"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_848jl")
+
+[node name="SugarInfoControl" type="Control" parent="."]
+layout_mode = 1
+anchor_right = 0.6
+anchor_bottom = 0.593
+offset_top = 304.0
+offset_right = -750.024
+offset_bottom = 5.72797
+
+[node name="SugarLabel" type="Label" parent="SugarInfoControl"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.901
+anchor_right = 0.101
+anchor_bottom = 0.991
+offset_left = 52.0
+offset_top = -137.913
+offset_right = 158.457
+offset_bottom = -99.0831
+text = "SUGAR"
+label_settings = SubResource("LabelSettings_g6khy")
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("1_7i4lu")
+
+[node name="SugarushStatus" type="Label" parent="SugarInfoControl"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.951
+anchor_right = 0.079
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -191.563
+offset_right = 183.84
+offset_bottom = -151.523
+text = "SUGARUSH!"
+label_settings = SubResource("LabelSettings_ftpbk")
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_6x33i")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 960.0
+offset_top = 540.0
+offset_right = -960.0
+offset_bottom = -540.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Line2D" type="Sprite2D" parent="CenterContainer"]
+modulate = Color(1, 1, 1, 0.478431)
+scale = Vector2(3, 3)
+texture = SubResource("CanvasTexture_b6act")

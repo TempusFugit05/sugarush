@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://hepn2aya7iul"]
+
+[ext_resource type="Script" path="res://scripts/character_scripts/Character.cs" id="1_kluek"]
+[ext_resource type="PackedScene" uid="uid://h5fn8l71hm3d" path="res://subscenes/Weapon.tscn" id="3_jynb1"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_pkqkf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hnkbg"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_7lp4f"]
+
+[node name="Character" type="CharacterBody3D"]
+transform = Transform3D(1.00377, 0, 0, 0, 1.00377, 0, 0, 0, 1.00377, 0, 0, 0)
+script = ExtResource("1_kluek")
+AirAccel = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_pkqkf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.94102, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape3D_hnkbg")
+
+[node name="PlayerCamera" type="Node3D" parent="."]
+transform = Transform3D(0.677028, 0, 0, 0, 0.677028, 0, 0, 0, 0.677028, 0, 0.5388, -0.582673)
+
+[node name="Camera3D" type="Camera3D" parent="PlayerCamera"]
+transform = Transform3D(1.4715, 0, 0, 0, 1.4715, 0, 0, 0, 1.4715, -0.0202826, -0.0237271, 0.0105763)
+
+[node name="Weapon" parent="PlayerCamera/Camera3D" node_paths=PackedStringArray("CameraNode") instance=ExtResource("3_jynb1")]
+transform = Transform3D(0.173771, 0, 1.54361, 0, 1.55336, 0, -1.54361, 0, 0.173771, -0.353221, -0.141065, -0.121968)
+FireRate = 0.1
+CameraNode = NodePath("..")
+
+[node name="PickupSphere" type="Area3D" parent="."]
+transform = Transform3D(1.0536, 0, 0, 0, 1.0536, 0, 0, 0, 1.0536, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupSphere"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("SphereShape3D_7lp4f")

@@ -1,0 +1,16 @@
+{
+    "msbuild": {
+      "useBundledOnly": true
+    },
+    "omnisharp": {
+      "useModernNet": true,
+      "useGlobalMono": "always",
+      "useEditorFormattingSettings": true,
+      "csharp.semanticHighlighting.enabled": true,
+      "csharp.suppressHiddenDiagnostics": false,
+      "omnisharp.enableAsyncCompletion": true,
+      "omnisharp.enableDecompilationSupport": true,
+      "omnisharp.enableImportCompletion": true,
+      "omnisharp.enableRoslynAnalyzers": true
+    }
+  }

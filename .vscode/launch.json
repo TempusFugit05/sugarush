@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Play in Editor",
+        "type": "godot-mono",
+        "mode": "playInEditor",
+        "request": "launch"
+      },
+      {
+        "name": "Launch",
+        "type": "godot-mono",
+        "request": "launch",
+        "mode": "executable",
+        "preLaunchTask": "build",
+        "executable": "/usr/bin/godot-mono",
+        "executableArguments": [
+          "--path",
+          "${workspaceRoot}"
+        ]
+      }
+    ]
+  }
