@@ -68,7 +68,7 @@ public partial class DamageIndicator : Label3D
 
         /*Shrink label*/
         ScaleTween = GetTree().CreateTween();
-        ScaleTween.SetTrans(Tween.TransitionType.Bounce);
+        ScaleTween.SetTrans(Tween.TransitionType.Quad);
         ScaleTween.SetEase(Tween.EaseType.InOut);
         ScaleTween.TweenProperty(this, "scale", new Vector3(EndScale, EndScale, EndScale), LifeTime);
 		

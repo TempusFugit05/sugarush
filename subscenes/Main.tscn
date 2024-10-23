@@ -17,7 +17,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.26498, 1.87915, 0.610986)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.2296, 2.5452, -1.15638)
 
 [node name="WorldPlane" parent="." instance=ExtResource("2_1ywnb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0021216, -3.80898e-06, 0.142182)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0439938, 0.00647313, 0.197946)
 metadata/_edit_group_ = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
@@ -28,7 +28,7 @@ shadow_enabled = true
 directional_shadow_mode = 0
 
 [node name="Character" parent="." instance=ExtResource("3_0ixi6")]
-transform = Transform3D(1.00377, 0, 0, 0, 1.00377, 0, 0, 0, 1.00377, 15.9907, 1.37198, -0.00345536)
+transform = Transform3D(1.00377, 0, 0, 0, 1.00377, 0, 0, 0, 1.00377, 129.214, 10.2464, 0.817006)
 SugarHalfLife = 3.0
 MovementAccel = 200.0
 AirAccel = 35.0

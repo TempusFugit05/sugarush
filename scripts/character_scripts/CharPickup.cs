@@ -6,7 +6,7 @@ public partial class Character : CharacterBody3D
 	/// <Summary>
 	/// Initialize the character's area responsible for pickup detection
 	/// </Summary>
-	private void PickupSphereInit()
+	private void InitPickupSphere()
 	{
 		PickupSphereNode = GetNode<Area3D>("PickupSphere");
 		PickupSphereNode.AreaEntered += OnPickupDetected;

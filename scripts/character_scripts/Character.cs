@@ -5,7 +5,8 @@ public partial class Character : CharacterBody3D, IHurtable
 {
 	public override void _Ready()
 	{
-		PickupSphereInit();
+        PlayerCamera = GetNode<Camera3D>("PlayerCamera");
+        InitPickupSphere();
 		InitWeaponHandler();
 	}
 	public void Hurt(float Damage, Vector3 DamagePosition)

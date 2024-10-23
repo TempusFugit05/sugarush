@@ -3,23 +3,76 @@ using System;
 
 public partial class Character : CharacterBody3D
 {
+    private Vector2 MouseMovement;
+    private float ControllerSensitivity = 7.5f;
 
-	/// <Summary>
-	/// Get the desired direction of movement based on user input
-	/// </Summary>
-	Vector3 GetMoveDirection ()
+    /// <Summary>
+    /// 	Get the desired direction of movement based on user input
+    /// </Summary>
+    private Vector3 GetMoveDirection ()
 	{
-		// Get the desired direction of movement input as a vector
-		Vector2 InputDirection = Input.GetVector(KeyMoveLeft, KeyMoveRight, KeyMoveForward, KeyMoveBackward);
+        Vector2 InputDirection;
+
+        // Get the desired direction of movement input as a vector
+        if (Input.GetJoyAxis(0, JoyAxis.RightX) == 0 && Input.GetJoyAxis(0, JoyAxis.RightY) == 0)
+		{
+			InputDirection = Input.GetVector(InputMap[InputMapEnum.KeyGoLeft],
+											 InputMap[InputMapEnum.KeyGoRight],
+											 InputMap[InputMapEnum.KeyGoForward],
+											 InputMap[InputMapEnum.KeyGoBack]);
+		}
+
+		else
+		{
+        	InputDirection = new(Input.GetActionStrength(InputMap[InputMapEnum.StickGoRight])
+								 - Input.GetActionStrength(InputMap[InputMapEnum.StickGoLeft]),
+								 Input.GetActionStrength(InputMap[InputMapEnum.StickGoBack])
+								 - Input.GetActionStrength(InputMap[InputMapEnum.StickGoForward]));
+		}
+
 		return (Transform.Basis * new Vector3(InputDirection.X, 0, InputDirection.Y)).Normalized();
 	}
 
-	/// <Summary>
-	/// Increase accelleration on sprint input
-	/// </Summary>
-	void SprintHandler()
+	private Vector2 GetLookDirection()
 	{
-		if(Input.IsActionPressed(KeySprint) != SprintReferenceState)
+        Vector2 Direction;
+        if (MouseMovement.Equals(Vector2.Zero))
+		{
+        	Direction = new(Input.GetActionStrength(InputMap[InputMapEnum.StickLookRight])
+													- Input.GetActionStrength(InputMap[InputMapEnum.StickLookLeft]),
+													Input.GetActionStrength(InputMap[InputMapEnum.StickLookDown])
+													- Input.GetActionStrength(InputMap[InputMapEnum.StickLookUp]));
+            Direction *= ControllerSensitivity;
+        }
+		
+		else
+		{
+            Direction = MouseMovement;
+            MouseMovement = Vector2.Zero;
+        }
+
+        return Direction;
+    }
+
+	private void LookHandler()
+	{
+        Vector2 LookDirection = GetLookDirection();
+        if (LookDirection.Y != 0)
+		{
+			RotateHead(LookDirection);
+		}
+		if (LookDirection.X != 0)
+		{
+			RotateBody(LookDirection);
+		}
+	}
+
+	/// <Summary>
+	/// 	Increase accelleration on sprint input
+	/// </Summary>
+	private void SprintHandler()
+	{
+		if(Input.IsActionPressed(InputMap[InputMapEnum.ActionSprint]) != SprintReferenceState)
 		{
 			if(!SprintReferenceState)
 			{
@@ -41,7 +94,7 @@ public partial class Character : CharacterBody3D
 	}
 
 	/// <Summary>
-	/// Handles jump input
+	/// 	Handles jump input
 	/// </Summary>
 	private float JumpHandler(float VelY)
 	{
@@ -58,7 +111,7 @@ public partial class Character : CharacterBody3D
 			JumpsRemaining = CurrentBaseJumps;
 		}
 
-		if (Input.IsActionJustPressed(KeyJump) && JumpsRemaining > 0)
+		if (Input.IsActionJustPressed(InputMap[InputMapEnum.ActionJump]) && JumpsRemaining > 0)
 		{
 			VelY = JumpVelocity;
 			JumpsRemaining--;
@@ -69,9 +122,9 @@ public partial class Character : CharacterBody3D
 
 
 	/// <Summary>
-	/// Apply friction when on ground/air until full stop
+	/// 	Apply friction when on ground/air until full stop
 	/// </Summary>
-	float ApplyFriction(float CurrentVel, float VelDirection, double delta)
+	private float ApplyFriction(float CurrentVel, float VelDirection, double delta)
 	{
 		float CurrentFriction;
 		if (IsOnFloor())
@@ -106,9 +159,9 @@ public partial class Character : CharacterBody3D
 
 
 	/// <Summary>
-	/// Applly accelleration when moving, until full speed is achieved
+	/// 	Applly accelleration when moving, until full speed is achieved
 	/// </Summary>
-	float ApplyMovementAccel (float CurrentVel, float Direction, double delta)
+	private float ApplyMovementAccel (float CurrentVel, float Direction, double delta)
 	{
 		float Vel = Direction * MovementAccel * (float)delta; // Speed to add
 		float MaxSpeed = Direction * TargetSpeed;
@@ -124,23 +177,21 @@ public partial class Character : CharacterBody3D
 	}
 
 	/// <Summary>
-	/// Rotate the camera on Z axis based on mouse movement, capped to <c>+-CameraMaxRotation</c>
+	/// 	Rotate the camera on Z axis based on mouse movement, capped to <c>+-CameraMaxRotation</c>
 	/// </Summary>
-	void RotateHead(Vector2 MouseMovement)
+	private void RotateHead(Vector2 MouseMovement)
 	{
-		Node3D CameraNode = GetNode<Node3D>("PlayerCamera");
-		if ((MouseMovement.Y > 0 && CameraNode.Transform.Basis.GetEuler().X > -CameraMaxRotation) ||
-		(MouseMovement.Y < 0 && CameraNode.Transform.Basis.GetEuler().X < CameraMaxRotation))
+		if ((MouseMovement.Y > 0 && PlayerCamera.Transform.Basis.GetEuler().X > -CameraMaxRotation) ||
+		(MouseMovement.Y < 0 && PlayerCamera.Transform.Basis.GetEuler().X < CameraMaxRotation))
 		{
-			CameraNode.RotateX(-MouseMovement.Y * CameraSensitivity);
+			PlayerCamera.RotateX(-MouseMovement.Y * CameraSensitivity);
 		}
 	}
 
 	/// <Summary>
-	/// Rotate Player body on Y axis based on mouse movement
+	/// 	Rotate Player body on Y axis based on mouse movement
 	/// </Summary>
-
-	void RotateBody(Vector2 MouseMovement)
+	private void RotateBody(Vector2 MouseMovement)
 	{
 		if (MouseMovement.X != 0)
 		{
@@ -148,26 +199,15 @@ public partial class Character : CharacterBody3D
 		}
 	}
 
-	public override void _UnhandledInput(InputEvent CurrentInput)	
+	public override void _Input(InputEvent CurrentInput)
 	{
-		if (CurrentInput is InputEventMouseMotion MouseMotion)
+        if (CurrentInput is InputEventMouseMotion MouseMotion)
 		{
-			Vector2 MouseMovement = MouseMotion.Relative;
-
-			if (MouseMovement.Y != 0)
-			{
-				RotateHead(MouseMovement);
-			}
-
-			if (MouseMovement.X != 0)
-			{
-				RotateBody(MouseMovement);
-			}
+			MouseMovement = MouseMotion.Relative;
 		}
 	}
-
 	/// <Summary>
-	/// Handles all movement-related input events
+	/// 	Handles all movement-related input events
 	/// </Summary>
 	private void MovementHandler(double delta)
 	{
@@ -181,8 +221,9 @@ public partial class Character : CharacterBody3D
 		CurrentVel.Y = JumpHandler(CurrentVel.Y);
 
 		SprintHandler();
+        LookHandler();
 
-		Vector3 MoveDirection = GetMoveDirection();
+        Vector3 MoveDirection = GetMoveDirection();
 
 
 		if (MoveDirection.X != 0)

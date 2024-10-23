@@ -66,6 +66,7 @@ offset_bottom = 40.0
 scale = Vector2(1.75198, 1.75198)
 
 [node name="ProgressBar" type="ProgressBar" parent="ViewPort/Control"]
+layout_mode = 0
 offset_right = 584.0
 offset_bottom = 64.0
 scale = Vector2(1.00103, 1.14006)
@@ -75,6 +76,7 @@ value = 100.0
 show_percentage = false
 
 [node name="Label" type="Label" parent="ViewPort/Control"]
+layout_mode = 0
 offset_left = 9.13253
 offset_top = 13.6988
 offset_right = 577.133

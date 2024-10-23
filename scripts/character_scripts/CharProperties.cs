@@ -1,17 +1,55 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class Character : CharacterBody3D
 {
-	private const string KeyMoveLeft = "move_left";
-	private const string KeyMoveRight = "move_right";
-	private const string KeyMoveForward = "move_forward";
-	private const string KeyMoveBackward = "move_backward";
-	private const string KeySprint = "sprint";
-	private const string KeyFire = "fire";
-	const string KeyJump = "jump";
+	enum InputMapEnum
+	{
+		KeyGoLeft,
+		KeyGoRight,
+		KeyGoForward,
+		KeyGoBack,
 
-	private const float BaseSugar = 100.0f;
+		StickGoLeft,
+		StickGoRight,
+		StickGoForward,
+		StickGoBack,
+
+		StickLookUp,
+		StickLookDown,
+		StickLookLeft,
+		StickLookRight,
+
+		ActionSprint,
+		ActionFire,
+		ActionJump,
+	}
+
+    private readonly Dictionary<InputMapEnum, string> InputMap = new()
+    {
+        {InputMapEnum.KeyGoLeft, "key_go_left"},
+        {InputMapEnum.KeyGoRight, "key_go_right"},
+        {InputMapEnum.KeyGoForward, "key_go_forward"},
+        {InputMapEnum.KeyGoBack, "key_go_back"},
+
+        {InputMapEnum.StickGoForward, "stick_go_forward"},
+        {InputMapEnum.StickGoBack, "stick_go_back"},
+        {InputMapEnum.StickGoLeft, "stick_go_left"},
+        {InputMapEnum.StickGoRight, "stick_go_right"},
+
+        {InputMapEnum.StickLookUp, "stick_look_up"},
+        {InputMapEnum.StickLookDown, "stick_look_down"},
+        {InputMapEnum.StickLookLeft, "stick_look_left"},
+        {InputMapEnum.StickLookRight, "stick_look_right"},
+
+        {InputMapEnum.ActionSprint, "sprint"},
+        {InputMapEnum.ActionFire, "fire"},
+        {InputMapEnum.ActionJump, "jump"},
+    };
+
+
+    private const float BaseSugar = 100.0f;
 	private float CurrentBaseSugar = BaseSugar; // Base amount of sugar/health
 	private float CurrentSugar = BaseSugar;
 	
@@ -29,8 +67,9 @@ public partial class Character : CharacterBody3D
 	private int JumpsRemaining = 1;
 	private bool Sugarush = false;
 
-	private float CameraMaxRotation = 0.65f;
-	private const float CameraSensitivity = 0.002f;
+    private Camera3D PlayerCamera;
+    private float CameraMaxRotation = 0.65f;
+	private const float CameraSensitivity = 0.0025f;
 
 	[Export]
 	private float MovementAccel = 100.0f;
