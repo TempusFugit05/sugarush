@@ -77,24 +77,30 @@ public partial class Character : CharacterBody3D
 		Sugarush = false;
 	}
 
-	/// <Summary>
-	/// Handles everything related to sugar, including speed, sugar halflife and sugarush states
-	/// </Summary>
-	void SugarHandler(double delta)
+    private void SugarushStateHandler()
 	{
-		if (CurrentSugar > BaseSugar)
+		if (!Sugarush && CurrentSugar >= SugarushThreshold)
 		{
-			ApplySugarHalfLife(delta);
-			ApplySugarSpeed();
-
-			if (!Sugarush && CurrentSugar >= SugarushThreshold)
-			{
-				EnterSugarush();
-			}
+			EnterSugarush();
 		}
+
 		if (Sugarush && CurrentSugar <= SugarushCalmdownThreshold)
 		{
 			ExitSugarush();
 		}
 	}
+
+    /// <Summary>
+    /// Handles everything related to sugar, including speed, sugar halflife and sugarush states
+    /// </Summary>
+    void SugarHandler(double delta)
+	{
+        SugarushStateHandler();
+
+		if (CurrentSugar > BaseSugar)
+		{
+			ApplySugarHalfLife(delta);
+			ApplySugarSpeed();
+		}		
+    }
 }

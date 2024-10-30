@@ -5,7 +5,7 @@ public partial class Shotgun : Weapon
 {
 
     [Export]
-    private float SpreadAngle = 5f;
+    private float SpreadAngle = 2.5f;
 
     private void InitNode()
 	{
@@ -13,18 +13,18 @@ public partial class Shotgun : Weapon
         FireRate = 0.5f;
         Damage = 30;
         DamageFalloffStart = 2;
-        AttachedToCamera = true;
+        AttachedToPlayer = true;
         PlayerCameraPath = "Main/Character/PlayerCamera";
         DecalPath = "res://subscenes/ui_subscenes/BulletDecal.tscn";
-        
-		InitShootingHandler();
-	}
+        SoundEffectPath = "res://assets/audio/weapon/ShotgunSoundPlaceholder.wav";
+    }
 
     public override void _Ready()
     {
         InitNode();
         DecalScene = ResourceLoader.Load<PackedScene>(DecalPath);
-		CameraNode = GetParent<Camera3D>();
+		PlayerCameraNode = GetParent<Camera3D>();
+        InitWeapon();
     }
     
 
@@ -32,7 +32,7 @@ public partial class Shotgun : Weapon
 	{
 		if(CanShoot)
 		{
-			if(AttachedToCamera && CameraNode is not null)
+			if(AttachedToPlayer && PlayerCameraNode is not null)
 			{
                 Vector2[] Angles = {new(SpreadAngle, 0), new(-SpreadAngle, 0), new(0, SpreadAngle), new(0, -SpreadAngle),
 								 new(SpreadAngle, SpreadAngle), new(-SpreadAngle, -SpreadAngle), new(-SpreadAngle, SpreadAngle), new(SpreadAngle, -SpreadAngle), new(0, 0)};
@@ -43,7 +43,7 @@ public partial class Shotgun : Weapon
 			{
 				ShootFromWeapon();
 			}
-
+            AudioPlayer.Play();
             _ = SetCooldown();
 
 			return true;

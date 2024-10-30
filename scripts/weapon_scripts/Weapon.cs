@@ -19,13 +19,16 @@ public partial class Weapon : Node3D
 	protected float Damage = 25.0f;
 
 	[Export]
-	protected bool AttachedToCamera = true;
+	protected bool AttachedToPlayer = false;
 
 	// [Export]
-	protected Camera3D CameraNode = null;
+	protected Camera3D PlayerCameraNode = null;
 
     [Export]
     protected float MinimumDamage = 1.0f;
+
+    [Export]
+    protected string SoundEffectPath = "res://assets/audio/weapon/untitled.wav";
 
     protected bool CanShoot = true;
 
@@ -33,10 +36,30 @@ public partial class Weapon : Node3D
 	
     protected string PlayerCameraPath;
 
-    public override void _Ready()
+    protected AudioStreamPlayer3D AudioPlayer;
+
+	protected void InitWeapon()
 	{
         InitShootingHandler();
-	}
+		if(AttachedToPlayer)
+		{
+            AudioPlayer = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer");
+        }
+		else
+		{
+			AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer");			
+		}
+
+        if(SoundEffectPath.Length != 0)
+		{
+			AudioPlayer.Stream = ResourceLoader.Load<AudioStream>(SoundEffectPath);
+        }
+    }
+
+    public override void _Ready()
+	{
+        InitWeapon();
+    }
 
 	/// <summary>
     /// 	Apply damage falloff based on range to targert
@@ -82,6 +105,11 @@ public partial class Weapon : Node3D
 		CanShoot = true; // Enable shooting
 	}
 
+	public bool ReadyToShoot()
+	{
+        return CanShoot;
+    }
+
 	/// <Summary>
 	/// 	Attempt to shoot. The weapon will only fire if its firing cooldown has expired.
 	/// </Summary>
@@ -92,7 +120,7 @@ public partial class Weapon : Node3D
 	{
 		if(CanShoot)
 		{
-			if(AttachedToCamera && CameraNode is not null)
+			if(AttachedToPlayer && PlayerCameraNode is not null)
 			{
 				ShootFromCamera();
 			}			
@@ -103,8 +131,8 @@ public partial class Weapon : Node3D
 			}
 
             _ = SetCooldown();
-
-			return true;
+            AudioPlayer.Play();
+            return true;
 		}
 
 		return false;

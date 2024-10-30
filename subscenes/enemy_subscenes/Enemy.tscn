@@ -11,7 +11,7 @@ points = PackedVector3Array(-0.125207, -0.532801, -0.480507, 0.0227831, 0.47607,
 [sub_resource type="ViewportTexture" id="ViewportTexture_555fc"]
 viewport_path = NodePath("ViewPort")
 
-[node name="CharacterBody3D" type="CharacterBody3D"]
+[node name="CharacterBody3D" type="CharacterBody3D" groups=["GEnemies"]]
 script = ExtResource("1_pny3g")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

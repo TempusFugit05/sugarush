@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://csiue2n015dws"]
+
+[ext_resource type="Script" path="res://scripts/pickup_scripts/FoodSpawner.cs" id="1_adi13"]
+
+[node name="FoodSpawner" type="Node3D"]
+script = ExtResource("1_adi13")

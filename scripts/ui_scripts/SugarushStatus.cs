@@ -3,24 +3,31 @@ using System;
 
 public partial class SugarushStatus : Label
 {
-	Character CharNode;
+	private Character CharNode;
+	private bool IsInitialized = false;
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	public void Init(Character PlayerNode)
 	{
-		CharNode = GetNode<Character>("/root/Main/Character");
-	}
+        CharNode = PlayerNode;
+		if(CharNode is not null)
+		{
+            IsInitialized = true;
+        }
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if(CharNode.GetSugarush())
+		if (IsInitialized)
 		{
-			VisibleCharacters = -1;
-		}
-		else
-		{
-			VisibleCharacters = 0;
+			if(CharNode.GetSugarush())
+			{
+				VisibleCharacters = -1;
+			}
+			else
+			{
+				VisibleCharacters = 0;
+			}
 		}
 	}
 }

@@ -3,24 +3,32 @@ using System;
 
 public partial class SugarLabel : Label
 {
-	Character CharNode;
-	private float CharSugar = 0.0f;
-	String HealthText = "";
+	private Character CharNode;
+    private bool IsInitialized = false;
+    private float CharSugar = 0.0f;
+	private string HealthText = "";
 
-	public override void _Ready()
+	public void Init(Character PlayerNode)
 	{
-		CharNode = GetNode<Character>("/root/Main/Character");
-		CharSugar = CharNode.GetSugar();
-		Text = Convert.ToString(CharNode.GetSugar()) + "%";
-	}
+        CharNode = PlayerNode;
+		if(CharNode is not null)
+		{
+			CharSugar = CharNode.GetSugar();
+			Text = Convert.ToString(CharNode.GetSugar()) + "%";
+            IsInitialized = true;
+        }
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
 	{
-		if(CharNode.GetSugar() != CharSugar)
-		{
-			CharSugar = CharNode.GetSugar();
-			Text = Convert.ToString($"{CharNode.GetSugar():0.0}") + "%";
-		}
-	}
+        if (IsInitialized)
+        {
+            if (CharNode.GetSugar() != CharSugar)
+            {
+                CharSugar = CharNode.GetSugar();
+                Text = Convert.ToString($"{CharNode.GetSugar():0.0}") + "%";
+            }
+        }
+    }
 }

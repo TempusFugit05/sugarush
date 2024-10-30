@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://ddl0obnlx7ke8"]
+[gd_scene load_steps=8 format=3 uid="uid://ddl0obnlx7ke8"]
 
 [ext_resource type="Script" path="res://scripts/ui_scripts/SugarLabel.cs" id="1_7i4lu"]
+[ext_resource type="Script" path="res://scripts/ui_scripts/Ui.cs" id="1_wlq1i"]
 [ext_resource type="Script" path="res://scripts/ui_scripts/SugarushStatus.cs" id="2_6x33i"]
 [ext_resource type="Script" path="res://scripts/ui_scripts/FpsLabel.cs" id="2_848jl"]
 
@@ -22,6 +23,7 @@ offset_bottom = 8.20801
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("1_wlq1i")
 
 [node name="FpsLabel" type="Label" parent="."]
 layout_mode = 0

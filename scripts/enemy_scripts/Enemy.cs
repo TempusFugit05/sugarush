@@ -33,7 +33,7 @@ public partial class Enemy : CharacterBody3D, IHurtable
 	public void Hurt(float Damage, Vector3 DamagePosition)
 	{
 		DamageIndicator Indicator = new(Damage); // Create a damage indicator 
-		GetTree().Root.GetNode("Main").AddChild(Indicator); // Add it to the scene
+		GetTree().Root.AddChild(Indicator); // Add it to the scene
 		Indicator.GlobalPosition = (DamagePosition == default) ? GlobalPosition : DamagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
 		Health -= Damage;
 		

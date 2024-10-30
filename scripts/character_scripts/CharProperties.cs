@@ -68,7 +68,7 @@ public partial class Character : CharacterBody3D
 	private bool Sugarush = false;
 
     private Camera3D PlayerCamera;
-    private float CameraMaxRotation = 0.65f;
+    private float CameraMaxRotation = 0.95f;
 	private const float CameraSensitivity = 0.0025f;
 
 	[Export]

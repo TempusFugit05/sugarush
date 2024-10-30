@@ -6,6 +6,8 @@ namespace GlobalEnums
 	// Add a "Weight" parameter to the damage indicator so it will feel more impactful when dealing large amounts of damage
 	// Fix decals not rotating proparely with parent
 	// Add Z rotation for turret
+	// Fix Pickup colliders being able to collide with player
+	
 	enum RenderingLayersEnum : uint
 	{
 		Default = 1,

@@ -1,13 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://dfaq6af80psgv"]
+[gd_scene load_steps=5 format=3 uid="uid://dfaq6af80psgv"]
 
-[ext_resource type="PackedScene" uid="uid://dk5hj8j68kpji" path="res://subscenes/pickup_subscenes/Pickup.tscn" id="1_qh5um"]
 [ext_resource type="Script" path="res://scripts/pickup_scripts/Food.cs" id="2_7vs5p"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_43ey5"]
 
-[node name="Pickup" instance=ExtResource("1_qh5um")]
+[sub_resource type="BoxShape3D" id="BoxShape3D_j5p5w"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vu6je"]
+
+[node name="Pickup" type="RigidBody3D" groups=["GPickups"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00330639, 0, 0.0083499)
 script = ExtResource("2_7vs5p")
 
-[node name="MeshInstance3D" parent="." index="0"]
-transform = Transform3D(0.0976226, 0, 0, 0, 0.0976226, 0, 0, 0, 0.0976226, 0, 0, 0)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_43ey5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_j5p5w")
+
+[node name="FoodPickupRange" type="Area3D" parent="."]
+
+[node name="PickupBox" type="CollisionShape3D" parent="FoodPickupRange"]
+shape = SubResource("BoxShape3D_vu6je")

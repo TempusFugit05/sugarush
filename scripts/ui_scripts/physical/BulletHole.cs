@@ -43,7 +43,6 @@ public partial class BulletHole : Decal
     /// </summary>
     public void InitDecal(Vector3 surfaceNormal)
     {
-        SetCullMask(1);
         OriginNormal = surfaceNormal;
         OriginalRotation = GetParent<Node3D>().GlobalRotation;
         RotateOnSurface(surfaceNormal);
@@ -54,16 +53,17 @@ public partial class BulletHole : Decal
     {
         TimeToLive = LifeTime;
         ParentNode = GetParent<Node3D>();
-        _ = StartFade();
+        GetTree().CreateTimer(LifeTime - FadeStartTime).Timeout += StartFade;
+        
     }
 
 	/// <summary>
     /// Start the fading animation after <c>FadeStartTime</c> lasting <c>LifeTime - FadeStartTime</c> seconds.
     /// Then destroys the node.
     /// </summary>
-    private async Task StartFade()
+    private void StartFade()
     {
-        await ToSignal(GetTree().CreateTimer(FadeStartTime), SceneTreeTimer.SignalName.Timeout);
+        // await ToSignal(GetTree().CreateTimer(FadeStartTime), SceneTreeTimer.SignalName.Timeout);
         FadeTween = CreateTween();
         FadeTween.TweenProperty(this, "modulate", new Color(0, 0, 0, 0), LifeTime - FadeStartTime);
         FadeTween.Finished += QueueFree;
