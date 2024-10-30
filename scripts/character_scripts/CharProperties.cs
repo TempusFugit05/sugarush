@@ -68,7 +68,7 @@ public partial class Character : CharacterBody3D
 	private bool Sugarush = false;
 
     private Camera3D PlayerCamera;
-    private float CameraMaxRotation = 0.95f;
+    private float CameraMaxRotation = 1.0f;
 	private const float CameraSensitivity = 0.0025f;
 
 	[Export]
@@ -90,11 +90,14 @@ public partial class Character : CharacterBody3D
 	private bool IsSprinting = false;
 	private bool SprintReferenceState = false; // Holds the reference state of sprinting. Only used in the SprintHandler function!
 
-	const float JumpVelocity = 6f;
+	const float JumpVelocity = 8f;
 
+    private (Vector3 Vel, bool IsGrounded) _RefFallState;
+    private float FallDamageStart = 15.0f;
+    private float FatalFallSpeed = 25.0f;
 
-	/* Friction attributes */
-	float Friction = 0.70f;
+    /* Friction attributes */
+    float Friction = 0.70f;
 	float AirFriction = 0.25f;
 	float PlayerMass = 50f;
 	float MinVel = 0.3f;

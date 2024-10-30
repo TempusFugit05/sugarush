@@ -9,7 +9,7 @@ public partial class Character : CharacterBody3D, IHurtable
         InitPickupSphere();
 		InitWeaponHandler();
 	}
-	public void Hurt(float Damage, Vector3 DamagePosition)
+	public void Hurt(float Damage, Vector3 DamagePosition = default)
 	{
 		CurrentSugar -= Damage;
 	}

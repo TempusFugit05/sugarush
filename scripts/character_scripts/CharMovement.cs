@@ -93,6 +93,34 @@ public partial class Character : CharacterBody3D
 		}
 	}
 
+	private void ApplyFallDamage(float speed)
+	{
+        if (speed >= FallDamageStart)
+		{
+            Hurt(((speed - FallDamageStart) / FatalFallSpeed) * MathF.Max(CurrentBaseSugar, CurrentSugar));
+		}
+    }
+
+    private Vector3 FallHandler(Vector3 velocity, double delta)
+	{
+		if (IsOnFloor())
+		{
+			if (!_RefFallState.IsGrounded)
+			{
+				ApplyFallDamage((_RefFallState.Vel * GetGravity().Normalized()).Y);
+			}
+			_RefFallState.IsGrounded = true;
+		}
+		else
+		{
+            velocity += GetGravity() * (float)delta; // Apply gravity acceleration
+            _RefFallState.IsGrounded = false;
+        }
+		
+		_RefFallState.Vel = Velocity;
+        return velocity;
+    }
+
 	/// <Summary>
 	/// 	Handles jump input
 	/// </Summary>
@@ -213,10 +241,7 @@ public partial class Character : CharacterBody3D
 	{
 		Vector3 CurrentVel = Velocity;
 
-		if (!IsOnFloor())
-		{
-			CurrentVel += GetGravity() * (float)delta; // Apply gravity acceleration
-		}
+        CurrentVel = FallHandler(CurrentVel, delta);
 		
 		CurrentVel.Y = JumpHandler(CurrentVel.Y);
 
@@ -224,7 +249,6 @@ public partial class Character : CharacterBody3D
         LookHandler();
 
         Vector3 MoveDirection = GetMoveDirection();
-
 
 		if (MoveDirection.X != 0)
 		{

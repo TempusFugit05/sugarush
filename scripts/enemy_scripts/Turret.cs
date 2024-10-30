@@ -1,6 +1,4 @@
 using Godot;
-using System;
-using System.Linq;
 
 public partial class Turret : Enemy
 {
@@ -8,15 +6,17 @@ public partial class Turret : Enemy
 	Weapon TurretWeapon;
     Node3D PlayerNode;
     Node3D WeaponHolder;
+    Node3D Body;
 
     [Export]
-	private float RotationSpeed = 0.75f; // Speed of rotation in radians
+	private float RotationSpeed = 1.0f; // Speed of rotation in radians
 
 	public override void _Ready()
 	{
-        WeaponHolder = GetNode<Node3D>("WeaponHolder");
+        Body = GetNode<Node3D>("Body");
+        WeaponHolder = Body.GetNode<Node3D>("WeaponHolder");
 		TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
-		PlayerNode = GetParent().GetNode<Node3D>("Character");
+		PlayerNode = GetTree().Root.GetNode<Node3D>("Node3D/Character");
         InitNode();
 	}
 
@@ -45,31 +45,29 @@ public partial class Turret : Enemy
         if (PlayerNode is not null)
         {
             Vector3 Difference = PlayerNode.GlobalPosition - GlobalPosition;
-            float Angle = Mathf.PosMod(Mathf.Atan2(Difference.X, Difference.Z) - GlobalRotation.Y + Mathf.Pi, Mathf.Tau);
+            float Angle = Mathf.PosMod(Mathf.Atan2(Difference.X, Difference.Z) - Body.GlobalRotation.Y + Mathf.Pi, Mathf.Tau);
             if (Angle >= 0.01f)
             {
-                RotateY(RotationSpeed * (float)delta * ((Angle > Mathf.Tau / 2) ? -1 : 1));
+                Body.RotateY(RotationSpeed * (float)delta * ((Angle > Mathf.Tau / 2) ? -1 : 1));
                 return true;
             }
         }
         return false;
     }
 
-	private void RotateTowardsPlayerZ(double delta)
+	private bool RotateTowardsPlayerZ(double delta)
 	{
-        Vector3 Difference = PlayerNode.GlobalPosition - WeaponHolder.GlobalPosition;
-        Basis temp = WeaponHolder.Basis;
-        temp.Z = Difference;
-        WeaponHolder.Basis = temp;
-        // float Angle = Mathf.PosMod(Mathf.Atan2(Difference.X, Difference.Y) - GlobalRotation.X + Mathf.Pi, Mathf.Tau);
-
-        // if (Angle >= 0.01f)
-        // {
-        //     Angle *= (Angle > Mathf.Tau / 2) ? -1 : 1;
-        //     Quaternion rot = new(Vector3.Right, Angle);
-        //     Basis = new Basis(rot.Slerp(Basis.GetRotationQuaternion(), (float)delta));
-        // }
-
+        if (PlayerNode is not null)
+        {
+            Vector3 Difference = PlayerNode.GlobalPosition - GlobalPosition;
+            float Angle = Mathf.PosMod(Mathf.Atan2(Difference.Z, Difference.X) - WeaponHolder.GlobalRotation.Z + Mathf.Pi, Mathf.Tau);
+            if (Angle >= 0.01f)
+            {
+                WeaponHolder.GlobalRotate(Vector3.Right, RotationSpeed * (float)delta * ((Angle > Mathf.Tau / 2) ? -1 : 1));
+                return true;
+            }
+        }
+        return false;
     }
 
 	public override void _PhysicsProcess(double delta)
