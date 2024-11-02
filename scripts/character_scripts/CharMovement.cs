@@ -84,11 +84,10 @@ public partial class Character : CharacterBody3D
 				CurrentBaseSpeed = BaseSpeed;
 			}
 
-			if (CurrentSugar == BaseSugar)
-			{
-				TargetSpeed = CurrentBaseSpeed; 
-			}
-
+			// if (CurrentSugar == BaseSugar)
+			// {
+			// }
+			TargetSpeed = CurrentBaseSpeed; 
 			SprintReferenceState = !SprintReferenceState;
 		}
 	}

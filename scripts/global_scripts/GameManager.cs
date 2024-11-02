@@ -9,7 +9,7 @@ public partial class GameManager : Node
 
 	private void InitHelper()
 	{
-		HP._HelperNode Helper = new();
+		HP.HelperNode Helper = new();
         GetTree().Root.AddChild(Helper);
 	}
 

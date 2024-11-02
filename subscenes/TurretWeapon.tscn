@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://dlc6gir51woxd"]
+
+[ext_resource type="Script" path="res://scripts/weapon_scripts/TurretWeapon.cs" id="1_ja6cx"]
+[ext_resource type="PackedScene" uid="uid://b7b5e2ex6nfoa" path="res://subscenes/ui_subscenes/BulletDecal.tscn" id="2_qoh2o"]
+[ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://ProtoFloor.tres" id="3_8qx31"]
+[ext_resource type="AudioStream" uid="uid://bgleoapofvocu" path="res://assets/audio/weapon/untitled.wav" id="3_l122m"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1u7gl"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.75
+radial_segments = 32
+rings = 1
+
+[node name="Weapon" type="Node3D"]
+script = ExtResource("1_ja6cx")
+DecalScene = ExtResource("2_qoh2o")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+layers = 2
+mesh = SubResource("CylinderMesh_1u7gl")
+surface_material_override/0 = ExtResource("3_8qx31")
+
+[node name="ProjectileSpawnPoint" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)
+
+[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_l122m")

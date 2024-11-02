@@ -7,7 +7,7 @@
 
 [sub_resource type="PrismMesh" id="PrismMesh_bcqly"]
 
-[node name="Node3D" type="Node3D"]
+[node name="Map2" type="Node3D"]
 
 [node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
 use_collision = true
@@ -34,7 +34,8 @@ height = 0.165466
 material = ExtResource("1_n1kml")
 
 [node name="Turret" parent="CSGCombiner3D/SideWalk" instance=ExtResource("2_o3282")]
-transform = Transform3D(0.999999, 0.000730707, 0.00133234, -0.000733339, 0.999998, 0.00195737, -0.0013309, -0.00195835, 0.999997, 0, 0.876022, 0)
+transform = Transform3D(-0.0199957, 0.00194232, -0.999798, -0.000733339, 0.999998, 0.00195737, 0.9998, 0.000772306, -0.0199939, -0.233765, 2.0875, -0.426455)
+MaxHealth = 500.0
 
 [node name="ConeDrop" type="CSGCombiner3D" parent="CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.8825, -56.9861, 4.03979)
@@ -59,22 +60,22 @@ size = Vector3(1.51086, 2.91101, 1)
 material = ExtResource("1_n1kml")
 
 [node name="DropFood" type="Node3D" parent="CSGCombiner3D/ConeDrop"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.817146, 30.6611, 1.92993)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.182854, 29.1838, -0.0469246)
 
 [node name="FoodSpawner" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 8.3396, -2.91903)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 9.81693, 0.0578244)
 
 [node name="FoodSpawner3" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.178612, 4.05328, -2.91903)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.178612, 5.53061, 0.0578244)
 
 [node name="FoodSpawner4" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -1.54911, -2.91903)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -0.0717793, 0.0578244)
 
 [node name="FoodSpawner5" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -7.5491, -2.91903)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -6.07177, 0.0578244)
 
 [node name="FoodSpawner2" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 13.3396, -2.91903)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 14.8169, 0.0578244)
 
 [node name="Arrow" type="CSGCombiner3D" parent="CSGCombiner3D"]
 

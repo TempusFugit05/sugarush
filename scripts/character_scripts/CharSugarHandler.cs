@@ -3,6 +3,20 @@ using System;
 
 public partial class Character : CharacterBody3D
 {
+    /// <Summary>
+    /// Handles everything related to sugar, including speed, sugar halflife and sugarush states
+    /// </Summary>
+    void SugarHandler(double delta)
+	{
+        SugarushStateHandler();
+
+		if (CurrentSugar > BaseSugar)
+		{
+			ApplySugarHalfLife(delta);
+			ApplySugarSpeed();
+		}		
+    }
+
 	/// <<returns>>
 	///	Consume sugar in pickup
 	/// </<returns>>
@@ -11,17 +25,18 @@ public partial class Character : CharacterBody3D
 		CurrentSugar += Amount;
 	}
 
-	/// <<returns>>
-	///	Current amount of sugar
-	/// </<returns>>
 	public float GetSugar()
 	{
 		return CurrentSugar;
 	}
 
-	/// <<returns>>
-	///	Sugarush state
-	/// </<returns>>
+	public void SetSugar(float sugar)
+	{
+		if (sugar >= 0)
+		{
+	        CurrentSugar = sugar;
+		}
+    }
 	public bool GetSugarush()
 	{
 		return Sugarush;
@@ -32,7 +47,14 @@ public partial class Character : CharacterBody3D
 	/// </Summary>
 	void ApplySugarSpeed()
 	{
-		TargetSpeed = CurrentBaseSpeed + (SugarSpeedRatio * (CurrentSugar - BaseSugar));
+		if (CurrentSugar > BaseSugar)
+		{
+			TargetSpeed = CurrentBaseSpeed + (SugarSpeedRatio * (CurrentSugar - BaseSugar));
+		}
+		else
+		{
+            TargetSpeed = CurrentBaseSpeed;
+        }
 	}
 
 	/// <Summary>
@@ -89,18 +111,4 @@ public partial class Character : CharacterBody3D
 			ExitSugarush();
 		}
 	}
-
-    /// <Summary>
-    /// Handles everything related to sugar, including speed, sugar halflife and sugarush states
-    /// </Summary>
-    void SugarHandler(double delta)
-	{
-        SugarushStateHandler();
-
-		if (CurrentSugar > BaseSugar)
-		{
-			ApplySugarHalfLife(delta);
-			ApplySugarSpeed();
-		}		
-    }
 }

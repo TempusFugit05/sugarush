@@ -1,6 +1,6 @@
-using Godot;
 using System;
-using System.Threading.Tasks;
+using Godot;
+using Helpers;
 
 public partial class BulletHole : Decal
 {
@@ -19,6 +19,8 @@ public partial class BulletHole : Decal
     private float TimeToLive; // Remaining lifetime of the decal
 
     private Node3D ParentNode;
+
+    private int PoolIndex; // The decal's index in the global decal pool
 
     Vector3 OriginNormal;
     Vector3 OriginalRotation;
@@ -54,7 +56,7 @@ public partial class BulletHole : Decal
         TimeToLive = LifeTime;
         ParentNode = GetParent<Node3D>();
         GetTree().CreateTimer(LifeTime - FadeStartTime).Timeout += StartFade;
-        
+        HP.AddToDecalPool(this);
     }
 
 	/// <summary>
@@ -66,6 +68,12 @@ public partial class BulletHole : Decal
         // await ToSignal(GetTree().CreateTimer(FadeStartTime), SceneTreeTimer.SignalName.Timeout);
         FadeTween = CreateTween();
         FadeTween.TweenProperty(this, "modulate", new Color(0, 0, 0, 0), LifeTime - FadeStartTime);
-        FadeTween.Finished += QueueFree;
+        FadeTween.Finished += DeInitNode;
+    }
+
+    public void DeInitNode()
+    {
+        HP.RemoveFromDecalPool(this);
+        QueueFree();
     }
 }

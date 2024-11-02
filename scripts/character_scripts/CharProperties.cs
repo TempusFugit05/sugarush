@@ -80,7 +80,7 @@ public partial class Character : CharacterBody3D
 	[Export]
 	private float SprintMultiplier = 2f;
 
-	private const float BaseSpeed = 7.0f; // Base speed of the character
+	private const float BaseSpeed = 5.0f; // Base speed of the character
 	private float CurrentBaseSpeed = BaseSpeed; // Speed with modifiers applied (i.e, sprinting) 
 	private float TargetSpeed = BaseSpeed; // Target velocity to reach with oversugar included
 

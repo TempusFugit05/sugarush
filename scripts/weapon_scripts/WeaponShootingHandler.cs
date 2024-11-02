@@ -13,13 +13,12 @@ public partial class Weapon : Node3D
 
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
-		if (((Node3D)RayDict["collider"]) is Enemy)
+		if (((Node3D)RayDict["collider"]) is ICreature)
 		{
             return;
         }
-		
-		Node3D ObjectHit = (Node3D)RayDict["collider"];
-        BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
+        Node3D ObjectHit = (Node3D)RayDict["collider"];
+		BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
 		ObjectHit.AddChild(ChildDecal);
         ChildDecal.InitDecal((Vector3)RayDict["normal"]);
 		ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
@@ -108,15 +107,19 @@ public partial class Weapon : Node3D
 	public Godot.Collections.Dictionary ShootProjectile(Vector3 RayStart, Vector3 RayEnd)
 	{
         // Create a projectile and apply bullet hole decal on the hit object
-
+        Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
         PhysicsRayQueryParameters3D QueryParams = new()
         {
             From = RayStart,
             To = RayEnd,
             CollideWithAreas = false,
             CollideWithBodies = true,
-            Exclude = HP.GetDefaultExclusionList()
         };
+		if (ExclusionList is not null)
+		{
+            QueryParams.Exclude = ExclusionList;
+        }
+		
         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
 
 		if(RayDict.Count != 0)

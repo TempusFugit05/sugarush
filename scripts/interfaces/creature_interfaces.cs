@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public interface IHurtable
+public interface ICreature
 {
 	/// <Summary>
 	///	Classes that Implement this method will do something special when they are shot/hurt in any way

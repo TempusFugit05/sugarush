@@ -103,7 +103,7 @@ public partial class Food : RigidBody3D, IPickable
 			case FoodType.GummyBear:
 				SugarAmount = 15;
 				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/models/gummy_bear.obj");
-				MeshInstance.Scale = new Vector3(0.25f, 0.25f, 0.25f);
+				MeshInstance.Scale = new Vector3(0.15f, 0.15f, 0.15f);
 				break;
 			case FoodType.Cupcake:
 				SugarAmount = 50;

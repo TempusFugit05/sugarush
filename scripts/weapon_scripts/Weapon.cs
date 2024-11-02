@@ -21,7 +21,6 @@ public partial class Weapon : Node3D
 	[Export]
 	protected bool AttachedToPlayer = false;
 
-	// [Export]
 	protected Camera3D PlayerCameraNode = null;
 
     [Export]
@@ -90,7 +89,7 @@ public partial class Weapon : Node3D
 		if(RayDict is not null)
 		{
 			Node HitObject = (Node)RayDict["collider"];
-			if(HitObject is IHurtable hurtable)
+			if(HitObject is ICreature hurtable)
 			{
 				hurtable.Hurt(ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo((Vector3)RayDict["position"])), (Vector3)RayDict["position"]); // Hurtable is a special method for objects which are damage-able
 			}
