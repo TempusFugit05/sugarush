@@ -9,12 +9,17 @@ public partial class Turret : Enemy
     Node3D PlayerNode;
     Node3D WeaponHolder;
     Node3D Body;
-
     [Export]
-	private float RotationSpeed = 0.5f; // Speed of rotation in radians
+	private float RotationSpeed = 100.0f; // Speed of rotation in radians
 
     [Export]
     private float DetectionRadius = 30.0f;
+
+    [Export]
+    float Angle;
+
+    [Export]
+    float GroundDetectionDistance = 50.0f;
 
     public override void _Ready()
 	{
@@ -25,9 +30,27 @@ public partial class Turret : Enemy
         InitNode();
 	}
 
+    private float GetHeightAboveGround()
+    {
+        PhysicsRayQueryParameters3D Query = new()
+        {
+            From = GlobalPosition,
+            To = Vector3.Down * GroundDetectionDistance,
+            Exclude = new Godot.Collections.Array<Rid> { GetRid() },
+            CollideWithAreas = false,
+            CollideWithBodies = true,
+        };
+        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
+        if (RayDict.Count != 0)
+        {
+            return ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition);
+        }
+        return float.PositiveInfinity;
+    }
+
     private bool IsPlayerVisible()
     {
-        PhysicsRayQueryParameters3D Quary = new()
+        PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
             To = PlayerNode.GlobalPosition,
@@ -35,7 +58,7 @@ public partial class Turret : Enemy
             CollideWithAreas = false,
 			CollideWithBodies = true,
         };
-        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Quary);
+        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
         if ((Node)RayDict["collider"] is Character && (((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) <= DetectionRadius))
         {
             return true;
@@ -45,34 +68,57 @@ public partial class Turret : Enemy
 
     }
 
-	private bool RotateTowardsPlayerY(double delta)
+	private bool RotateTowardsPlayer(double delta)
 	{
-        Vector3 Difference = PlayerNode.GlobalPosition - GlobalPosition;
-        float Angle = Mathf.PosMod(Mathf.Atan2(Difference.X, Difference.Z) - WeaponHolder.GlobalRotation.Y + Mathf.Pi, Mathf.Tau);
-        if (Angle >= 0.01f)
+
+    static Quaternion RotateTowards(Quaternion from, Quaternion to, float speed)
+    {
+        float angle = from.AngleTo(to);
+        if (angle > speed)
         {
-            Body.RotateY(RotationSpeed * (float)delta * ((Angle > Mathf.Tau / 2) ? -1 : 1));
-            return true;
+            return from.Slerp(to, speed / angle);
         }
+
+        return to;
+    }
+
+        static Quaternion ProjectQuaternion(Quaternion original, Vector3 projection)
+        {
+            /*Normalize inputs to produce a normalized output*/
+            projection = projection.Normalized();
+            original = original.Normalized();
+
+            Vector3 Projection = original.GetAxis().Project(projection); // Project the quaternion axis onto the new axis
+            Quaternion Out = new(Projection.X, Projection.Y, Projection.Z, original.W); // Construct modified quaternion
+            if (Out.IsFinite())
+            {
+                return Out;
+            }
+            return original;
+        }
+        Quaternion targetRotation;
+
+        targetRotation = WeaponHolder.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
+        targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.X); // Extract rotation around x axis
+        WeaponHolder.Quaternion = RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
+        
+        targetRotation = Body.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
+        targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around x axis
+        Body.Quaternion = RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
+
         return false;
     }
 
-	private bool RotateTowardsPlayerZ(double delta)
-	{
-        Vector3 Reference = Body.GlobalRotation;
-        Body.LookAt(PlayerNode.GlobalPosition);
-        float Angle = Body.Basis.Z.AngleTo(PlayerNode.GlobalPosition);
-        Vector3 Difference = Body.GlobalRotation - Reference;
-        Vector3 AmountToRotate = Difference * RotationSpeed * (float)delta;
-        Reference += AmountToRotate;//( < Difference) ? AmountToRotate : Difference;
-        Body.GlobalRotation = Reference;
-        // if (Mathf.PosMod(Angle, MathF.Tau/2) < Mathf.DegToRad(45))
-        // {
-            // return true;
-        // }
-        // return false;
-        return true;
-
+    private void ApplyFriction(double delta)
+    {
+        if(Velocity.Length() >= 0.01f)
+        {
+            Velocity -= Velocity * 0.5f * (float)delta;
+        }
+        else
+        {
+            Velocity = Vector3.Zero;
+        }
     }
 
     private void AvoidPlayer(double delta)
@@ -83,13 +129,26 @@ public partial class Turret : Enemy
         {
             Velocity += Difference.Normalized() * -2.0f * (float)delta;
         }
-        else if(DistanceToPlayer < 40)
+        else if(DistanceToPlayer < DetectionRadius)
         {
             Velocity += Difference.Normalized() * 2.0f * (float)delta;
         }
         else
         {
-            Velocity = Vector3.Zero;
+            ApplyFriction(delta);
+        }
+    }
+
+    private void Hover(double delta)
+    {
+        float Distance = GetHeightAboveGround();
+        if (Distance > 2.5f)
+        {
+            Velocity += Vector3.Up * 0.5f * (float)delta;
+        }
+        else
+        {
+            Velocity += Vector3.Down * 0.5f * (float)delta;
         }
     }
 
@@ -99,10 +158,11 @@ public partial class Turret : Enemy
         {
             if (IsPlayerVisible())
             {
+                ApplyFriction(delta);
+                Hover(delta);
                 AvoidPlayer(delta);
-                RotateTowardsPlayerY(delta);
-                
-                if(TurretWeapon.ReadyToShoot() && RotateTowardsPlayerZ(delta))
+                RotateTowardsPlayer(delta);
+                if(TurretWeapon.ReadyToShoot())
                 {
                     TurretWeapon.Shoot();
                 }

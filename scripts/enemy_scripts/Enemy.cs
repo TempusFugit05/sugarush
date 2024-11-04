@@ -25,6 +25,11 @@ public partial class Enemy : CharacterBody3D, ICreature
         InitNode();
     }
 
+	public virtual void Kill()
+	{
+        QueueFree();
+    }
+
 	/// <summary>
     /// 	Apply damage to enemy
     /// </summary>
@@ -39,7 +44,7 @@ public partial class Enemy : CharacterBody3D, ICreature
 		
 		if(Health <= 0)
 		{
-			QueueFree();
+			Kill();
 		}
 
 		else

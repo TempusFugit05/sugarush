@@ -15,6 +15,11 @@ public partial class Character : CharacterBody3D, ICreature
 		CurrentSugar -= Damage;
 	}
 
+	public void Kill()
+	{
+        QueueFree();
+    }
+
 	public override void _PhysicsProcess(double delta)
 	{
 		SugarHandler(delta);
