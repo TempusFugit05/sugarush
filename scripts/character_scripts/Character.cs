@@ -20,6 +20,15 @@ public partial class Character : CharacterBody3D, ICreature
         QueueFree();
     }
 
+	public override void _Input(InputEvent CurrentInput)
+	{
+        if (CurrentInput is InputEventMouseMotion MouseMotion)
+		{
+			MouseMovement = MouseMotion.Relative;
+            LookHandler();
+        }
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
 		SugarHandler(delta);

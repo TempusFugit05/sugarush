@@ -1,11 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://bgfxcvvj7e27"]
+[gd_scene load_steps=8 format=3 uid="uid://bgfxcvvj7e27"]
 
 [ext_resource type="PackedScene" uid="uid://c6smq66kbbfvq" path="res://subscenes/enemy_subscenes/Turret.tscn" id="1_r28ov"]
 [ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="2_068f1"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="3_xuxrd"]
 [ext_resource type="Material" uid="uid://nynl2docpdcr" path="res://assets/materials/ProtoWall.tres" id="4_qnkdd"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="5_jlqjr"]
-[ext_resource type="PackedScene" uid="uid://bvluos34ppy4n" path="res://subscenes/worldbuilding/Button.tscn" id="6_v1urj"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_a38x8"]
 
@@ -60,6 +59,3 @@ mesh = SubResource("SphereMesh_a38x8")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 shape = SubResource("SphereShape3D_as1rg")
-
-[node name="Node3D" parent="." instance=ExtResource("6_v1urj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.70554, -1.31877, -6.62757)

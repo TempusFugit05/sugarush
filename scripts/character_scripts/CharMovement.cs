@@ -33,40 +33,6 @@ public partial class Character : CharacterBody3D
 		return (Transform.Basis * new Vector3(InputDirection.X, 0, InputDirection.Y)).Normalized();
 	}
 
-	private Vector2 GetLookDirection()
-	{
-        Vector2 Direction;
-        if (MouseMovement.Equals(Vector2.Zero))
-		{
-        	Direction = new(Input.GetActionStrength(InputMap[InputMapEnum.StickLookRight])
-													- Input.GetActionStrength(InputMap[InputMapEnum.StickLookLeft]),
-													Input.GetActionStrength(InputMap[InputMapEnum.StickLookDown])
-													- Input.GetActionStrength(InputMap[InputMapEnum.StickLookUp]));
-            Direction *= ControllerSensitivity;
-        }
-		
-		else
-		{
-            Direction = MouseMovement;
-            MouseMovement = Vector2.Zero;
-        }
-
-        return Direction;
-    }
-
-	private void LookHandler()
-	{
-        Vector2 LookDirection = GetLookDirection();
-        if (LookDirection.Y != 0)
-		{
-			RotateHead(LookDirection);
-		}
-		if (LookDirection.X != 0)
-		{
-			RotateBody(LookDirection);
-		}
-	}
-
 	/// <Summary>
 	/// 	Increase accelleration on sprint input
 	/// </Summary>
@@ -203,36 +169,6 @@ public partial class Character : CharacterBody3D
 
 	}
 
-	/// <Summary>
-	/// 	Rotate the camera on Z axis based on mouse movement, capped to <c>+-CameraMaxRotation</c>
-	/// </Summary>
-	private void RotateHead(Vector2 MouseMovement)
-	{
-		if ((MouseMovement.Y > 0 && PlayerCamera.Transform.Basis.GetEuler().X > -CameraMaxRotation) ||
-		(MouseMovement.Y < 0 && PlayerCamera.Transform.Basis.GetEuler().X < CameraMaxRotation))
-		{
-			PlayerCamera.RotateX(-MouseMovement.Y * CameraSensitivity);
-		}
-	}
-
-	/// <Summary>
-	/// 	Rotate Player body on Y axis based on mouse movement
-	/// </Summary>
-	private void RotateBody(Vector2 MouseMovement)
-	{
-		if (MouseMovement.X != 0)
-		{
-			RotateY(-MouseMovement.X * CameraSensitivity);
-		}
-	}
-
-	public override void _Input(InputEvent CurrentInput)
-	{
-        if (CurrentInput is InputEventMouseMotion MouseMotion)
-		{
-			MouseMovement = MouseMotion.Relative;
-		}
-	}
 	/// <Summary>
 	/// 	Handles all movement-related input events
 	/// </Summary>
