@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3 uid="uid://28y5vxfsdgc8"]
 
-[ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/Character.tscn" id="1_sixsj"]
+[ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="1_sixsj"]
 [ext_resource type="PackedScene" uid="uid://c6smq66kbbfvq" path="res://subscenes/enemy_subscenes/Turret.tscn" id="3_mn2es"]
-[ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/pickup_subscenes/FoodSpawner.tscn" id="4_0oqvd"]
+[ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="4_0oqvd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_byim3"]
 ground_bottom_color = Color(0.318342, 0.362512, 0.329728, 1)

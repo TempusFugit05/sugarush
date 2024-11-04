@@ -80,22 +80,6 @@ public partial class Weapon : Node3D
 
         return damage;
     }
-
-	/// <Summary>
-	/// 	Apply damage to the object that was hit
-	/// </Summary>
-	protected virtual void ApplyDamage(Godot.Collections.Dictionary RayDict)
-	{
-		if(RayDict is not null)
-		{
-			Node HitObject = (Node)RayDict["collider"];
-			if(HitObject is ICreature hurtable)
-			{
-				hurtable.Hurt(ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo((Vector3)RayDict["position"])), (Vector3)RayDict["position"]); // Hurtable is a special method for objects which are damage-able
-			}
-		}
-	}
-
 	
 	protected async Task SetCooldown()
 	{

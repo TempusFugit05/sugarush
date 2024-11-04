@@ -13,11 +13,12 @@ public partial class Weapon : Node3D
 
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
-		if (((Node3D)RayDict["collider"]) is ICreature)
+        Node3D Collider = (Node3D)RayDict["collider"];
+        if (Collider is ICreature || Collider is RigidBody3D)
 		{
             return;
         }
-        Node3D ObjectHit = (Node3D)RayDict["collider"];
+        Node3D ObjectHit = Collider;
 		BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
 		ObjectHit.AddChild(ChildDecal);
         ChildDecal.InitDecal((Vector3)RayDict["normal"]);
@@ -62,14 +63,14 @@ public partial class Weapon : Node3D
 
             Vector3 projectileEndPos = ProjectileStartPos + dirVector * Range;
             
-            ApplyDamage(ShootProjectile(ProjectileStartPos, projectileEndPos));
+            ShootProjectile(ProjectileStartPos, projectileEndPos);
 			}
         }
 
 		else
 		{
 			Vector3 ProjectileEndPos = ProjectileStartPos + (CameraNormal * Range); // Projcet a normal vector from the middle of the screen and scale the result by the projectile range
-			ApplyDamage(ShootProjectile(ProjectileStartPos, ProjectileEndPos));
+			ShootProjectile(ProjectileStartPos, ProjectileEndPos);
 		}
 	}
 
@@ -77,34 +78,31 @@ public partial class Weapon : Node3D
 	{
 		Vector3 ProjectileStartPos = ProjectileSpawnPoint.GlobalPosition;
 		Vector3 ProjectileEndPos = ProjectileStartPos + (GlobalTransform.Basis.X * Range);
-		ApplyDamage(ShootProjectile(ProjectileStartPos, ProjectileEndPos));
+		ShootProjectile(ProjectileStartPos, ProjectileEndPos);
 	}
 
-	// protected void ShootFromWeaponToCamera()
-	// {
-	// 	Vector3 ProjectileStartPos = ProjectileSpawnPoint.GlobalPosition;
+	/// <Summary>
+	/// 	Apply damage to the object that was hit
+	/// </Summary>
+	protected virtual void ApplyBulletImpacts(Godot.Collections.Dictionary ImpactDict, PhysicsRayQueryParameters3D RayInfo)
+	{
+		if(ImpactDict is not null)
+		{
+			Node HitObject = (Node)ImpactDict["collider"];
+            Vector3 DamagePosition = (Vector3)ImpactDict["position"];
+            float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
+            if(HitObject is ICreature hurtable)
+			{
+				hurtable.Hurt(DamageToApply, DamagePosition); // Hurtable is a special method for objects which are damage-able
+			}
+			if (HitObject is RigidBody3D body)
+			{
+                body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / Damage), DamagePosition - body.GlobalPosition);
+            }
+		}
+	}
 
-	// 	PhysicsRayQueryParameters3D QueryParams = new()
-	// 	{
-	// 		From = PlayerCameraNode.ProjectRayOrigin(PlayerCameraNode.GetViewport().GetMousePosition()),
-	// 		To = ProjectileStartPos + PlayerCameraNode.ProjectRayNormal(PlayerCameraNode.GetViewport().GetMousePosition()) * 100000,
-	// 		CollideWithAreas = false,
-	// 		CollideWithBodies = true,
-	// 	}; // Query parameters for the ray query
-		
-	// 	var RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
-
-	// 	if(RayDict.Count != 0)
-	// 	{
-	// 		if(ProjectileStartPos.DistanceTo((Vector3)RayDict["position"]) <= Range)
-	// 		{
-	// 			Vector3 ProjectileEndPos = ProjectileStartPos + ((Vector3)RayDict["position"] * 10); // Project a normal vector from the middle of the screen and scale the result by the projectile range
-	// 			ApplyDamage(ShootProjectile(ProjectileStartPos, ProjectileEndPos));
-	// 		}
-	// 	}
-	// }
-
-	public Godot.Collections.Dictionary ShootProjectile(Vector3 RayStart, Vector3 RayEnd)
+	public void ShootProjectile(Vector3 RayStart, Vector3 RayEnd)
 	{
         // Create a projectile and apply bullet hole decal on the hit object
         Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
@@ -125,10 +123,7 @@ public partial class Weapon : Node3D
 		if(RayDict.Count != 0)
 		{ // If the dictionary is empty, nothing was hit
 			ApplyBulletHoleDecal(RayDict);
-			return RayDict; // Return ray info
+			ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
 		}
-
-
-		return null; // Return nothing if no object was hit
 	}
 }

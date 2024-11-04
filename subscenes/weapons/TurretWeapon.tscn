@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/weapon_scripts/TurretWeapon.cs" id="1_ja6cx"]
 [ext_resource type="PackedScene" uid="uid://b7b5e2ex6nfoa" path="res://subscenes/ui_subscenes/BulletDecal.tscn" id="2_qoh2o"]
 [ext_resource type="AudioStream" uid="uid://bgleoapofvocu" path="res://assets/audio/weapon/untitled.wav" id="3_l122m"]
-[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://ProtoDot.tres" id="3_t01h5"]
+[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="3_t01h5"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_1u7gl"]
 material = ExtResource("3_t01h5")

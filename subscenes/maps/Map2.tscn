@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://bu5k1cceik41r"]
 
-[ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://ProtoFloor.tres" id="1_n1kml"]
-[ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/Character.tscn" id="2_db15g"]
-[ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/pickup_subscenes/FoodSpawner.tscn" id="2_lc6bq"]
+[ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="1_n1kml"]
+[ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="2_db15g"]
+[ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="2_lc6bq"]
 [ext_resource type="PackedScene" uid="uid://c6smq66kbbfvq" path="res://subscenes/enemy_subscenes/Turret.tscn" id="2_o3282"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_bcqly"]

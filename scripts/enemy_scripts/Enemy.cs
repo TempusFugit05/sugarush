@@ -33,14 +33,14 @@ public partial class Enemy : CharacterBody3D, ICreature
 	/// <summary>
     /// 	Apply damage to enemy
     /// </summary>
-    /// <param name="Damage">Amount of damage to apply to target</param>
-    /// <param name="DamagePosition">The position in which the damage was applied (Can be left blank)</param>
-	public void Hurt(float Damage, Vector3 DamagePosition)
+    /// <param name="damage">Amount of damage to apply to target</param>
+    /// <param name="damagePosition">The position in which the damage was applied (Can be left blank)</param>
+	public virtual void Hurt(float damage, Vector3 damagePosition)
 	{
-		DamageIndicator Indicator = new(Damage); // Create a damage indicator 
+		DamageIndicator Indicator = new(damage); // Create a damage indicator 
 		GetTree().Root.AddChild(Indicator); // Add it to the scene
-		Indicator.GlobalPosition = (DamagePosition == default) ? GlobalPosition : DamagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
-		Health -= Damage;
+		Indicator.GlobalPosition = (damagePosition == default) ? GlobalPosition : damagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
+		Health -= damage;
 		
 		if(Health <= 0)
 		{
@@ -50,8 +50,14 @@ public partial class Enemy : CharacterBody3D, ICreature
 		else
 		{
             EnemyHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
+			OnHurt(damage, damagePosition);
 		}
 	}
+
+	protected virtual void OnHurt(float damage, Vector3 damagePosition)
+	{
+        return;
+    }
 
 	public override void _PhysicsProcess(double delta)
 	{

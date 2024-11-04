@@ -9,26 +9,54 @@ public partial class Turret : Enemy
     Node3D PlayerNode;
     Node3D WeaponHolder;
     Node3D Body;
+    Aabb HitBox;
+
     [Export]
 	private float RotationSpeed = 100.0f; // Speed of rotation in radians
+
+    [Export]
+    private float AvoidanceDistance = 10.0f;
 
     [Export]
     private float DetectionRadius = 30.0f;
 
     [Export]
-    float Angle;
+    private float Angle;
 
     [Export]
-    float GroundDetectionDistance = 50.0f;
+    private float GroundDetectionDistance = 50.0f;
+
+    [Export]
+    private float HoverHeight = 2.0f;
+
+    [Export]
+    private float HoverForce = 3.0f;
+
+    [Export]
+    private float AttractionForce = 1.5f;
+
+    [Export]
+    private float MaxHorizontalSpeed = 2.0f;
+
+    private Vector3 Force;
+
+    private float Mass = 75.0f;
 
     public override void _Ready()
 	{
         Body = GetNode<Node3D>("Body");
+        HitBox = Body.GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
+        HoverHeight += HitBox.Size.Y / 2;
         WeaponHolder = Body.GetNode<Node3D>("WeaponHolder");
 		TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
         PlayerNode = HP.GetPlayerNode();
         InitNode();
 	}
+
+    protected override void OnHurt(float damage, Vector3 position)
+    {
+        Velocity += (GlobalPosition - position).Normalized() * damage / (0.75f * Mass);
+    }
 
     private float GetHeightAboveGround()
     {
@@ -43,9 +71,9 @@ public partial class Turret : Enemy
         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
         if (RayDict.Count != 0)
         {
-            return ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition);
+            return ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) - (HitBox.Size.Y / 2);
         }
-        return float.PositiveInfinity;
+        return -1.0f;
     }
 
     private bool IsPlayerVisible()
@@ -58,10 +86,14 @@ public partial class Turret : Enemy
             CollideWithAreas = false,
 			CollideWithBodies = true,
         };
+
         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
-        if ((Node)RayDict["collider"] is Character && (((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) <= DetectionRadius))
+        if (RayDict.Count != 0)
         {
-            return true;
+            if ((Node)RayDict["collider"] is Character && (((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) <= DetectionRadius))
+            {
+                return true;
+            }
         }
         
         return false;
@@ -70,7 +102,6 @@ public partial class Turret : Enemy
 
 	private bool RotateTowardsPlayer(double delta)
 	{
-
     static Quaternion RotateTowards(Quaternion from, Quaternion to, float speed)
     {
         float angle = from.AngleTo(to);
@@ -96,71 +127,119 @@ public partial class Turret : Enemy
             }
             return original;
         }
+
+        static Quaternion ValidateQuaternion(Quaternion quatToCheck)
+        {
+            if (quatToCheck.IsFinite())
+            {
+                return quatToCheck;
+            }
+            return new Quaternion();
+        }
+
         Quaternion targetRotation;
+        Quaternion FinalRotation;
 
         targetRotation = WeaponHolder.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
         targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.X); // Extract rotation around x axis
-        WeaponHolder.Quaternion = RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
-        
+        FinalRotation = RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
+        WeaponHolder.Quaternion = ValidateQuaternion(FinalRotation);
+
+
         targetRotation = Body.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
         targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around x axis
-        Body.Quaternion = RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
+        FinalRotation = RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
+        Body.Quaternion = ValidateQuaternion(FinalRotation);
 
         return false;
     }
 
-    private void ApplyFriction(double delta)
+    private Vector3 ApplyFriction(Vector3 velocity)
     {
-        if(Velocity.Length() >= 0.01f)
+        if(velocity.Length() >= 0.01f)
         {
-            Velocity -= Velocity * 0.5f * (float)delta;
+            Force += -velocity * 1.5f * Mass;
         }
-        else
+        return velocity;
+    }
+
+    private void MaintainSpeed()
+    {
+        Vector3 speedXY = new (Velocity.X, 0, Velocity.Z);
+        float speedMagnitude = speedXY.Length();
+
+        if (speedMagnitude > MaxHorizontalSpeed)
         {
-            Velocity = Vector3.Zero;
+            speedXY = speedXY.Normalized();
+            Force += -speedXY * Mass * AttractionForce;
         }
     }
 
-    private void AvoidPlayer(double delta)
+    private void AvoidPlayer()
     {
         Vector3 Difference = PlayerNode.GlobalPosition - GlobalPosition;
         float DistanceToPlayer = Difference.Length();
-        if (DistanceToPlayer < 10)
+
+        if (DistanceToPlayer < AvoidanceDistance)
         {
-            Velocity += Difference.Normalized() * -2.0f * (float)delta;
+            Force += Mass * Difference.Normalized() * (-AttractionForce / Mathf.Max(AvoidanceDistance / DistanceToPlayer, 0.01f));
         }
+
         else if(DistanceToPlayer < DetectionRadius)
         {
-            Velocity += Difference.Normalized() * 2.0f * (float)delta;
-        }
-        else
-        {
-            ApplyFriction(delta);
+            Force += Mass * Difference.Normalized() * (AttractionForce / Mathf.Max(AvoidanceDistance / DistanceToPlayer, 0.01f));
         }
     }
 
-    private void Hover(double delta)
+    private void Hover()
     {
-        float Distance = GetHeightAboveGround();
-        if (Distance > 2.5f)
+        float distance = GetHeightAboveGround();
+        Vector3 gravityResist = -GetGravity() * Mass;
+        if (distance < HoverHeight && distance > 0)
         {
-            Velocity += Vector3.Up * 0.5f * (float)delta;
+            Vector3 hoverForce = -GetGravity().Normalized() * Mass * HoverForce;
+            Force += gravityResist + hoverForce;
+        }
+        else if (distance < 0)
+        {
+            Force += gravityResist;
         }
         else
         {
-            Velocity += Vector3.Down * 0.5f * (float)delta;
+            float distanceFactor =  1 - Mathf.Clamp(distance - HoverHeight, 0, 1);
+            Force += gravityResist * distanceFactor;
         }
     }
 
-	public override void _PhysicsProcess(double delta)
+    private void ApplyGravity()
+    {
+        Force += GetGravity() * Mass;
+    }
+
+    private Vector3 GetVelocity(double delta)
+    {
+        return (Force / Mass) * (float)delta;
+    }
+
+    private void ApplyForces(double delta)
+    {
+        Vector3 FrictionlessVel = Velocity + GetVelocity(delta);
+        Force += ApplyFriction(FrictionlessVel);
+        Velocity += GetVelocity(delta);
+        Force = Vector3.Zero;
+    }
+
+    public override void _PhysicsProcess(double delta)
 	{
         if (PlayerNode is not null)
         {
             if (IsPlayerVisible())
             {
-                ApplyFriction(delta);
-                Hover(delta);
-                AvoidPlayer(delta);
+                ApplyGravity();
+                Hover();
+                MaintainSpeed();
+                AvoidPlayer();
+                ApplyForces(delta);
                 RotateTowardsPlayer(delta);
                 if(TurretWeapon.ReadyToShoot())
                 {
