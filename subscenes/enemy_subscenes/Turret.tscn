@@ -20,6 +20,7 @@ material = ExtResource("3_nvixc")
 [sub_resource type="SphereShape3D" id="SphereShape3D_m222q"]
 
 [node name="Turret" type="CharacterBody3D"]
+wall_min_slide_angle = 0.0
 script = ExtResource("2_e8ln8")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="."]

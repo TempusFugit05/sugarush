@@ -32,6 +32,7 @@ project/assembly_name="game-thing"
 
 GPickups=""
 GEnemies=""
+GIgnoreWeapons=""
 
 [input]
 

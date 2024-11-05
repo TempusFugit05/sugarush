@@ -21,26 +21,39 @@ public partial class Turret : Enemy
     private float DetectionRadius = 30.0f;
 
     [Export]
-    private float Angle;
-
-    [Export]
     private float GroundDetectionDistance = 50.0f;
 
     [Export]
-    private float HoverHeight = 2.0f;
+    private float HoverHeight = 1.5f;
 
     [Export]
-    private float HoverForce = 3.0f;
+    private float HoverForce = 5.0f;
 
     [Export]
-    private float AttractionForce = 1.5f;
+    private float AttractionForce = 2.0f;
 
     [Export]
-    private float MaxHorizontalSpeed = 2.0f;
+    private float MaintainanceForce = 4.0f;
+
+    [Export]
+    private float MaxHorizontalSpeed = 3.0f;
+
+    [Export]
+    private float MaxVerticalSpeed = 1.0f;
+
+    [Export]
+    private float ImpactVelocityDamageStart = 0.5f;
+
+    [Export]
+    private float ImpactDamagePerUnit = 2.5f;
 
     private Vector3 Force;
 
+    private Vector3 RefVel;
+
     private float Mass = 75.0f;
+
+
 
     public override void _Ready()
 	{
@@ -53,9 +66,12 @@ public partial class Turret : Enemy
         InitNode();
 	}
 
-    protected override void OnHurt(float damage, Vector3 position)
+    protected override void OnHurt(float damage, Vector3 position = default)
     {
-        Velocity += (GlobalPosition - position).Normalized() * damage / (0.75f * Mass);
+        if (position != default)
+        {
+            Velocity += (GlobalPosition - position).Normalized() * damage / (0.75f * Mass);
+        }
     }
 
     private float GetHeightAboveGround()
@@ -69,11 +85,12 @@ public partial class Turret : Enemy
             CollideWithBodies = true,
         };
         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
+        float outDistance = float.NegativeInfinity;
         if (RayDict.Count != 0)
         {
-            return ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) - (HitBox.Size.Y / 2);
+            outDistance = ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) - (HitBox.Size.Y / 2);
         }
-        return -1.0f;
+        return outDistance;
     }
 
     private bool IsPlayerVisible()
@@ -100,18 +117,18 @@ public partial class Turret : Enemy
 
     }
 
-	private bool RotateTowardsPlayer(double delta)
+	private void RotateTowardsPlayer(double delta)
 	{
-    static Quaternion RotateTowards(Quaternion from, Quaternion to, float speed)
-    {
-        float angle = from.AngleTo(to);
-        if (angle > speed)
+        static Quaternion RotateTowards(Quaternion from, Quaternion to, float speed)
         {
-            return from.Slerp(to, speed / angle);
-        }
+            float angle = from.AngleTo(to);
+            if (angle > speed)
+            {
+                return from.Slerp(to, speed / angle);
+            }
 
-        return to;
-    }
+            return to;
+        }
 
         static Quaternion ProjectQuaternion(Quaternion original, Vector3 projection)
         {
@@ -150,7 +167,14 @@ public partial class Turret : Enemy
         targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around x axis
         FinalRotation = RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
         Body.Quaternion = ValidateQuaternion(FinalRotation);
+    }
 
+    private bool IsLookingAtPLayer()
+    {
+        if (WeaponHolder.GlobalBasis.Z.AngleTo(GlobalPosition - PlayerNode.Position) <= Mathf.DegToRad(5))
+        {
+            return true;
+        }
         return false;
     }
 
@@ -165,14 +189,21 @@ public partial class Turret : Enemy
 
     private void MaintainSpeed()
     {
-        Vector3 speedXY = new (Velocity.X, 0, Velocity.Z);
-        float speedMagnitude = speedXY.Length();
-
-        if (speedMagnitude > MaxHorizontalSpeed)
+        void oppose(Vector3 speed, float magnitude, float maxSpeed)
         {
-            speedXY = speedXY.Normalized();
-            Force += -speedXY * Mass * AttractionForce;
+            if (magnitude > MaxHorizontalSpeed)
+            {
+                speed = speed.Normalized();
+                Force += -speed * Mass * MaintainanceForce;
+            }
         }
+
+        Vector3 axisSpeed = new (Velocity.X, 0, Velocity.Z);
+        oppose(axisSpeed, axisSpeed.Length(), MaxHorizontalSpeed);
+
+        axisSpeed = new (0, Velocity.Y, 0);
+        oppose(axisSpeed, axisSpeed.Length(), MaxVerticalSpeed);
+
     }
 
     private void AvoidPlayer()
@@ -182,12 +213,14 @@ public partial class Turret : Enemy
 
         if (DistanceToPlayer < AvoidanceDistance)
         {
-            Force += Mass * Difference.Normalized() * (-AttractionForce / Mathf.Max(AvoidanceDistance / DistanceToPlayer, 0.01f));
+            float distanceFactor = Mathf.Clamp(AvoidanceDistance - DistanceToPlayer, 1.0f, 1.5f);
+            Force += Mass * Difference.Normalized() * -(AttractionForce * distanceFactor);
         }
 
-        else if(DistanceToPlayer < DetectionRadius)
+        else if(DistanceToPlayer > AvoidanceDistance)
         {
-            Force += Mass * Difference.Normalized() * (AttractionForce / Mathf.Max(AvoidanceDistance / DistanceToPlayer, 0.01f));
+            float distanceFactor = Mathf.Clamp(DistanceToPlayer - AvoidanceDistance, 0.75f, 1.0f);
+            Force += Mass * Difference.Normalized() * (AttractionForce * distanceFactor);
         }
     }
 
@@ -195,20 +228,24 @@ public partial class Turret : Enemy
     {
         float distance = GetHeightAboveGround();
         Vector3 gravityResist = -GetGravity() * Mass;
-        if (distance < HoverHeight && distance > 0)
+        Vector3 hoverForce = -GetGravity().Normalized() * Mass * HoverForce;
+        if (distance > 0)
         {
-            Vector3 hoverForce = -GetGravity().Normalized() * Mass * HoverForce;
-            Force += gravityResist + hoverForce;
+            if (distance < HoverHeight)
+            {
+                float distanceFactor = Mathf.Clamp(HoverHeight - distance, 0.0f, 0.5f);
+                Force += gravityResist + hoverForce + (hoverForce * distanceFactor);
+            }
         }
         else if (distance < 0)
         {
             Force += gravityResist;
         }
-        else
-        {
-            float distanceFactor =  1 - Mathf.Clamp(distance - HoverHeight, 0, 1);
-            Force += gravityResist * distanceFactor;
-        }
+        // else
+        // {
+        //     float distanceFactor =  1 - Mathf.Clamp(distance - HoverHeight, 0, 1);
+        //     Force += (hoverForce * distanceFactor) + (gravityResist / 1.5f);
+        // }
     }
 
     private void ApplyGravity()
@@ -218,7 +255,7 @@ public partial class Turret : Enemy
 
     private Vector3 GetVelocity(double delta)
     {
-        return (Force / Mass) * (float)delta;
+        return Force *  (float)delta / Mass;
     }
 
     private void ApplyForces(double delta)
@@ -229,22 +266,41 @@ public partial class Turret : Enemy
         Force = Vector3.Zero;
     }
 
+    private void ApplyCollisionDamage()
+    {
+        KinematicCollision3D collision = GetLastSlideCollision();
+        if (collision is not null)
+        {
+            float collisionImpact = (Velocity - RefVel).Length();
+            if (collisionImpact >= ImpactVelocityDamageStart)
+            {
+                Hurt(collisionImpact * ImpactDamagePerUnit, default);
+            }
+        }
+    }
+
     public override void _PhysicsProcess(double delta)
 	{
         if (PlayerNode is not null)
         {
+            ApplyGravity();
+            Hover();
+            MaintainSpeed();
+            
             if (IsPlayerVisible())
             {
-                ApplyGravity();
-                Hover();
-                MaintainSpeed();
+                ApplyCollisionDamage();
                 AvoidPlayer();
                 ApplyForces(delta);
                 RotateTowardsPlayer(delta);
-                if(TurretWeapon.ReadyToShoot())
+                if(TurretWeapon.ReadyToShoot() && IsLookingAtPLayer())
                 {
                     TurretWeapon.Shoot();
                 }
+            }
+            else
+            {
+                ApplyForces(delta);
             }
         }
         else
@@ -252,7 +308,7 @@ public partial class Turret : Enemy
             // GD.PushWarning("PlayerNode is not set yet, trying again...");
             PlayerNode = HP.GetPlayerNode();
         }
-
+        RefVel = Velocity; // Update reference velocity
         MoveAndSlide();
     }
 }

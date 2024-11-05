@@ -35,7 +35,7 @@ public partial class Enemy : CharacterBody3D, ICreature
     /// </summary>
     /// <param name="damage">Amount of damage to apply to target</param>
     /// <param name="damagePosition">The position in which the damage was applied (Can be left blank)</param>
-	public virtual void Hurt(float damage, Vector3 damagePosition)
+	public virtual void Hurt(float damage, Vector3 damagePosition = default)
 	{
 		DamageIndicator Indicator = new(damage); // Create a damage indicator 
 		GetTree().Root.AddChild(Indicator); // Add it to the scene

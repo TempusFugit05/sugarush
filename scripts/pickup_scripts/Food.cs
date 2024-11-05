@@ -29,7 +29,7 @@ public partial class Food : RigidBody3D, IPickable
 	private float SpawnFadeTime = 0.75f;
 
     [Export]
-    public bool DisablePhysics = false;
+    public bool DisablePhysics = true;
 
     private float SugarAmount = 0;
 
@@ -58,16 +58,18 @@ public partial class Food : RigidBody3D, IPickable
 			MeshInstance.Transparency = 1;
 			FadeTween.TweenProperty(MeshInstance, "transparency", 0, SpawnFadeTime);
 		}
+		if (!DisablePhysics)
+		{
+			Tween BobTween = GetTree().CreateTween().BindNode(this).SetLoops();
+			BobTween.SetTrans(Tween.TransitionType.Sine);
+			BobTween.SetEase(Tween.EaseType.InOut);
+			BobTween.TweenProperty(this, "global_position", InitialPosition - BobOffset, BobAnimationCycleTime / 2);
+			BobTween.TweenProperty(this, "global_position", InitialPosition + BobOffset, BobAnimationCycleTime / 2);
 
-		Tween BobTween = GetTree().CreateTween().BindNode(this).SetLoops();
-		BobTween.SetTrans(Tween.TransitionType.Sine);
-		BobTween.SetEase(Tween.EaseType.InOut);
-		BobTween.TweenProperty(this, "global_position", InitialPosition - BobOffset, BobAnimationCycleTime / 2);
-		BobTween.TweenProperty(this, "global_position", InitialPosition + BobOffset, BobAnimationCycleTime / 2);
-
-		Tween SpinTween = GetTree().CreateTween().BindNode(this).SetLoops();
-		SpinTween.TweenProperty(this, "global_rotation", new Vector3(0, Mathf.DegToRad(360), 0), SpinAnimationCycleTime);
-		SpinTween.SetParallel();
+			Tween SpinTween = GetTree().CreateTween().BindNode(this).SetLoops();
+			SpinTween.TweenProperty(this, "global_rotation", new Vector3(0, Mathf.DegToRad(360), 0), SpinAnimationCycleTime);
+			SpinTween.SetParallel();
+		}
 	}
 
 
@@ -114,7 +116,10 @@ public partial class Food : RigidBody3D, IPickable
 				MeshInstance.Scale = new Vector3(0.75f, 0.75f, 0.75f);
 				break;
 		}
-
+		if (!DisablePhysics)
+		{
+            AddToGroup("GIgnoreWeapons");
+        }
         CollisionLayer = 2;
         CreateCollisionBox();
         InitTweens();
@@ -128,8 +133,14 @@ public partial class Food : RigidBody3D, IPickable
 
     public override void _PhysicsProcess(double delta)
     {
-        
-        // MoveAndCollide();
+		if (DisablePhysics)
+		{
+            ConstantForce = Vector3.Zero;
+        }
+		else
+		{
+        	ConstantForce = GetGravity();
+		}
     }
 
     /// <summary>

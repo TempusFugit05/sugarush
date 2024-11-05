@@ -41,7 +41,7 @@ namespace Helpers
         /// <returns></returns>
 		static public Godot.Collections.Array<Rid> GetDefaultExclusionList()
 		{
-            return GetGroupRids("GPickups");
+            return GetGroupRids("GIgnoreWeapons");
         }
 
 		/// <summary>

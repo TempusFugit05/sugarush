@@ -31,15 +31,15 @@ material = ExtResource("3_xuxrd")
 
 [node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Arena"]
 radius = 30.0
-height = 2.65547
+height = 9.20828
 sides = 32
 material = ExtResource("4_qnkdd")
 
 [node name="CSGCylinder3D3" type="CSGCylinder3D" parent="Arena"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0182338, 0.0207763, -0.0800467)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0182338, 0.0867763, -0.0800467)
 operation = 2
 radius = 29.0
-height = 2.7
+height = 9.3049
 sides = 32
 material = ExtResource("4_qnkdd")
 
