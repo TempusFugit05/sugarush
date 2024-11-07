@@ -3,4 +3,5 @@
 [ext_resource type="Script" path="res://scripts/pickup_scripts/FoodSpawner.cs" id="1_adi13"]
 
 [node name="FoodSpawner" type="Node3D"]
+transform = Transform3D(0.564842, 0, 0, 0, 0.564842, 0, 0, 0, 0.564842, 0, 0, 0)
 script = ExtResource("1_adi13")

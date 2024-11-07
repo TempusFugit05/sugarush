@@ -2,11 +2,10 @@ using System;
 using Godot;
 using Helpers;
 
-public partial class Turret : Enemy
+public partial class PhysicalTurret : RigidBody3D, ISoulful
 {
 	// Called when the node enters the scene tree for the first time.
 	Weapon TurretWeapon;
-    Node3D PlayerNode;
     Node3D WeaponHolder;
     Node3D Body;
     Aabb HitBox;
@@ -27,16 +26,16 @@ public partial class Turret : Enemy
     private float HoverHeight = 1.5f;
 
     [Export]
-    private float HoverForce = 5.0f;
+    private float HoverForce = 10.0f;
 
     [Export]
-    private float AttractionForce = 10f;
+    private float AttractionForce = 2.0f;
 
     [Export]
-    private float MaintainanceForce = 1.5f;
+    private float MaintainanceForce = 1.0f;
 
     [Export]
-    private float MaxHorizontalSpeed = 4.0f;
+    private float MaxHorizontalSpeed = 2.5f;
 
     [Export]
     private float MaxVerticalSpeed = 1.0f;
@@ -47,41 +46,54 @@ public partial class Turret : Enemy
     [Export]
     private float ImpactDamagePerUnit = 5.0f;
 
-    [Export]
-    private float Mass = 50.0f;
-
     private Vector3 Force;
+
+    public CreatureSoul Soul;
 
     private Vector3 CollisionVel;
 
-    private Vector3 RefVel;
+    private Vector3 RefPos;
 
+    private Vector3 Velocity;
 
     private bool WasHurt = false;
 
     private float Resistance = 0;
-
+    
     public override void _Ready()
 	{
-        var enemy = new Enemy();
-        var enemy1 = new CharacterBody3D();
         Body = GetNode<Node3D>("Body");
         HitBox = Body.GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
         HoverHeight += HitBox.Size.Y / 2;
         WeaponHolder = Body.GetNode<Node3D>("WeaponHolder");
 		TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
-        PlayerNode = HR.GetPlayerNode();
-        InitNode();
+        Soul = new(this, float.PositiveInfinity, GetNode<HealthBar>("HealthBar"));
+        HoverForce *= Mass;
+        AttractionForce *= Mass;
+        MaintainanceForce *= Mass;
 	}
 
-    protected override void OnHurt(float damage, Vector3 position = default)
+    public void OnHurt(float damage, Vector3 damagePosition = default)
     {
-        WasHurt = true;
-        if (position != default)
-        {
-            Velocity += (GlobalPosition - position).Normalized() * damage / (0.75f * Mass);
-        }
+        return;
+    } 
+    public void OnKill()
+    {
+        return;
     }
+    public CreatureSoul GetSoul()
+    {
+        return Soul;
+    }
+
+    // protected override void OnHurt(float damage, Vector3 position = default)
+    // {
+    //     WasHurt = true;
+    //     if (position != default)
+    //     {
+    //         ApplyImpulse((GlobalPosition - position).Normalized() * damage / (0.75f * Mass));
+    //     }
+    // }
 
     private float GetHeightAboveGround()
     {
@@ -107,7 +119,7 @@ public partial class Turret : Enemy
         PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
-            To = PlayerNode.GlobalPosition,
+            To = HR.GetPlayerNode().GlobalPosition,
             Exclude = new Godot.Collections.Array<Rid> { GetRid() },
             CollideWithAreas = false,
 			CollideWithBodies = true,
@@ -127,55 +139,23 @@ public partial class Turret : Enemy
     }
 
 	private void RotateTowardsPlayer(double delta)
-	{
-        static Quaternion RotateTowards(Quaternion from, Quaternion to, float speed)
-        {
-            float angle = from.AngleTo(to);
-            if (angle > speed)
-            {
-                return from.Slerp(to, speed / angle);
-            }
-
-            return to;
-        }
-
-        static Quaternion ProjectQuaternion(Quaternion original, Vector3 projection)
-        {
-            /*Normalize inputs to produce a normalized output*/
-            projection = projection.Normalized();
-            original = original.Normalized();
-
-            Vector3 Projection = original.GetAxis().Project(projection); // Project the quaternion axis onto the new axis
-            Quaternion Out = new(Projection.X, Projection.Y, Projection.Z, original.W); // Construct modified quaternion
-            if (Out.IsFinite())
-            {
-                return Out;
-            }
-            return original;
-        }
-
-        static Quaternion ValidateQuaternion(Quaternion quatToCheck)
-        {
-            if (quatToCheck.IsFinite())
-            {
-                return quatToCheck;
-            }
-            return new Quaternion(0, 0, 0, 1); // Return new normalized quaternion
-        }
-
+	{       
         Quaternion targetRotation;
         Quaternion FinalRotation;
 
-        targetRotation = WeaponHolder.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
-        targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.X); // Extract rotation around x axis
-        FinalRotation = RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
-        WeaponHolder.Quaternion = ValidateQuaternion(FinalRotation);
+        Quaternion = HM.RotateTowards(Quaternion.Normalized(), new Quaternion(0, 0, 0, 1), Mathf.Pi * (float)delta);
 
+        /* Rotate body */
+        targetRotation = Body.GlobalTransform.LookingAt(HR.GetPlayerNode().GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
+        targetRotation = HM.ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around Y axis
+        FinalRotation = HM.RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
+        Body.Quaternion = HM.ValidateQuaternion(FinalRotation);
 
-        targetRotation = Body.GlobalTransform.LookingAt(PlayerNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
-        targetRotation = ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around x axis
-        FinalRotation = RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
-        Body.Quaternion = ValidateQuaternion(FinalRotation);
+        /* Rotate weapon */
+        targetRotation = WeaponHolder.GlobalTransform.LookingAt(HR.GetPlayerNode().GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
+        targetRotation = HM.ProjectQuaternion(targetRotation, GlobalBasis.X); // Extract rotation around x axis
+        FinalRotation = HM.RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
+        WeaponHolder.Quaternion = HM.ValidateQuaternion(FinalRotation);
     }
 
     private bool IsLookingAtTarget(Node3D lookingNode, Node3D target)
@@ -217,7 +197,7 @@ public partial class Turret : Enemy
 
     private void AvoidPlayer()
     {
-        Vector3 Difference = PlayerNode.GlobalPosition - GlobalPosition;
+        Vector3 Difference = HR.GetPlayerNode().GlobalPosition - GlobalPosition;
         Difference = new(Difference.X, 0, Difference.Z);
         float DistanceToPlayer = Difference.Length();
         Vector3 horizontalVel = new(Velocity.X, 0, Velocity.Z);
@@ -226,96 +206,68 @@ public partial class Turret : Enemy
         if (DistanceToPlayer < AvoidanceDistance && velToPlayer > -MaxHorizontalSpeed)
         {
             // float distanceFactor = Mathf.Clamp(AvoidanceDistance - DistanceToPlayer, 1.0f, 1.5f);
-            Force += Difference.Normalized() * -(AttractionForce);
+            Force += Difference.Normalized() * -AttractionForce;
         }
 
         else if(DistanceToPlayer > AvoidanceDistance && velToPlayer < MaxHorizontalSpeed)
         {
             // float distanceFactor = Mathf.Clamp(DistanceToPlayer - AvoidanceDistance, 0.75f, 1.0f);
-            Force += Difference.Normalized() * (AttractionForce);
+            Force += Difference.Normalized() * AttractionForce;
         }
     }
 
     private void Hover()
     {
         float distance = GetHeightAboveGround();
-        Vector3 gravityResist = -GetGravity() * Mass;
         Vector3 hoverForce = -GetGravity().Normalized() * HoverForce;
         if (distance > 0)
         {
             if (distance < HoverHeight && Velocity.Y < MaxVerticalSpeed)
             {
                 float distanceFactor = Mathf.Clamp(HoverHeight - distance, 0.0f, 0.5f);
-                Force += gravityResist + hoverForce + (hoverForce * distanceFactor);
+                Force += hoverForce + (hoverForce * distanceFactor);
             }
         }
-        else if (distance < 0)
-        {
-            Force += gravityResist;
-        }
-    }
-
-    private void ApplyGravity()
-    {
-        Force += GetGravity() * Mass;
     }
 
     private Vector3 GetVelocity(double delta)
     {
-        return Force *  (float)delta / Mass;
+        return (GlobalPosition - RefPos) / (float)delta;
     }
 
     private void ApplyForces(double delta)
     {
-        Vector3 FrictionlessVel = Velocity + GetVelocity(delta);
-        Force += ApplyFriction(FrictionlessVel);
+        Force += ApplyFriction(Velocity);
         Velocity += GetVelocity(delta);
         Force = Vector3.Zero;
     }
 
-    public void ApplyCollisionDamage(KinematicCollision3D outsiderCollision = default)
+    public void ApplyCollisionDamage(double delta)
     {
-        KinematicCollision3D collision;
-        if (outsiderCollision == default)
-        {
-            collision = GetLastSlideCollision();
-        }
-        else
-        {
-            collision = outsiderCollision;
-        }
-
-        if (collision is not null)
+        KinematicCollision3D Collision = MoveAndCollide(Velocity * (float)delta, true);
+        if (Collision is not null)
         {
             Vector3 colliderVel = Vector3.Zero;
-            if (collision.GetColliderVelocity() != Vector3.Zero && CollisionVel != Vector3.Zero)
+            if (Collision.GetColliderVelocity() != Vector3.Zero && CollisionVel != Vector3.Zero)
             {
-                colliderVel = collision.GetColliderVelocity().Project(CollisionVel);
+                colliderVel = Collision.GetColliderVelocity().Project(CollisionVel);
             }
 
-            float collisionImpact = (CollisionVel + colliderVel - RefVel).Length();
+            float collisionImpact = GetVelocity(delta).Length()*Mass;
             
-            if (collisionImpact >= ImpactVelocityDamageStart && !WasHurt)
+            if (GetVelocity(delta).Length() >= ImpactVelocityDamageStart)
             {
-                Hurt(collisionImpact * ImpactDamagePerUnit);
-                for (int i = 0; i < collision.GetCollisionCount(); i++)
-                {
-                    if (collision.GetCollider(i) is Turret enemy && outsiderCollision == default)
-                    {
-                        enemy.Hurt(collisionImpact * ImpactDamagePerUnit);
-                    }
-                }
+                Soul.Hurt(collisionImpact * ImpactDamagePerUnit);
             }
         }
     }
 
     public override void _PhysicsProcess(double delta)
 	{
-        if (PlayerNode is not null)
+        Velocity = GetVelocity(delta);
+        if (HR.GetPlayerNode() is not null)
         {
-            ApplyCollisionDamage();
             WasHurt = false;
-            ApplyGravity();
             Hover();
             MaintainSpeed();
             
@@ -323,27 +275,29 @@ public partial class Turret : Enemy
             {
                 AvoidPlayer();
                 RotateTowardsPlayer(delta);
-                if(TurretWeapon.ReadyToShoot() && IsLookingAtTarget(WeaponHolder, PlayerNode))
+                if(TurretWeapon.ReadyToShoot() && IsLookingAtTarget(WeaponHolder, HR.GetPlayerNode()))
                 {
                     TurretWeapon.Shoot();
                 }
             }
-            ApplyForces(delta);
+
+            // Velocity = GetVelocity(delta);
+            // ApplyFriction(Velocity);
+            ApplyCollisionDamage(delta);
+            RefPos = GlobalPosition;
+            ApplyCentralForce(Force);
+            Force = Vector3.Zero;
         }
-        else
-        {
-            // GD.PushWarning("PlayerNode is not set yet, trying again...");
-            PlayerNode = HR.GetPlayerNode();
-        }
-        RefVel = Velocity; // Update reference velocity
-        if (MoveAndSlide())
-        {
-            CollisionVel = Velocity;
-            Resistance = HP.GetGroundResistance();
-        }
-        else
-        {
-            Resistance = HP.GetAirResistance();
-        }
+        // RefVel = Velocity; // Update reference velocity
+        // Collision = MoveAndCollide();
+        // if ()
+        // {
+        //     CollisionVel = Velocity;
+        //     Resistance = HP.GetGroundResistance();
+        // }
+        // else
+        // {
+        //     Resistance = HP.GetAirResistance();
+        // }
     }
 }

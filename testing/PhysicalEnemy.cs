@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class Enemy : CharacterBody3D, Isoulful
+public partial class PhysicalEnemy : RigidBody3D, Isoulful
 {
 	[Export]
 	protected float MaxHealth = 1000;
@@ -61,12 +61,12 @@ public partial class Enemy : CharacterBody3D, Isoulful
         return;
     }
 
-	public override void _PhysicsProcess(double delta)
-	{
-		if(!IsOnFloor())
-		{
-			Velocity += GetGravity() * (float)delta;
-		}
-		MoveAndSlide();
-	}
+	// public override void _PhysicsProcess(double delta)
+	// {
+	// 	if(!IsOnFloor())
+	// 	{
+	// 		Velocity += GetGravity() * (float)delta;
+	// 	}
+	// 	MoveAndSlide();
+	// }
 }

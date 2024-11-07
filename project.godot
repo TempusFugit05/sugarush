@@ -124,6 +124,7 @@ stick_go_right={
 [physics]
 
 common/physics_ticks_per_second=120
+3d/physics_engine="JoltPhysics3D"
 3d/default_gravity=17.5
 common/physics_interpolation=true
 

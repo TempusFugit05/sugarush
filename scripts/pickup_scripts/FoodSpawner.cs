@@ -10,6 +10,12 @@ public partial class FoodSpawner : Node3D
     [Export]
     private float RespawnTime = 5.0f;
 
+    [Export]
+    private string EditorModel = "res://assets/models/Factory.obj";
+
+    [Export]
+    private bool DisablePhysics = true;
+
     private string FoodScenePath = "res://subscenes/pickup_subscenes/Food.tscn";
 
 	private PackedScene FoodScene;
@@ -23,6 +29,7 @@ public partial class FoodSpawner : Node3D
         GetTree().Root.AddChild(SpawnedPickup);
         SpawnedPickup.InitialPosition = GlobalPosition;
         SpawnedPickup.SetSpawner(this);
+        SpawnedPickup.DisablePhysics = DisablePhysics;
     }
 
     public void NotifyPickedUp()
@@ -36,11 +43,7 @@ public partial class FoodSpawner : Node3D
         {
             MeshInstance3D EditorMesh = new ();
             AddChild(EditorMesh);
-            EditorMesh.Mesh = new SphereMesh()
-            {
-                Radius = 0.5f,
-                Height = 1.0f,
-            };
+            EditorMesh.Mesh = (Mesh)ResourceLoader.Load(EditorModel);
         }
 
         else

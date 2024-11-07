@@ -58,7 +58,7 @@ public partial class Food : RigidBody3D, IPickable
 			MeshInstance.Transparency = 1;
 			FadeTween.TweenProperty(MeshInstance, "transparency", 0, SpawnFadeTime);
 		}
-		if (!DisablePhysics)
+		if (DisablePhysics)
 		{
 			Tween BobTween = GetTree().CreateTween().BindNode(this).SetLoops();
 			BobTween.SetTrans(Tween.TransitionType.Sine);
@@ -116,7 +116,7 @@ public partial class Food : RigidBody3D, IPickable
 				MeshInstance.Scale = new Vector3(0.75f, 0.75f, 0.75f);
 				break;
 		}
-		if (!DisablePhysics)
+		if (DisablePhysics)
 		{
             AddToGroup("GIgnoreWeapons");
         }

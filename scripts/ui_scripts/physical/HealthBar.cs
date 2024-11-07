@@ -11,6 +11,11 @@ public partial class HealthBar : Sprite3D
         HealthProgressBar = GetNode<ProgressBar>(UiElementsPath + "ProgressBar");
     }
 
+    public override void _PhysicsProcess(double delta)
+    {
+        GlobalRotation = Vector3.Zero;
+    }
+    
 	/// <summary>
     /// 	Update the healthbar to display current hp
     /// </summary>
@@ -19,6 +24,17 @@ public partial class HealthBar : Sprite3D
 	public void SetHealthPoint(float CurrentHealth, float MaxHealth)
 	{
 		HealthProgressBar.Value = (CurrentHealth / MaxHealth) * 100;
-		HealthText.Text = Mathf.RoundToInt(CurrentHealth).ToString();	
+		if (CurrentHealth ==  float.PositiveInfinity)
+        {
+            HealthText.Text = "IMMORTAL!";
+        }
+        else if (CurrentHealth ==  float.NegativeInfinity)
+        {
+            HealthText.Text = "UNDEAD!";
+        }
+        else
+        {
+            HealthText.Text = Mathf.RoundToInt(CurrentHealth).ToString();	
+        }
 	}
 }

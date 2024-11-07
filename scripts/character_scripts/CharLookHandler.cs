@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Character : CharacterBody3D, ICreature
+public partial class Character : CharacterBody3D, Isoulful
 {
 	private void LookHandler()
 	{

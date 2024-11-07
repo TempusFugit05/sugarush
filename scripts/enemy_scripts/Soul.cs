@@ -1,35 +1,37 @@
 using Godot;
 
-public partial class Enemy : CharacterBody3D, Isoulful
+public partial class CreatureSoul : Node3D
 {
 	[Export]
-	protected float MaxHealth = 1000;
+	private float MaxHealth = 1000;
 
 	protected float Health = 0;
 
-    CylinderShape3D LineOfSight = new ();
+    HealthBar CreatureHealthBar;
 
-    HealthBar EnemyHealthBar;
+    Node3D Vessel;
 
-	/// <summary>
+    /// <summary>
     /// 	Init the healthbar and parameters of the node.
     /// 	This is a seperate function to allow child classes to inherit it.
     /// </summary>
-	protected void InitNode()
+    public CreatureSoul(Node3D vessel,  float maxHealth, HealthBar healthBar)
 	{
-		Health = MaxHealth;
-		EnemyHealthBar = (HealthBar)GetNodeOrNull("HealthBar");
-        EnemyHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
-	}
-
-	public override void _Ready()
-	{
-        InitNode();
+		Health = maxHealth;
+        MaxHealth = maxHealth;
+        CreatureHealthBar =	healthBar;
+        CreatureHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
+        Vessel = vessel;
+        Vessel.AddChild(this);
     }
 
 	public virtual void Kill()
 	{
-        QueueFree();
+		if (Vessel is ISoulful creature)
+		{
+        	creature.OnKill();
+		}
+        Vessel.QueueFree();
     }
 
 	/// <summary>
@@ -51,22 +53,11 @@ public partial class Enemy : CharacterBody3D, Isoulful
 
 		else
 		{
-            EnemyHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
-			OnHurt(damage, damagePosition);
+            CreatureHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
+			if (Vessel is ISoulful creature)
+			{
+				creature.OnHurt(damage, damagePosition);
+			}
 		}
-	}
-
-	protected virtual void OnHurt(float damage, Vector3 damagePosition)
-	{
-        return;
-    }
-
-	public override void _PhysicsProcess(double delta)
-	{
-		if(!IsOnFloor())
-		{
-			Velocity += GetGravity() * (float)delta;
-		}
-		MoveAndSlide();
 	}
 }

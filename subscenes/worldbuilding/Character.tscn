@@ -17,7 +17,6 @@ script = ExtResource("1_kluek")
 AirAccel = 25.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-visible = false
 mesh = SubResource("CapsuleMesh_pkqkf")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -32,7 +31,7 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 shape = SubResource("SphereShape3D_7lp4f")
 
 [node name="PlayerCamera" type="Camera3D" parent="."]
-transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, -0.0137319, 0.522736, -0.498864)
+transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, -0.0137319, 0.522736, -0.544207)
 
 [node name="Weapon" parent="PlayerCamera" instance=ExtResource("3_jynb1")]
 transform = Transform3D(0.173771, 0, 1.54361, 0, 1.55336, 0, -1.54361, 0, 0.173771, -0.353221, -0.141065, -0.121968)
