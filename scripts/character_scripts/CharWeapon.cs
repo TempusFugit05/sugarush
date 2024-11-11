@@ -7,7 +7,7 @@ public partial class Character : CharacterBody3D
 	/// <Summary>
 	private void InitWeaponHandler()
 	{
-		WeaponNode = GetNode<Weapon>("PlayerCamera/Weapon");
+		WeaponNode = GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
 	}
 
 	/// <Summary>
@@ -17,7 +17,7 @@ public partial class Character : CharacterBody3D
 	{
 		if(Input.IsActionPressed(InputMap[InputMapEnum.ActionFire]))
 		{
-			WeaponNode.Shoot();
+			WeaponNode?.Shoot();
 		}
 	}
 }

@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using Helpers;
 
@@ -6,9 +5,10 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 {
 	// Called when the node enters the scene tree for the first time.
 	Weapon TurretWeapon;
-    Node3D WeaponHolder;
-    Node3D Body;
+    Organ WeaponHolder;
+    Organ Body;
     Aabb HitBox;
+    Generic6DofJoint3D WeaponJoint;
 
     [Export]
 	private float RotationSpeed = 100.0f; // Speed of rotation
@@ -50,6 +50,8 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
     public CreatureSoul Soul;
 
+    private bool IsDead = false;
+
     private Vector3 CollisionVel;
 
     private Vector3 RefPos;
@@ -62,12 +64,23 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
     
     public override void _Ready()
 	{
-        Body = GetNode<Node3D>("Body");
+        Body = GetNode<Organ>("Body");
+        Body.IsVital = true;
+        Body.Health = 1000;
+
+        WeaponHolder = GetNode<Organ>("WeaponHolder");
+        // WeaponHolder.Health = 1;
+        TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
+        
+        // TurretWeapon.AddCollisionExceptionWith(WeaponHolder);
+        // TurretWeapon.AddCollisionExceptionWith(Body);
+        TurretWeapon.AttachmentMode = Weapon.AttachmentModeEnum.Creature;
+
         HitBox = Body.GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
         HoverHeight += HitBox.Size.Y / 2;
-        WeaponHolder = Body.GetNode<Node3D>("WeaponHolder");
-		TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
-        Soul = new(this, float.PositiveInfinity, GetNode<HealthBar>("HealthBar"));
+
+        Soul = new(this, float.PositiveInfinity, GetNode<HealthBar>("HealthBar"), new(){Body, WeaponHolder});
+        
         HoverForce *= Mass;
         AttractionForce *= Mass;
         MaintainanceForce *= Mass;
@@ -77,10 +90,13 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
     {
         return;
     } 
+    
     public void OnKill()
     {
-        return;
+        IsDead = true;
+        GetNode<HealthBar>("HealthBar").QueueFree();
     }
+
     public CreatureSoul GetSoul()
     {
         return Soul;
@@ -97,11 +113,18 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
     private float GetHeightAboveGround()
     {
+        Godot.Collections.Array<Rid> exclude = new Godot.Collections.Array<Rid> 
+        { 
+            GetRid(),
+            Body.GetRid(),
+            WeaponHolder.GetRid() 
+        };
+
         PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
-            To = Vector3.Down * GroundDetectionDistance,
-            Exclude = new Godot.Collections.Array<Rid> { GetRid() },
+            To = -GlobalBasis.Y * GroundDetectionDistance,
+            Exclude = exclude,
             CollideWithAreas = false,
             CollideWithBodies = true,
         };
@@ -116,11 +139,15 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
     private bool IsPlayerVisible()
     {
+        Godot.Collections.Array<Rid> exclude = new Godot.Collections.Array<Rid> 
+        { GetRid(),
+          Body.GetRid(),
+          WeaponHolder.GetRid() };
         PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
             To = HR.GetPlayerNode().GlobalPosition,
-            Exclude = new Godot.Collections.Array<Rid> { GetRid() },
+            Exclude = exclude,
             CollideWithAreas = false,
 			CollideWithBodies = true,
         };
@@ -145,17 +172,22 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
         Quaternion = HM.RotateTowards(Quaternion.Normalized(), new Quaternion(0, 0, 0, 1), Mathf.Pi * (float)delta);
 
-        /* Rotate body */
-        targetRotation = Body.GlobalTransform.LookingAt(HR.GetPlayerNode().GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
-        targetRotation = HM.ProjectQuaternion(targetRotation, GlobalBasis.Y); // Extract rotation around Y axis
-        FinalRotation = HM.RotateTowards(Body.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 3 * (float)delta);
-        Body.Quaternion = HM.ValidateQuaternion(FinalRotation);
+        if (Body.IsActive)
+        {
+            /* Rotate body */
+            targetRotation = HM.LookingAtAxis(Body, HR.GetPlayerNode(), GlobalBasis.Y);
+            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 10 * (float)delta);
+            Body.Quaternion = HM.ValidateQuaternion(FinalRotation);
+        }
 
-        /* Rotate weapon */
-        targetRotation = WeaponHolder.GlobalTransform.LookingAt(HR.GetPlayerNode().GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion();
-        targetRotation = HM.ProjectQuaternion(targetRotation, GlobalBasis.X); // Extract rotation around x axis
-        FinalRotation = HM.RotateTowards(WeaponHolder.Quaternion.Normalized(), targetRotation.Normalized(), Mathf.Pi / 8 * (float)delta);
-        WeaponHolder.Quaternion = HM.ValidateQuaternion(FinalRotation);
+        if (WeaponHolder.IsActive)
+        {
+            /* Rotate weapon */
+            Quaternion xComponent = HM.ProjectQuaternion(WeaponHolder.Quaternion, GlobalBasis.X);
+            targetRotation = HM.LookingAtAxis(WeaponHolder, HR.GetPlayerNode(), GlobalBasis.X);
+            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 10 * (float)delta);
+            WeaponHolder.Quaternion = HM.ProjectQuaternion(Body.Quaternion, GlobalBasis.X).Inverse() * Body.Quaternion * FinalRotation;
+        }
     }
 
     private bool IsLookingAtTarget(Node3D lookingNode, Node3D target)
@@ -264,40 +296,32 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
     public override void _PhysicsProcess(double delta)
 	{
-        Velocity = GetVelocity(delta);
-        if (HR.GetPlayerNode() is not null)
+        if (!IsDead)
         {
-            WasHurt = false;
-            Hover();
-            MaintainSpeed();
-            
-            if (IsPlayerVisible())
+            Velocity = GetVelocity(delta);
+            if (HR.GetPlayerNode() is not null)
             {
-                AvoidPlayer();
-                RotateTowardsPlayer(delta);
-                if(TurretWeapon.ReadyToShoot() && IsLookingAtTarget(WeaponHolder, HR.GetPlayerNode()))
-                {
-                    TurretWeapon.Shoot();
-                }
-            }
+                WasHurt = false;
+                Hover();
+                MaintainSpeed();
 
-            // Velocity = GetVelocity(delta);
-            // ApplyFriction(Velocity);
-            ApplyCollisionDamage(delta);
-            RefPos = GlobalPosition;
-            ApplyCentralForce(Force);
-            Force = Vector3.Zero;
+                if (IsPlayerVisible() && WeaponHolder.IsActive)
+                {
+                    AvoidPlayer();
+                    RotateTowardsPlayer(delta);
+                    if (TurretWeapon.ReadyToShoot() && IsLookingAtTarget(WeaponHolder, HR.GetPlayerNode()))
+                    {
+                        TurretWeapon.Shoot();
+                    }
+                }
+
+                // Velocity = GetVelocity(delta);
+                // ApplyFriction(Velocity);
+                ApplyCollisionDamage(delta);
+                RefPos = GlobalPosition;
+                ApplyCentralForce(Force);
+                Force = Vector3.Zero;
+            }
         }
-        // RefVel = Velocity; // Update reference velocity
-        // Collision = MoveAndCollide();
-        // if ()
-        // {
-        //     CollisionVel = Velocity;
-        //     Resistance = HP.GetGroundResistance();
-        // }
-        // else
-        // {
-        //     Resistance = HP.GetAirResistance();
-        // }
     }
 }

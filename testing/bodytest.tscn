@@ -1,0 +1,147 @@
+[gd_scene load_steps=20 format=3 uid="uid://be46v3lo2oh2f"]
+
+[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="1_3y814"]
+[ext_resource type="Script" path="res://scripts/character_scripts/Character.cs" id="1_qnaho"]
+[ext_resource type="PackedScene" uid="uid://ddl0obnlx7ke8" path="res://subscenes/ui_subscenes/Ui.tscn" id="2_p62q0"]
+[ext_resource type="Script" path="res://testing/PhysicalTurret.cs" id="4_oto08"]
+[ext_resource type="PackedScene" uid="uid://c336h7rc5hwsl" path="res://subscenes/ui_subscenes/HealthBar.tscn" id="5_jvb7s"]
+[ext_resource type="Script" path="res://scripts/weapon_scripts/TurretWeapon.cs" id="5_qrd3h"]
+[ext_resource type="Script" path="res://testing/Organ.cs" id="6_ccw1u"]
+[ext_resource type="PackedScene" uid="uid://b7b5e2ex6nfoa" path="res://subscenes/ui_subscenes/BulletDecal.tscn" id="6_jtf04"]
+[ext_resource type="AudioStream" uid="uid://bgleoapofvocu" path="res://assets/audio/weapon/untitled.wav" id="8_03lfq"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_pkqkf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hnkbg"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_7lp4f"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_so4mp"]
+viewport_path = NodePath("ViewPort")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1u7gl"]
+material = ExtResource("1_3y814")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.75
+radial_segments = 32
+rings = 1
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8b1mc"]
+points = PackedVector3Array(0.108333, 0.380878, 0.0368698, -0.105952, -0.380878, -0.0344888, -0.105952, -0.380878, 0.0368698, -0.105952, 0.380878, -0.0344888, 0.060698, -0.380878, -0.0940383, 0.0368698, -0.380878, 0.108333, -0.0344888, 0.380878, 0.108333, 0.0368698, 0.380878, -0.105952, 0.108333, -0.380878, -0.0344888, -0.0344888, -0.380878, -0.105952, -0.0821242, 0.380878, -0.0821242, 0.0964193, 0.380878, -0.058317, -0.0940383, 0.380878, 0.060698, -0.058317, -0.380878, 0.0964193, 0.0964193, -0.380878, 0.060698, 0.060698, 0.380878, 0.0964193, -0.0821242, -0.380878, -0.0821242, -0.0344888, 0.380878, -0.105952, -0.105952, 0.380878, 0.0368698, 0.0368698, 0.380878, 0.108333, -0.0344888, -0.380878, 0.108333, 0.0368698, -0.380878, -0.105952, 0.108333, 0.380878, -0.0344888, 0.108333, -0.380878, 0.0368698, 0.0964193, -0.380878, -0.058317, -0.058317, 0.380878, 0.0964193, 0.060698, -0.380878, 0.0964193, 0.060698, 0.380878, -0.0940383, -0.0940383, -0.380878, 0.060698, 0.0964193, 0.380878, 0.060698)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_y0om2"]
+material = ExtResource("1_3y814")
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_bjve8"]
+points = PackedVector3Array(-0.214183, -0.948028, -0.451129, 0.0227317, 0.952146, 0.498887, 0.171488, 0.951995, 0.469018, -0.125934, 0.952684, -0.483291, 0.499663, -0.953674, -0.00688883, -0.387646, -0.93796, 0.315653, -0.483292, 0.952686, -0.12593, 0.375097, 0.940128, -0.329816, 0.171488, -0.951995, 0.469018, 0.140783, -0.945485, -0.479579, 0.469014, 0.952011, 0.171499, -0.387646, 0.93796, 0.315653, -0.483292, -0.952686, -0.12593, -0.183511, -0.943076, 0.464698, 0.407412, -0.946994, 0.288983, 0.375097, -0.940128, -0.329816, -0.395154, 0.955761, -0.305523, -0.479555, 0.945437, 0.14088, 0.464698, 0.943099, -0.183512, 0.140783, 0.945485, -0.479579, -0.243203, 0.945955, 0.436491, -0.479555, -0.945437, 0.14088, 0.288971, 0.946988, 0.407421, -0.395154, -0.955761, -0.305523, -0.0069906, -0.953641, 0.499658, 0.499663, 0.953674, -0.00688883, -0.271948, 0.943071, -0.419217, 0.464698, -0.943099, -0.183512, -0.125934, -0.952684, -0.483291, 0.315648, 0.937973, -0.387651, 0.469014, -0.952011, 0.171499, 0.407412, 0.946994, 0.288983)
+
+[sub_resource type="SphereMesh" id="SphereMesh_5t7y5"]
+material = ExtResource("1_3y814")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_4rriv"]
+
+[node name="Main" type="Node3D"]
+
+[node name="Character" type="CharacterBody3D" parent="."]
+transform = Transform3D(-1.00255, 0, 0.0495064, 0, 1.00377, 0, -0.0495064, 0, -1.00255, 0, 0, -2.56544)
+script = ExtResource("1_qnaho")
+AirAccel = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Character"]
+mesh = SubResource("CapsuleMesh_pkqkf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Character"]
+transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, 0)
+shape = SubResource("BoxShape3D_hnkbg")
+
+[node name="PickupSphere" type="Area3D" parent="Character"]
+transform = Transform3D(1.0536, 0, 0, 0, 1.0536, 0, 0, 0, 1.0536, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Character/PickupSphere"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("SphereShape3D_7lp4f")
+
+[node name="PlayerCamera" type="Camera3D" parent="Character"]
+transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, -0.0137319, 0.522736, -0.544207)
+
+[node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="Character/PlayerCamera"]
+
+[node name="UiControl" parent="Character" node_paths=PackedStringArray("PlayerNode") instance=ExtResource("2_p62q0")]
+PlayerNode = NodePath("..")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.3416, -3.2195, 0.36615)
+use_collision = true
+size = Vector3(45.8101, 1, 33.6112)
+
+[node name="Turret4" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.34285, -1.20197, 3.71637)
+mass = 15.0
+angular_damp = 2.5
+script = ExtResource("4_oto08")
+HoverForce = 100.0
+
+[node name="HealthBar" parent="Turret4" instance=ExtResource("5_jvb7s")]
+transform = Transform3D(0.375158, 0, 0, 0, 0.375158, 0, 0, 0, 0.375158, 0, 1.1421, 0)
+texture = SubResource("ViewportTexture_so4mp")
+
+[node name="WeaponHolder" type="RigidBody3D" parent="Turret4"]
+angular_damp = 2.5
+script = ExtResource("6_ccw1u")
+
+[node name="TurretWeapon" type="Node3D" parent="Turret4/WeaponHolder"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, -1.09123)
+script = ExtResource("5_qrd3h")
+DecalScene = ExtResource("6_jtf04")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret4/WeaponHolder/TurretWeapon"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+layers = 2
+mesh = SubResource("CylinderMesh_1u7gl")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Turret4/WeaponHolder/TurretWeapon"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_8b1mc")
+
+[node name="ProjectileSpawnPoint" type="Node3D" parent="Turret4/WeaponHolder/TurretWeapon"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)
+
+[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="Turret4/WeaponHolder/TurretWeapon"]
+stream = ExtResource("8_03lfq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret4/WeaponHolder"]
+transform = Transform3D(-6.40507e-08, 0.17639, 0, -1.46531, -7.71025e-09, 0, 0, 0, 1.46532, 0, 0, 0)
+mesh = SubResource("CylinderMesh_y0om2")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Turret4/WeaponHolder"]
+transform = Transform3D(-6.40507e-08, 0.17639, 0, -1.46531, -7.71025e-09, 0, 0, 0, 1.46532, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_bjve8")
+
+[node name="Body" type="RigidBody3D" parent="Turret4"]
+axis_lock_angular_z = true
+mass = 20.0
+angular_damp = 2.5
+script = ExtResource("6_ccw1u")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret4/Body"]
+transform = Transform3D(1.33645, 0, 0, 0, 1.33645, 0, 0, 0, 1.33645, 0, 0, 0)
+mesh = SubResource("SphereMesh_5t7y5")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Turret4/Body"]
+transform = Transform3D(1.33965, 0, 0, 0, 1.33965, 0, 0, 0, 1.33965, 0, 0, 0)
+shape = SubResource("SphereShape3D_4rriv")
+
+[node name="PinJoint3D" type="JoltPinJoint3D" parent="Turret4/Body"]
+node_a = NodePath("../..")
+node_b = NodePath("..")
+
+[node name="JoltGeneric6DOFJoint3D" type="Generic6DOFJoint3D" parent="Turret4/Body"]
+node_a = NodePath("..")
+node_b = NodePath("../../WeaponHolder")
+angular_limit_x/enabled = false
+angular_limit_x/upper_angle = 1.309
+angular_limit_x/lower_angle = -1.309
+angular_motor_x/target_velocity = -1.74533

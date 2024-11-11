@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dlc6gir51woxd"]
+[gd_scene load_steps=7 format=3 uid="uid://dlc6gir51woxd"]
 
 [ext_resource type="Script" path="res://scripts/weapon_scripts/TurretWeapon.cs" id="1_ja6cx"]
 [ext_resource type="PackedScene" uid="uid://b7b5e2ex6nfoa" path="res://subscenes/ui_subscenes/BulletDecal.tscn" id="2_qoh2o"]
@@ -13,7 +13,10 @@ height = 0.75
 radial_segments = 32
 rings = 1
 
-[node name="Weapon" type="Node3D"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8b1mc"]
+points = PackedVector3Array(0.108333, 0.380878, 0.0368698, -0.105952, -0.380878, -0.0344888, -0.105952, -0.380878, 0.0368698, -0.105952, 0.380878, -0.0344888, 0.060698, -0.380878, -0.0940383, 0.0368698, -0.380878, 0.108333, -0.0344888, 0.380878, 0.108333, 0.0368698, 0.380878, -0.105952, 0.108333, -0.380878, -0.0344888, -0.0344888, -0.380878, -0.105952, -0.0821242, 0.380878, -0.0821242, 0.0964193, 0.380878, -0.058317, -0.0940383, 0.380878, 0.060698, -0.058317, -0.380878, 0.0964193, 0.0964193, -0.380878, 0.060698, 0.060698, 0.380878, 0.0964193, -0.0821242, -0.380878, -0.0821242, -0.0344888, 0.380878, -0.105952, -0.105952, 0.380878, 0.0368698, 0.0368698, 0.380878, 0.108333, -0.0344888, -0.380878, 0.108333, 0.0368698, -0.380878, -0.105952, 0.108333, 0.380878, -0.0344888, 0.108333, -0.380878, 0.0368698, 0.0964193, -0.380878, -0.058317, -0.058317, 0.380878, 0.0964193, 0.060698, -0.380878, 0.0964193, 0.060698, 0.380878, -0.0940383, -0.0940383, -0.380878, 0.060698, 0.0964193, 0.380878, 0.060698)
+
+[node name="Weapon" type="RigidBody3D"]
 script = ExtResource("1_ja6cx")
 DecalScene = ExtResource("2_qoh2o")
 
@@ -21,6 +24,10 @@ DecalScene = ExtResource("2_qoh2o")
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 layers = 2
 mesh = SubResource("CylinderMesh_1u7gl")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_8b1mc")
 
 [node name="ProjectileSpawnPoint" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)

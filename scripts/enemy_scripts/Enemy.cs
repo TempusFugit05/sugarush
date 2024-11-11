@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class Enemy : CharacterBody3D, Isoulful
+public partial class Enemy : CharacterBody3D, ICreature
 {
 	[Export]
 	protected float MaxHealth = 1000;

@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class CreatureSoul : Node3D
+public partial class CreatureSoul : Node
 {
 	[Export]
 	private float MaxHealth = 1000;
@@ -11,19 +11,45 @@ public partial class CreatureSoul : Node3D
 
     Node3D Vessel;
 
+    Godot.Collections.Array<Organ> OrganList;
+
     /// <summary>
     /// 	Init the healthbar and parameters of the node.
     /// 	This is a seperate function to allow child classes to inherit it.
     /// </summary>
-    public CreatureSoul(Node3D vessel,  float maxHealth, HealthBar healthBar)
+    public CreatureSoul(Node3D vessel, float maxHealth, HealthBar healthBar = null, Godot.Collections.Array<Organ> organs = null)
 	{
 		Health = maxHealth;
         MaxHealth = maxHealth;
         CreatureHealthBar =	healthBar;
         CreatureHealthBar?.SetHealthPoint(Health, MaxHealth); // Update healthbar with current healthpoints
+        OrganList = organs;
         Vessel = vessel;
         Vessel.AddChild(this);
     }
+
+    public override void _Ready()
+    {
+        if (OrganList is not null)
+		{
+			foreach (Organ organ in OrganList)
+			{
+                organ.OrganDestroyed += OnOrganDestroyed;
+            }
+		}
+    }
+
+    private void OnOrganDestroyed(ulong organId)
+	{
+        Organ destroyedOrgan = (Organ)InstanceFromId(organId);
+        destroyedOrgan.IsActive = false;
+        destroyedOrgan.OrganDestroyed -= OnOrganDestroyed;
+        // destroyedOrgan.Reparent(GetTree().Root.GetNode("Main"));
+        if (destroyedOrgan.IsVital)
+		{
+            Kill();
+        }
+	}
 
 	public virtual void Kill()
 	{
@@ -31,7 +57,6 @@ public partial class CreatureSoul : Node3D
 		{
         	creature.OnKill();
 		}
-        Vessel.QueueFree();
     }
 
 	/// <summary>
@@ -43,7 +68,7 @@ public partial class CreatureSoul : Node3D
 	{
 		DamageIndicator Indicator = new(damage); // Create a damage indicator 
 		GetTree().Root.AddChild(Indicator); // Add it to the scene
-		Indicator.GlobalPosition = (damagePosition == default) ? GlobalPosition : damagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
+		Indicator.GlobalPosition = (damagePosition == default) ? Vessel.GlobalPosition : damagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
 		Health -= damage;
 		
 		if(Health <= 0)

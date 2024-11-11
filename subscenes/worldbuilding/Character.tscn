@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://hepn2aya7iul"]
 
 [ext_resource type="Script" path="res://scripts/character_scripts/Character.cs" id="1_kluek"]
+[ext_resource type="PackedScene" uid="uid://dlc6gir51woxd" path="res://subscenes/weapons/TurretWeapon.tscn" id="2_rucnb"]
 [ext_resource type="Script" path="res://scripts/weapon_scripts/Shotgun.cs" id="3_agn8x"]
-[ext_resource type="PackedScene" uid="uid://h5fn8l71hm3d" path="res://subscenes/weapons/Weapon.tscn" id="3_jynb1"]
 [ext_resource type="PackedScene" uid="uid://ddl0obnlx7ke8" path="res://subscenes/ui_subscenes/Ui.tscn" id="4_qc7up"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_pkqkf"]
@@ -33,12 +33,14 @@ shape = SubResource("SphereShape3D_7lp4f")
 [node name="PlayerCamera" type="Camera3D" parent="."]
 transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, -0.0137319, 0.522736, -0.544207)
 
-[node name="Weapon" parent="PlayerCamera" instance=ExtResource("3_jynb1")]
-transform = Transform3D(0.173771, 0, 1.54361, 0, 1.55336, 0, -1.54361, 0, 0.173771, -0.353221, -0.141065, -0.121968)
+[node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="PlayerCamera"]
+
+[node name="Weapon" parent="PlayerCamera" instance=ExtResource("2_rucnb")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.298565, -0.312833, -0.630694)
 script = ExtResource("3_agn8x")
 SpreadAngle = 2.5
-
-[node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="PlayerCamera"]
+DecalScene = null
+AttachmentMode = 1
 
 [node name="UiControl" parent="." node_paths=PackedStringArray("PlayerNode") instance=ExtResource("4_qc7up")]
 PlayerNode = NodePath("..")

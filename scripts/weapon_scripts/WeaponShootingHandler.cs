@@ -14,7 +14,7 @@ public partial class Weapon : Node3D
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
         Node3D Collider = (Node3D)RayDict["collider"];
-        if (Collider is Isoulful || Collider is RigidBody3D)
+        if (Collider is ICreature || Collider is RigidBody3D)
 		{
             return;
         }
@@ -91,7 +91,7 @@ public partial class Weapon : Node3D
 			Node HitObject = (Node)ImpactDict["collider"];
             Vector3 DamagePosition = (Vector3)ImpactDict["position"];
             float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
-            if(HitObject is Isoulful creature)
+            if(HitObject is ICreature creature)
 			{
 				creature.Hurt(DamageToApply, DamagePosition); // Hurtable is a special method for objects which are damage-able
 			}

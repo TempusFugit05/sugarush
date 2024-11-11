@@ -13,7 +13,6 @@ public partial class Shotgun : Weapon
         FireRate = 0.5f;
         Damage = 30;
         DamageFalloffStart = 2;
-        AttachedToPlayer = true;
         PlayerCameraPath = "Main/Character/PlayerCamera";
         DecalPath = "res://subscenes/ui_subscenes/BulletDecal.tscn";
         SoundEffectPath = "res://assets/audio/weapon/ShotgunSoundPlaceholder.wav";
@@ -32,7 +31,7 @@ public partial class Shotgun : Weapon
 	{
 		if(CanShoot)
 		{
-			if(AttachedToPlayer && PlayerCameraNode is not null)
+			if(AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
 			{
                 Vector2[] Angles = {new(SpreadAngle, 0), new(-SpreadAngle, 0), new(0, SpreadAngle), new(0, -SpreadAngle),
 								 new(SpreadAngle, SpreadAngle), new(-SpreadAngle, -SpreadAngle), new(-SpreadAngle, SpreadAngle), new(SpreadAngle, -SpreadAngle), new(0, 0)};

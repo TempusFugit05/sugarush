@@ -3,6 +3,14 @@ using System.Threading.Tasks;
 
 public partial class Weapon : Node3D
 {
+
+	public enum AttachmentModeEnum
+	{
+		Free,
+		Player,
+		Creature
+	}
+
     [Export]
     protected PackedScene DecalScene;
 
@@ -19,7 +27,7 @@ public partial class Weapon : Node3D
 	protected float Damage = 25.0f;
 
 	[Export]
-	protected bool AttachedToPlayer = false;
+	public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Free;
 
 	protected Camera3D PlayerCameraNode = null;
 
@@ -40,7 +48,7 @@ public partial class Weapon : Node3D
 	protected void InitWeapon()
 	{
         InitShootingHandler();
-		if(AttachedToPlayer)
+		if(AttachmentMode is AttachmentModeEnum.Player)
 		{
             AudioPlayer = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer");
         }
@@ -53,6 +61,20 @@ public partial class Weapon : Node3D
 		{
 			AudioPlayer.Stream = ResourceLoader.Load<AudioStream>(SoundEffectPath);
         }
+		
+		// if (AttachmentMode is AttachmentModeEnum.Player)
+		// {
+        //     FreezeMode = FreezeModeEnum.Static;
+        //     Freeze = true;
+        //     GD.Print();
+        // }
+
+		// else if (AttachmentMode is AttachmentModeEnum.Creature)
+		// {
+        //     FreezeMode = FreezeModeEnum.Kinematic;
+        //     Freeze = true;
+        //     GetNode("MeshInstance3D").QueueFree();
+        // }
     }
 
     public override void _Ready()
@@ -103,7 +125,7 @@ public partial class Weapon : Node3D
 	{
 		if(CanShoot)
 		{
-			if(AttachedToPlayer && PlayerCameraNode is not null)
+			if(AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
 			{
 				ShootFromCamera();
 			}			

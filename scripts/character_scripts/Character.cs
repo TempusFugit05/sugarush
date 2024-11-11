@@ -1,7 +1,7 @@
 using Godot;
 using Helpers;
 
-public partial class Character : CharacterBody3D, Isoulful
+public partial class Character : CharacterBody3D, ICreature
 {
     public override void _Ready()
 	{

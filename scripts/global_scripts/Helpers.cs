@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Godot;
 
@@ -150,6 +151,49 @@ namespace Helpers
             return to;
         }
 
+        public static (Quaternion Swing, Quaternion Twist) SwingTwistDecomp(Quaternion quat, Vector3 refAxis)
+        {
+            // Credit to: https://www.gamedev.net/forums/topic/696882-swing-twist-interpolation-sterp-an-alternative-to-slerp/
+
+            Vector3 quatAxis = new(quat.X, quat.Y, quat.Z); // Extract the axis of rotation from the given quaternion
+            
+            Quaternion swing;
+            Quaternion twist;
+
+            // If the angle between the referance axis and the quaternion axis is 180 degrees, we have a singularity.
+            // This is because there is an infinite number of swing rotations we can perform to get from one axis to another.
+            // We can check for such a rotation when the magnitude of the vector part of a quaternion is near-zero.
+            if (quatAxis.LengthSquared() <= 10e-4)
+            {
+                // Magic???????
+                Vector3 rotatedRef = quat * refAxis;
+                Vector3 trialSwing = refAxis.Cross(rotatedRef);
+                GD.Print("AH OH! " + refAxis + " " + quatAxis.LengthSquared());
+                
+                if (trialSwing.LengthSquared() > 10e-4)
+                {
+                    float swingAngle = refAxis.AngleTo(rotatedRef);
+                    swing = new(refAxis, swingAngle);
+                }
+
+                else
+                {
+                    swing = Quaternion.Identity;
+                }
+            
+                twist = new(refAxis, Mathf.Tau / 2);
+            }
+
+            else
+            {
+                Vector3 projection = refAxis.Project(quatAxis).Normalized();
+                swing = new Quaternion(projection.X, projection.Y, projection.Z, quat.W).Normalized();
+                twist = quat * swing.Inverse(); // The remainder of the quaternion minus the swing is the twist component
+            }
+
+            return (swing, twist);
+        }
+
         /// <summary>
         ///     Extract the component of rotation around a specific axis from a quaternion.
         ///     Original quaternion and projection vector must both be normalized.
@@ -159,17 +203,29 @@ namespace Helpers
         /// <returns>The component of rotation around the given axis.</returns>
         public static Quaternion ProjectQuaternion(Quaternion original, Vector3 projection)
         {
-            /*Normalize inputs to produce a normalized output*/
-            projection = projection.Normalized();
-            original = original.Normalized();
-
             Vector3 Projection = original.GetAxis().Project(projection); // Project the quaternion axis onto the new axis
-            Quaternion Out = new(Projection.X, Projection.Y, Projection.Z, original.W); // Construct modified quaternion
+            Quaternion Out = new Quaternion(Projection.X, Projection.Y, Projection.Z, original.W).Normalized(); // Construct modified quaternion
+            
             if (Out.IsFinite())
             {
                 return Out;
             }
             return original;
+        }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="lookingNode"></param>
+        /// <param name="lookedAtNode"></param>
+        /// <param name="Axis"></param>
+        /// <returns></returns>
+        public static Quaternion LookingAtAxis(Node3D lookingNode, Node3D lookedAtNode, Vector3 Axis)
+        {
+            Quaternion targetRotation;
+            targetRotation = lookingNode.GlobalTransform.LookingAt(lookedAtNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion(); // Get target rotation
+            targetRotation = ProjectQuaternion(targetRotation, Axis); // Extract rotation around the given axis
+            return targetRotation;
         }
 
         /// <summary>
