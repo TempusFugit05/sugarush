@@ -6,7 +6,7 @@ public interface ICreature
 	/// <Summary>
 	///	Classes that Implement this method will do something special when they are shot/hurt in any way
 	/// </Summary>
-    void Hurt(float damage, Vector3 damagePosition = default);
+    void Hurt(float damage, Vector3 damagePosition = default, ulong colliderId = default);
     void Kill();
 }
 public interface ISoulful
@@ -16,5 +16,5 @@ public interface ISoulful
 	/// </Summary>
     void OnHurt(float damage, Vector3 damagePosition = default);
     void OnKill();
-    CreatureSoul GetSoul();
+    // CreatureSoul GetSoul();
 }

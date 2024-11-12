@@ -4,11 +4,12 @@ using Helpers;
 public partial class PhysicalTurret : RigidBody3D, ISoulful
 {
 	// Called when the node enters the scene tree for the first time.
-	Weapon TurretWeapon;
+	TestWeapon TurretWeapon;
     Organ WeaponHolder;
     Organ Body;
     Aabb HitBox;
     Generic6DofJoint3D WeaponJoint;
+    Godot.Collections.Array<Rid> OrganRids = new();
 
     [Export]
 	private float RotationSpeed = 100.0f; // Speed of rotation
@@ -61,7 +62,7 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
     private bool WasHurt = false;
 
     private float Resistance = 0;
-    
+
     public override void _Ready()
 	{
         Body = GetNode<Organ>("Body");
@@ -69,62 +70,44 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
         Body.Health = 1000;
 
         WeaponHolder = GetNode<Organ>("WeaponHolder");
-        // WeaponHolder.Health = 1;
-        TurretWeapon = WeaponHolder.GetNode<Weapon>("TurretWeapon");
-        
-        // TurretWeapon.AddCollisionExceptionWith(WeaponHolder);
-        // TurretWeapon.AddCollisionExceptionWith(Body);
-        TurretWeapon.AttachmentMode = Weapon.AttachmentModeEnum.Creature;
+        TurretWeapon = WeaponHolder.GetNode<TestWeapon>("TurretWeapon");
+
+        Godot.Collections.Array<Organ> organs = HR.GetChildrenOfType<Organ>(this, true);
+        foreach (Organ organ in organs)
+        {
+            OrganRids.Add(organ.GetRid());
+        }
+
+        TurretWeapon.AttachmentMode = TestWeapon.AttachmentModeEnum.Creature;
 
         HitBox = Body.GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
         HoverHeight += HitBox.Size.Y / 2;
 
-        Soul = new(this, float.PositiveInfinity, GetNode<HealthBar>("HealthBar"), new(){Body, WeaponHolder});
+        Soul = new(this, float.PositiveInfinity, GetNode<HealthBar>("HealthBar"), organs);
         
         HoverForce *= Mass;
         AttractionForce *= Mass;
         MaintainanceForce *= Mass;
 	}
-
+    
     public void OnHurt(float damage, Vector3 damagePosition = default)
     {
         return;
-    } 
-    
+    }
+
     public void OnKill()
     {
         IsDead = true;
         GetNode<HealthBar>("HealthBar").QueueFree();
     }
 
-    public CreatureSoul GetSoul()
-    {
-        return Soul;
-    }
-
-    // protected override void OnHurt(float damage, Vector3 position = default)
-    // {
-    //     WasHurt = true;
-    //     if (position != default)
-    //     {
-    //         ApplyImpulse((GlobalPosition - position).Normalized() * damage / (0.75f * Mass));
-    //     }
-    // }
-
     private float GetHeightAboveGround()
     {
-        Godot.Collections.Array<Rid> exclude = new Godot.Collections.Array<Rid> 
-        { 
-            GetRid(),
-            Body.GetRid(),
-            WeaponHolder.GetRid() 
-        };
-
         PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
             To = -GlobalBasis.Y * GroundDetectionDistance,
-            Exclude = exclude,
+            Exclude = OrganRids,
             CollideWithAreas = false,
             CollideWithBodies = true,
         };
@@ -139,15 +122,11 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
 
     private bool IsPlayerVisible()
     {
-        Godot.Collections.Array<Rid> exclude = new Godot.Collections.Array<Rid> 
-        { GetRid(),
-          Body.GetRid(),
-          WeaponHolder.GetRid() };
         PhysicsRayQueryParameters3D Query = new()
         {
             From = GlobalPosition,
             To = HR.GetPlayerNode().GlobalPosition,
-            Exclude = exclude,
+            Exclude = OrganRids,
             CollideWithAreas = false,
 			CollideWithBodies = true,
         };
@@ -176,7 +155,7 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
         {
             /* Rotate body */
             targetRotation = HM.LookingAtAxis(Body, HR.GetPlayerNode(), GlobalBasis.Y);
-            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 10 * (float)delta);
+            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 4 * (float)delta);
             Body.Quaternion = HM.ValidateQuaternion(FinalRotation);
         }
 
@@ -185,7 +164,7 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
             /* Rotate weapon */
             Quaternion xComponent = HM.ProjectQuaternion(WeaponHolder.Quaternion, GlobalBasis.X);
             targetRotation = HM.LookingAtAxis(WeaponHolder, HR.GetPlayerNode(), GlobalBasis.X);
-            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 10 * (float)delta);
+            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 4 * (float)delta);
             WeaponHolder.Quaternion = HM.ProjectQuaternion(Body.Quaternion, GlobalBasis.X).Inverse() * Body.Quaternion * FinalRotation;
         }
     }

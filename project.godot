@@ -121,6 +121,10 @@ stick_go_right={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_32="NoCollide"
+
 [physics]
 
 common/physics_ticks_per_second=120

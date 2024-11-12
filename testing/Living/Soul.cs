@@ -1,5 +1,9 @@
 using Godot;
 
+/// <summary>
+/// 	The sould defines stores information about about the creature's health and bridges the gap
+/// 	between the creature and the organs.
+/// </summary>
 public partial class CreatureSoul : Node
 {
 	[Export]
@@ -7,9 +11,9 @@ public partial class CreatureSoul : Node
 
 	protected float Health = 0;
 
-    HealthBar CreatureHealthBar;
+    HealthBar CreatureHealthBar; // Optional health bar to display information
 
-    Node3D Vessel;
+    Node3D Vessel; // Host creature
 
     Godot.Collections.Array<Organ> OrganList;
 
@@ -39,14 +43,16 @@ public partial class CreatureSoul : Node
 		}
     }
 
-    private void OnOrganDestroyed(ulong organId)
+    private void OnOrganDestroyed(Organ destroyedOrgan)
 	{
-        Organ destroyedOrgan = (Organ)InstanceFromId(organId);
-        destroyedOrgan.IsActive = false;
         destroyedOrgan.OrganDestroyed -= OnOrganDestroyed;
-        // destroyedOrgan.Reparent(GetTree().Root.GetNode("Main"));
+		
         if (destroyedOrgan.IsVital)
 		{
+			foreach (Organ organ in OrganList)
+			{
+                organ.IsActive = false;
+            }
             Kill();
         }
 	}

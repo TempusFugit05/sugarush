@@ -1,7 +1,7 @@
 using Godot;
 using Helpers;
 
-public partial class Weapon : Node3D
+public partial class TestWeapon : RigidBody3D
 
 {	
 	protected Node3D ProjectileSpawnPoint;
@@ -14,15 +14,13 @@ public partial class Weapon : Node3D
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
         Node3D Collider = (Node3D)RayDict["collider"];
-        if (Collider is ICreature || Collider is RigidBody3D)
+        if (Collider is not ICreature && Collider is not RigidBody3D)
 		{
-            return;
+			BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
+			Collider.AddChild(ChildDecal);
+			ChildDecal.InitDecal((Vector3)RayDict["normal"]);
+			ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
         }
-        Node3D ObjectHit = Collider;
-		BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
-		ObjectHit.AddChild(ChildDecal);
-        ChildDecal.InitDecal((Vector3)RayDict["normal"]);
-		ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
 	}
 
     protected Vector3 GetCameraNormal()
@@ -88,26 +86,21 @@ public partial class Weapon : Node3D
 	{
 		if(ImpactDict is not null)
 		{
-			Node3D HitObject = (Node3D)ImpactDict["collider"];
-		    Vector3 DamagePosition = (Vector3)ImpactDict["position"];
+			Node HitObject = (Node)ImpactDict["collider"];
+            Vector3 DamagePosition = (Vector3)ImpactDict["position"];
             float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
-
-			if(HitObject is ICreature creature)
+            if(HitObject is ICreature creature)
 			{
-				if (creature is RigidBody3D rigidCreature)
-				{
-                    ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)ImpactDict["shape"])).GetInstanceId();
-                    creature.Hurt(DamageToApply, DamagePosition, colliderShapeId);
-				}
-				else
-				{
-					creature.Hurt(DamageToApply, DamagePosition);
-				}
+				creature.Hurt(DamageToApply, DamagePosition); // Hurtable is a special method for objects which are damage-able
 			}
 			if (HitObject is RigidBody3D body)
 			{
                 body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / Damage), DamagePosition - body.GlobalPosition);
             }
+			// if (HitObject is ISoulful soul)
+			// {
+            //     soul.GetSoul().Hurt(DamageToApply, DamagePosition);
+            // }
 		}
 	}
 

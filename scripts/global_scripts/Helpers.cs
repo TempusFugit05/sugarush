@@ -125,7 +125,62 @@ namespace Helpers
         {
             return PlayerNode;
         }
+
+        static private void GetChildrenOfTypeRec<[MustBeVariant] T>(Node parentNode, Godot.Collections.Array<T> childArr)
+        {
+            foreach (Node child in parentNode.GetChildren())
+            {
+                if (child is T tChild)
+                {
+                    childArr.Add(tChild);
+                }
+                GetChildrenOfTypeRec(child, childArr);
+            }
+        }
+
+        /// <summary>
+        ///     Get all children of a specific type in this node.
+        /// </summary>
+        /// <typeparam name="T">Type of node</typeparam>
+        /// <param name="parentNode">Parent node to get chilren from</param>
+        /// <param name="recursive">If true get all children of the children</param>
+        /// <returns></returns>
+        static public Godot.Collections.Array<T> GetChildrenOfType<[MustBeVariant] T>(Node parentNode, bool recursive = false)
+        {
+            Godot.Collections.Array<T> children = new();
+
+            if (recursive)
+            {
+                GetChildrenOfTypeRec(parentNode, children);
+            }
+            else
+            {
+                foreach (Node child in parentNode.GetChildren())
+                {
+                    if (child is T tChild)
+                    {
+                        children.Add(tChild);
+                    }
+                }
+
+            }
+            return children;
+        }
+
+        /// <summary>
+        ///     Remove all collision exceptions in a PhysicsBody3D.
+        /// </summary>
+        /// <param name="body">PhysicsBody3D for which to clear the exceptions</param>
+        static public void ClearCollisionExceptions(PhysicsBody3D body)
+        {
+            foreach (Node collider in body.GetCollisionExceptions())
+            {
+                body.RemoveCollisionExceptionWith(collider);
+            }
+        }
+
     }
+
 
     /// <summary>
     ///     Math Helper.

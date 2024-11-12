@@ -10,7 +10,7 @@ public partial class Character : CharacterBody3D, ICreature
 		InitWeaponHandler();
         HR.SetPlayerNode(this);
     }
-	public void Hurt(float Damage, Vector3 DamagePosition = default)
+	public void Hurt(float Damage, Vector3 DamagePosition = default, ulong colliderId = default)
 	{
 		CurrentSugar -= Damage;
 	}

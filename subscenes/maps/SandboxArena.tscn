@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="3_xuxrd"]
 [ext_resource type="Material" uid="uid://nynl2docpdcr" path="res://assets/materials/ProtoWall.tres" id="4_qnkdd"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="5_jlqjr"]
-[ext_resource type="Script" path="res://testing/PhysicalTurret.cs" id="6_1ahxn"]
+[ext_resource type="Script" path="res://testing/Living/PhysicalTurret.cs" id="6_1ahxn"]
 [ext_resource type="PackedScene" uid="uid://c336h7rc5hwsl" path="res://subscenes/ui_subscenes/HealthBar.tscn" id="7_bp1g6"]
 [ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="8_wri3f"]
 [ext_resource type="PackedScene" uid="uid://dlc6gir51woxd" path="res://subscenes/weapons/TurretWeapon.tscn" id="9_o18cq"]

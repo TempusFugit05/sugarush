@@ -13,4 +13,10 @@ namespace GlobalEnums
 		Default = 1,
 		UiElemetns = 2,
 	}
+
+    enum CollisionLayersEnum : uint
+    {
+        Default = 1,
+        NoCollide = 32,
+    }
 }

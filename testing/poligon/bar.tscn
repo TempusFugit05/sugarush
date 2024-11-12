@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://2o0nu3x6kavf"]
 
-[ext_resource type="Script" path="res://testing/foo.cs" id="1_4os3x"]
+[ext_resource type="Script" path="res://testing/poligon/foo.cs" id="1_4os3x"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_r58oc"]
 _surfaces = [{
