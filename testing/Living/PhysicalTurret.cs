@@ -1,10 +1,9 @@
 using Godot;
 using Helpers;
 
-public partial class PhysicalTurret : RigidBody3D, ISoulful
+public partial class PhysicalTurret : CreatureBase
 {
 	// Called when the node enters the scene tree for the first time.
-	TestWeapon TurretWeapon;
     Organ WeaponHolder;
     Organ Body;
     Aabb HitBox;
@@ -70,15 +69,13 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
         Body.Health = 1000;
 
         WeaponHolder = GetNode<Organ>("WeaponHolder");
-        TurretWeapon = WeaponHolder.GetNode<TestWeapon>("TurretWeapon");
 
         Godot.Collections.Array<Organ> organs = HR.GetChildrenOfType<Organ>(this, true);
+        OrganRids.Add(GetRid());
         foreach (Organ organ in organs)
         {
             OrganRids.Add(organ.GetRid());
         }
-
-        TurretWeapon.AttachmentMode = TestWeapon.AttachmentModeEnum.Creature;
 
         HitBox = Body.GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
         HoverHeight += HitBox.Size.Y / 2;
@@ -149,23 +146,23 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
         Quaternion targetRotation;
         Quaternion FinalRotation;
 
-        Quaternion = HM.RotateTowards(Quaternion.Normalized(), new Quaternion(0, 0, 0, 1), Mathf.Pi * (float)delta);
+        Quaternion = HM.RotateTowards(Quaternion.Normalized(), new Quaternion(0, 0, 0, 1), Mathf.Pi * (float)delta); // Maintain rotation of base node
 
         if (Body.IsActive)
         {
             /* Rotate body */
-            targetRotation = HM.LookingAtAxis(Body, HR.GetPlayerNode(), GlobalBasis.Y);
-            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 4 * (float)delta);
-            Body.Quaternion = HM.ValidateQuaternion(FinalRotation);
+            targetRotation = HM.LookingAtAxis(Body, HR.GetPlayerNode(), GlobalBasis.Y); // Get rotation to look at player on Y axis
+            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 4 * (float)delta); // Rotate to target
+            Body.Quaternion = HM.ValidateQuaternion(FinalRotation); // Apply rotation
         }
 
         if (WeaponHolder.IsActive)
         {
             /* Rotate weapon */
-            Quaternion xComponent = HM.ProjectQuaternion(WeaponHolder.Quaternion, GlobalBasis.X);
-            targetRotation = HM.LookingAtAxis(WeaponHolder, HR.GetPlayerNode(), GlobalBasis.X);
-            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 4 * (float)delta);
-            WeaponHolder.Quaternion = HM.ProjectQuaternion(Body.Quaternion, GlobalBasis.X).Inverse() * Body.Quaternion * FinalRotation;
+            Quaternion xComponent = HM.ProjectQuaternion(WeaponHolder.Quaternion, GlobalBasis.X); // Get current rotation on x axis
+            targetRotation = HM.LookingAtAxis(WeaponHolder, HR.GetPlayerNode(), GlobalBasis.X); // Get rotation to look at player on x axis
+            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 4 * (float)delta); // Rotate to target
+            WeaponHolder.Quaternion = HM.ProjectQuaternion(Body.Quaternion, GlobalBasis.X).Inverse() * Body.Quaternion * FinalRotation; // Rotate with body and override rotation on x axis
         }
     }
 
@@ -258,11 +255,11 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
         KinematicCollision3D Collision = MoveAndCollide(Velocity * (float)delta, true);
         if (Collision is not null)
         {
-            Vector3 colliderVel = Vector3.Zero;
-            if (Collision.GetColliderVelocity() != Vector3.Zero && CollisionVel != Vector3.Zero)
-            {
-                colliderVel = Collision.GetColliderVelocity().Project(CollisionVel);
-            }
+            // Vector3 colliderVel = Vector3.Zero;
+            // if (Collision.GetColliderVelocity() != Vector3.Zero && CollisionVel != Vector3.Zero)
+            // {
+            //     colliderVel = Collision.GetColliderVelocity().Project(CollisionVel);
+            // }
 
             float collisionImpact = GetVelocity(delta).Length()*Mass;
             
@@ -288,14 +285,14 @@ public partial class PhysicalTurret : RigidBody3D, ISoulful
                 {
                     AvoidPlayer();
                     RotateTowardsPlayer(delta);
-                    if (TurretWeapon.ReadyToShoot() && IsLookingAtTarget(WeaponHolder, HR.GetPlayerNode()))
+                    if (IsLookingAtTarget(WeaponHolder, HR.GetPlayerNode()))
                     {
-                        TurretWeapon.Shoot();
+                        WeaponHolder?.UseOrgan();
                     }
                 }
 
-                // Velocity = GetVelocity(delta);
-                // ApplyFriction(Velocity);
+                Velocity = GetVelocity(delta);
+                ApplyFriction(Velocity);
                 ApplyCollisionDamage(delta);
                 RefPos = GlobalPosition;
                 ApplyCentralForce(Force);

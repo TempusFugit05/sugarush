@@ -126,6 +126,12 @@ namespace Helpers
             return PlayerNode;
         }
 
+        /// <summary>
+        ///     Recursively get all children of a specific type in this node.
+        /// </summary>
+        /// <typeparam name="T">Type of node</typeparam>
+        /// <param name="parentNode">Parent node to get chilren from</param>
+        /// <param name="childArr">Array to which to append the children</param>
         static private void GetChildrenOfTypeRec<[MustBeVariant] T>(Node parentNode, Godot.Collections.Array<T> childArr)
         {
             foreach (Node child in parentNode.GetChildren())
@@ -267,6 +273,12 @@ namespace Helpers
             }
             return original;
         }
+
+        public static void BoundRotation(Quaternion toBound, Vector3 limits)
+        {
+            
+        } 
+
 
         /// <summary>
         ///     

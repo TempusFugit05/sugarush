@@ -8,27 +8,28 @@ public partial class TestWeapon : RigidBody3D
 	{
 		Free,
 		Player,
-		Creature
+		Creature,
+		Default = Free,
 	}
 
     [Export]
     protected PackedScene DecalScene;
+    protected string DefaultDecalScenePath = "res://subscenes/ui_subscenes/BulletDecal.tscn";
 
-	[Export]
+    [Export]
 	protected float Range = 75.0f;
 
 	[Export]
 	protected float DamageFalloffStart = 10;
 	
 	[Export]
-	protected float FireRate = 0.25f; // Time between each bullet fired
+	protected float FireRate = 0.05f; // Time between each bullet fired
 	
 	[Export]
 	protected float Damage = 25.0f;
 
 	[Export]
-	public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Free;
-
+	public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Default;
 
     [Export]
     protected float MinimumDamage = 1.0f;
@@ -50,29 +51,44 @@ public partial class TestWeapon : RigidBody3D
 
     protected void InitWeapon()
 	{
+		if (DecalScene == null)
+		{
+            DecalScene = ResourceLoader.Load<PackedScene>(DefaultDecalScenePath);
+        }
         InitShootingHandler();
-
-        // if(SoundEffectPath.Length != 0)
-		// {
-		// 	AudioPlayer.Stream = ResourceLoader.Load<AudioStream>(SoundEffectPath);
-        // }
-		
-		if (AttachmentMode is AttachmentModeEnum.Player)
-		{
-            FreezeMode = FreezeModeEnum.Static;
-            Freeze = true;
-            CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
-            AudioPlayer = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer");
-        }
-
-		else if (AttachmentMode is AttachmentModeEnum.Creature)
-		{
-            FreezeMode = FreezeModeEnum.Static;
-            Freeze = true;
-            CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
-			AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer");			
-        }
+        SetAttachmentMode(AttachmentMode); // Set default attachment mode
     }
+
+	public void SetAttachmentMode(AttachmentModeEnum mode)
+	{
+		switch (mode)
+		{
+            case AttachmentModeEnum.Free:
+            {
+				Freeze = false;
+				CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.Default;
+				AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer"); // Play from own sound player
+				break;
+            }
+            case AttachmentModeEnum.Creature:
+            {
+				FreezeMode = FreezeModeEnum.Static;
+				Freeze = true;
+				CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
+				AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer"); // Play from own sound player
+				break;
+            }
+			case AttachmentModeEnum.Player:
+			{
+				FreezeMode = FreezeModeEnum.Static;
+				Freeze = true;
+				CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
+				AudioPlayer = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer"); // Play from player sound player
+				PlayerCameraNode = GetNode<Camera3D>("../../PlayerCamera");
+				break;
+            }
+		}
+	}
 
     public override void _Ready()
 	{
@@ -124,7 +140,7 @@ public partial class TestWeapon : RigidBody3D
 		{
 			if(AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
 			{
-				ShootFromCamera();
+                ShootFromCamera();
 			}			
 
 			else

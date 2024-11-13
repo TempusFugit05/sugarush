@@ -7,7 +7,7 @@ public partial class Character : CharacterBody3D
 	/// <Summary>
 	private void InitWeaponHandler()
 	{
-		WeaponNode = GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
+		WeaponNode = GetNodeOrNull<TestWeapon>("PlayerCamera/Weapon");
 	}
 
 	/// <Summary>

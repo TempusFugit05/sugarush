@@ -86,21 +86,29 @@ public partial class TestWeapon : RigidBody3D
 	{
 		if(ImpactDict is not null)
 		{
-			Node HitObject = (Node)ImpactDict["collider"];
-            Vector3 DamagePosition = (Vector3)ImpactDict["position"];
-            float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
-            if(HitObject is ICreature creature)
+			Node3D HitObject = (Node3D)ImpactDict["collider"];
+			if (HitObject is not null)
 			{
-				creature.Hurt(DamageToApply, DamagePosition); // Hurtable is a special method for objects which are damage-able
+				Vector3 DamagePosition = (Vector3)ImpactDict["position"];
+				float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
+
+				if(HitObject is ICreature creature)
+				{
+					if (creature is RigidBody3D rigidCreature)
+					{
+						ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)ImpactDict["shape"])).GetInstanceId();
+						creature.Hurt(DamageToApply, DamagePosition, colliderShapeId);
+					}
+					else
+					{
+						creature.Hurt(DamageToApply, DamagePosition);
+					}
+				}
+				if (HitObject is RigidBody3D body)
+				{
+					body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / Damage), DamagePosition - body.GlobalPosition);
+				}
 			}
-			if (HitObject is RigidBody3D body)
-			{
-                body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / Damage), DamagePosition - body.GlobalPosition);
-            }
-			// if (HitObject is ISoulful soul)
-			// {
-            //     soul.GetSoul().Hurt(DamageToApply, DamagePosition);
-            // }
 		}
 	}
 
@@ -124,8 +132,11 @@ public partial class TestWeapon : RigidBody3D
 
 		if(RayDict.Count != 0)
 		{ // If the dictionary is empty, nothing was hit
-			ApplyBulletHoleDecal(RayDict);
-			ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
+			if ((object)RayDict["collider"] is not null)
+			{
+				ApplyBulletHoleDecal(RayDict);
+				ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
+			}	
 		}
 	}
 }
