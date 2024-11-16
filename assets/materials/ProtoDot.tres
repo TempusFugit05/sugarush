@@ -3,6 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dos1r80hb76j7" path="res://icon.svg" id="1_h4mg7"]
 
 [resource]
+transparency = 4
 albedo_texture = ExtResource("1_h4mg7")
 uv1_scale = Vector3(4, 4, 4)
 uv1_triplanar = true

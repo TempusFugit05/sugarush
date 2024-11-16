@@ -68,12 +68,11 @@ public partial class BulletHole : Decal
         // await ToSignal(GetTree().CreateTimer(FadeStartTime), SceneTreeTimer.SignalName.Timeout);
         FadeTween = CreateTween();
         FadeTween.TweenProperty(this, "modulate", new Color(0, 0, 0, 0), LifeTime - FadeStartTime);
-        FadeTween.Finished += DeInitNode;
+        FadeTween.Finished += QueueFree;
     }
-
-    public void DeInitNode()
+    
+    public override void _ExitTree()
     {
         HP.RemoveFromDecalPool(this);
-        QueueFree();
     }
 }

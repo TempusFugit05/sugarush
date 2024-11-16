@@ -1,85 +1,109 @@
 using Godot;
 using System.Threading.Tasks;
 
-public partial class Weapon : Node3D
+public partial class Weapon : RigidBody3D, IInteractable
 {
 
 	public enum AttachmentModeEnum
 	{
 		Free,
 		Player,
-		Creature
+		Creature,
+		Default = Free,
 	}
 
-    [Export]
-    protected PackedScene DecalScene;
+    public struct WeaponSettingsStruct
+    {
+        public const string DefaultDecalScenePath = "res://subscenes/ui_subscenes/BulletDecal.tscn";
+        public string DecalPath = DefaultDecalScenePath;
+        public PackedScene DecalScene = null;
+        public bool EnableDecals = true;
 
-	[Export]
-	protected float Range = 75.0f;
+        public const string DefaultSoundEffectPath = "res://assets/audio/weapon/untitled.wav";
+        public string SoundEffectPath = DefaultSoundEffectPath;
+        public float RandPitchScaleMin = 0.95f;
+        public float RandPitchScaleMax = 1.05f;
 
-	[Export]
-	protected float DamageFalloffStart = 10;
-	
-	[Export]
-	protected float FireRate = 0.25f; // Time between each bullet fired
-	
-	[Export]
-	protected float Damage = 25.0f;
+        public const string DefaultMetallicHit = "res://assets/particles/MetallicImpact.tscn";
+        public string MetallicHit = DefaultMetallicHit;
+        public PackedScene Metal = null;
 
-	[Export]
-	public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Free;
+        public float Range = 75.0f;
+        public float DamageFalloffStart = 10;
+        public float FireRate = 8f; // Bullets per second
+        public float Damage = 25.0f;
+		public float MinimumDamage = 1.0f;
 
-	protected Camera3D PlayerCameraNode = null;
+		public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Default;
+    
+	    public WeaponSettingsStruct(){}
+    }
 
-    [Export]
-    protected float MinimumDamage = 1.0f;
+    protected WeaponSettingsStruct WeaponSettings = new();
 
-    [Export]
-    protected string SoundEffectPath = "res://assets/audio/weapon/untitled.wav";
-
-    protected bool CanShoot = true;
-
-    protected string DecalPath;
-	
+	public Camera3D PlayerCameraNode = null;
+    
+	protected bool CanShoot = true;
     protected string PlayerCameraPath;
 
     protected AudioStreamPlayer3D AudioPlayer;
 
-	protected void InitWeapon()
+    protected Organ HostOrgan;
+
+	protected virtual void InitWeapon(){}
+
+    protected void Init(string customDecalPath = default, string customSoundEffectPath = default)
 	{
+		WeaponSettings.DecalScene = ResourceLoader.Load<PackedScene>(WeaponSettings.DecalPath);
+		AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer");
+        AudioPlayer.Stream = ResourceLoader.Load<AudioStream>(WeaponSettings.SoundEffectPath);
+        WeaponSettings.Metal = ResourceLoader.Load<PackedScene>(WeaponSettings.MetallicHit);
         InitShootingHandler();
-		if(AttachmentMode is AttachmentModeEnum.Player)
-		{
-            AudioPlayer = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer");
-        }
-		else
-		{
-			AudioPlayer = GetNode<AudioStreamPlayer3D>("AudioPlayer");			
-		}
-
-        if(SoundEffectPath.Length != 0)
-		{
-			AudioPlayer.Stream = ResourceLoader.Load<AudioStream>(SoundEffectPath);
-        }
-		
-		// if (AttachmentMode is AttachmentModeEnum.Player)
-		// {
-        //     FreezeMode = FreezeModeEnum.Static;
-        //     Freeze = true;
-        //     GD.Print();
-        // }
-
-		// else if (AttachmentMode is AttachmentModeEnum.Creature)
-		// {
-        //     FreezeMode = FreezeModeEnum.Kinematic;
-        //     Freeze = true;
-        //     GetNode("MeshInstance3D").QueueFree();
-        // }
     }
+
+	public void SetAttachmentMode(AttachmentModeEnum mode)
+	{
+
+		if (mode == AttachmentModeEnum.Player || mode == AttachmentModeEnum.Creature)
+		{
+			FreezeMode = FreezeModeEnum.Static;
+			Freeze = true;
+			CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
+		} // Disable physics on weapon
+
+		switch (mode)
+		{
+            case AttachmentModeEnum.Free:
+            {
+				Freeze = false;
+				CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.Default;
+				AudioPlayer.GlobalPosition = ProjectileSpawnPoint.GlobalPosition;
+				break;
+            }
+            case AttachmentModeEnum.Creature:
+            {
+				AudioPlayer.GlobalPosition = ProjectileSpawnPoint.GlobalPosition;
+				break;
+            }
+			case AttachmentModeEnum.Player:
+			{
+				PlayerCameraNode = GetNode<Camera3D>("../../PlayerCamera");
+				AudioPlayer.GlobalPosition = GetNode<AudioStreamPlayer3D>("../CameraSoundPlayer").GlobalPosition;
+				break;
+            }
+			default:
+			{
+				SetAttachmentMode(AttachmentModeEnum.Default);
+				break;
+            }
+		}
+		WeaponSettings.AttachmentMode = mode;
+	}
 
     public override void _Ready()
 	{
         InitWeapon();
+        Init();
     }
 
 	/// <summary>
@@ -90,14 +114,14 @@ public partial class Weapon : Node3D
     /// <returns>Modified damage</returns>
 	protected virtual float ApplyDamageFalloff(float damage, float distanceToTarget)
 	{        
-		if(distanceToTarget > DamageFalloffStart)
+		if(distanceToTarget > WeaponSettings.DamageFalloffStart)
 		{
-            damage -= (damage / Range) * distanceToTarget;
+            damage -= (damage / WeaponSettings.Range) * distanceToTarget;
         }
 
-		if (damage < MinimumDamage && damage > 0)
+		if (damage < WeaponSettings.MinimumDamage && damage > 0)
         {
-            return MinimumDamage;
+            return WeaponSettings.MinimumDamage;
         }
 
         return damage;
@@ -106,7 +130,7 @@ public partial class Weapon : Node3D
 	protected async Task SetCooldown()
 	{
 		CanShoot = false; // Disable shooting
-		await ToSignal(GetTree().CreateTimer(FireRate), SceneTreeTimer.SignalName.Timeout); // Set timer for next shot
+		await ToSignal(GetTree().CreateTimer(1 / WeaponSettings.FireRate), SceneTreeTimer.SignalName.Timeout); // Set timer for next shot
 		CanShoot = true; // Enable shooting
 	}
 
@@ -125,17 +149,18 @@ public partial class Weapon : Node3D
 	{
 		if(CanShoot)
 		{
-			if(AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
+            if(WeaponSettings.AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
 			{
-				ShootFromCamera();
+                ShootFromCamera();
 			}			
 
 			else
 			{
-				ShootFromWeapon();
+                ShootFromWeapon();
 			}
 
             _ = SetCooldown();
+            AudioPlayer.PitchScale = Mathf.Clamp(GD.Randf(), WeaponSettings.RandPitchScaleMin, WeaponSettings.RandPitchScaleMax);
             AudioPlayer.Play();
             return true;
 		}

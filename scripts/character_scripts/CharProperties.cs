@@ -102,6 +102,8 @@ public partial class Character : CharacterBody3D
 	float PlayerMass = 50f;
 	float MinVel = 0.3f;
 
-	private TestWeapon WeaponNode;
+	private Weapon WeaponNode;
 	private Area3D PickupSphereNode;
+    private RayCast3D InteractRay;
+	public IInteractable InteractingWith { get; private set; }
 }

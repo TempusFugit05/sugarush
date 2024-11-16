@@ -2,89 +2,77 @@ using Godot;
 using System.Collections.Generic;
 using Helpers;
 
-public partial class CreatureBase : RigidBody3D, ICreature
+public partial class CreatureBase : Organ
 {
-	public struct OrganCollider
-	{
-        public Godot.Collections.Array<CollisionShape3D> Colliders;
-        public Node Owner;
-
-		public OrganCollider (Godot.Collections.Array<CollisionShape3D> colliders, Node owner)
-		{
-            Colliders = colliders;
-            Owner = owner;
-        }
+    public struct CreatureSettingsStruct
+    {
+        public float GroundDetectionDistance = 100.0f;
+        public CreatureSettingsStruct(){}
     }
+    CreatureSettingsStruct CreatureSettings = new();
 
-    protected LinkedList<OrganCollider> GuestColliders = new();
-
-	public void CombineColliders(OrganCollider colliders)
-	{
-        GuestColliders.AddLast(colliders);
-        foreach (CollisionShape3D shape in colliders.Colliders)
+    public void NotifyKilled(Organ killedOrgan, OrganSettingStruct settings)
+    {
+        if (settings.Vital)
         {
-            shape.Reparent(this);
+            Kill();
+            Destroy();
         }
-	}
-
-    public void Kill()
-	{
-        return;
     }
 
-    public void Hurt(float damage, Vector3 damagePosition = default, ulong colliderId = default)
+    protected float GetHeightAboveGround()
     {
-		foreach (OrganCollider colliderList in GuestColliders)
-		{
-			foreach (CollisionShape3D shape in colliderList.Colliders)
-			{
-				if (colliderId == shape.GetInstanceId() && colliderList.Owner is Organ organ)
-				{
-					organ.ApplyDamage(damage, damagePosition);
-					return;
-				}
-			}
-		}
+        PhysicsRayQueryParameters3D Query = new()
+        {
+            From = GlobalPosition,
+            To = -GlobalBasis.Y * CreatureSettings.GroundDetectionDistance,
+            Exclude = OrganRids,
+            CollideWithAreas = false,
+            CollideWithBodies = true,
+        };
+        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
+        float outDistance = float.NegativeInfinity;
+        if (RayDict.Count != 0)
+        {
+            outDistance = ((Vector3)RayDict["position"]).DistanceTo(GlobalPosition) - (Hitbox.Size.Y / 2);
+        }
+        return outDistance;
     }
 
-	/// <summary>
-    /// 	Attempt to return collider to original organ.
-    /// </summary>
-    /// <param name="collider">Collider to return</param>
-    /// <param name="returnTo">Original owner</param>
-	public bool ReturnCollider(Node returnTo)
-	{
-        LinkedListNode<OrganCollider> currentCollider = GuestColliders.First;
-		while (currentCollider != null)
-		{
-            OrganCollider keptColliders = currentCollider.Value;
-            if (keptColliders.Owner == returnTo)
-			{
-				foreach (CollisionShape3D collider in keptColliders.Colliders)
-				{
-                    collider.Reparent(returnTo);
+    protected bool IsLookingAtTarget(Node3D lookingNode, Node3D target)
+    {
+        if (lookingNode.GlobalBasis.Z.AngleTo(lookingNode.GlobalPosition - target.GlobalPosition) <= Mathf.DegToRad(5))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    protected bool IsPlayerVisible()
+    {
+        if (HR.GetPlayerNode() is not null)
+        {
+            PhysicsRayQueryParameters3D Query = new()
+            {
+                From = GlobalPosition,
+                To = HR.GetPlayerNode().GlobalPosition,
+                Exclude = OrganRids,
+                CollideWithAreas = false,
+                CollideWithBodies = true,
+            };
+
+            Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
+            if (RayDict.Count != 0)
+            {
+                if ((Node)RayDict["collider"] is Character)
+                {
+                    return true;
                 }
-                return true;
-            } // If colliders were found in collider list, return them to the original owner
-            currentCollider = currentCollider.Next;
+            }
         }
+        
+        return false;
 
-		GD.PushError("Organ " + returnTo.Name + " requested collider but it was not found");
-		return false;
-	}
-
-	private void AmalgamateOrgans()
-	{
-		foreach (Organ organ in HR.GetChildrenOfType<Organ>(this, true))
-		{
-            organ.TakeColliders(this);
-            organ.OnAddedToCreature();
-        }
-	}
-
-    public override void _Ready()
-    {
-        AmalgamateOrgans();
     }
 
 }

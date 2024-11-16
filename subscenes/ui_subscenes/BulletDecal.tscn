@@ -5,7 +5,7 @@
 
 [node name="BulletDecal" type="Decal"]
 top_level = true
-size = Vector3(0.2, 0.2, 0.2)
+size = Vector3(0.1, 0.1, 0.1)
 texture_albedo = ExtResource("1_m65ea")
 emission_energy = 0.0
 upper_fade = 1e-05

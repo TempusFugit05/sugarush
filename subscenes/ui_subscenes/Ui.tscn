@@ -1,12 +1,13 @@
-[gd_scene load_steps=8 format=3 uid="uid://ddl0obnlx7ke8"]
+[gd_scene load_steps=9 format=3 uid="uid://ddl0obnlx7ke8"]
 
 [ext_resource type="Script" path="res://scripts/ui_scripts/SugarLabel.cs" id="1_7i4lu"]
 [ext_resource type="Script" path="res://scripts/ui_scripts/Ui.cs" id="1_wlq1i"]
 [ext_resource type="Script" path="res://scripts/ui_scripts/SugarushStatus.cs" id="2_6x33i"]
 [ext_resource type="Script" path="res://scripts/ui_scripts/FpsLabel.cs" id="2_848jl"]
+[ext_resource type="Script" path="res://scripts/ui_scripts/InteractionLabel.cs" id="3_13ur8"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_g6khy"]
-font_size = 30
+font_size = 48
 
 [sub_resource type="LabelSettings" id="LabelSettings_ftpbk"]
 font_size = 30
@@ -16,10 +17,9 @@ font_color = Color(0.72, 0, 0, 1)
 
 [node name="UiControl" type="Control"]
 layout_mode = 3
-anchor_right = 1.667
-anchor_bottom = 1.654
-offset_right = -0.384033
-offset_bottom = 8.20801
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -34,13 +34,32 @@ horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("2_848jl")
 
+[node name="InteractionLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 544.0
+offset_top = 360.0
+offset_right = -539.0
+offset_bottom = -265.0
+rotation = -0.00107061
+text = "WAAAAA"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("3_13ur8")
+
 [node name="SugarInfoControl" type="Control" parent="."]
 layout_mode = 1
-anchor_right = 0.6
-anchor_bottom = 0.593
-offset_top = 304.0
-offset_right = -750.024
-offset_bottom = 5.72797
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 216.0
+offset_top = 360.0
+offset_right = -736.0
+offset_bottom = -168.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SugarLabel" type="Label" parent="SugarInfoControl"]
 layout_mode = 1
@@ -48,10 +67,10 @@ anchors_preset = -1
 anchor_top = 0.901
 anchor_right = 0.101
 anchor_bottom = 0.991
-offset_left = 52.0
-offset_top = -137.913
-offset_right = 158.457
-offset_bottom = -99.0831
+offset_left = 32.0
+offset_top = -55.648
+offset_right = 138.457
+offset_bottom = -16.8181
 text = "SUGAR"
 label_settings = SubResource("LabelSettings_g6khy")
 horizontal_alignment = 1
@@ -64,10 +83,9 @@ anchors_preset = -1
 anchor_top = 0.951
 anchor_right = 0.079
 anchor_bottom = 1.0
-offset_left = 18.0
-offset_top = -191.563
-offset_right = 183.84
-offset_bottom = -151.523
+offset_top = -98.12
+offset_right = 165.84
+offset_bottom = -58.08
 text = "SUGARUSH!"
 label_settings = SubResource("LabelSettings_ftpbk")
 horizontal_alignment = 1

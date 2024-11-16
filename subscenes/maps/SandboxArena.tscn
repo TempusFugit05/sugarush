@@ -1,33 +1,18 @@
-[gd_scene load_steps=16 format=3 uid="uid://bgfxcvvj7e27"]
+[gd_scene load_steps=8 format=3 uid="uid://bgfxcvvj7e27"]
 
 [ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="2_068f1"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="3_xuxrd"]
 [ext_resource type="Material" uid="uid://nynl2docpdcr" path="res://assets/materials/ProtoWall.tres" id="4_qnkdd"]
+[ext_resource type="PackedScene" uid="uid://ciko4vknptkjp" path="res://subscenes/enemy_subscenes/turret.tscn" id="5_i734r"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="5_jlqjr"]
-[ext_resource type="Script" path="res://testing/Living/PhysicalTurret.cs" id="6_1ahxn"]
-[ext_resource type="PackedScene" uid="uid://c336h7rc5hwsl" path="res://subscenes/ui_subscenes/HealthBar.tscn" id="7_bp1g6"]
-[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="8_wri3f"]
-[ext_resource type="PackedScene" uid="uid://dlc6gir51woxd" path="res://subscenes/weapons/TurretWeapon.tscn" id="9_o18cq"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_a38x8"]
+[sub_resource type="BoxMesh" id="BoxMesh_y0lkw"]
+size = Vector3(0.5, 6, 6)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_as1rg"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_u1rjo"]
+points = PackedVector3Array(-0.297563, -3.04702, -3.04702, 0.25, 2.7936, 2.79317, 0.25, 2.7936, -2.79317, -0.297563, 3.04687, 3.04702, 0.25, -2.7937, 2.79372, -0.297563, 3.04687, -3.04702, -0.297563, -3.04702, 3.04702, 0.25, -2.7937, -2.79372, 0.175588, 3, -2.99956, 0.175588, 3, 2.99956)
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_2bfxv"]
-viewport_path = NodePath("ViewPort")
-
-[sub_resource type="SphereMesh" id="SphereMesh_lof4i"]
-material = ExtResource("8_wri3f")
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_7w1q7"]
-material = ExtResource("8_wri3f")
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_m222q"]
-
-[sub_resource type="ViewportTexture" id="ViewportTexture_ap2i0"]
-viewport_path = NodePath("ViewPort")
-
-[node name="SandboxArena" type="Node3D"]
+[node name="Main" type="Node3D"]
 
 [node name="Character" parent="." instance=ExtResource("2_068f1")]
 transform = Transform3D(1.00377, 0, 0, 0, 1.00377, 0, 0, 0, 1.00377, 0, 0, -4.62842)
@@ -65,17 +50,6 @@ material = ExtResource("4_qnkdd")
 transform = Transform3D(0.564842, 0, 0, 0, 0.564842, 0, 0, 0, 0.564842, 0, -3.17942, 0)
 DisablePhysics = false
 
-[node name="RigidBody3D" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.47142, 0, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-mesh = SubResource("SphereMesh_a38x8")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-shape = SubResource("SphereShape3D_as1rg")
-
 [node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.884394, -0.0828051, 0.459338, -0.146391, 0.885267, 0.441444, -0.44319, -0.457653, 0.770802, 0, 20.7556, 0)
 light_energy = 0.5
@@ -85,68 +59,21 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, -0.177411, 0.984137, 0, -0.984137, -0.177411, 0, 20.7556, 0)
 shadow_enabled = true
 
-[node name="Turret4" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.47527, 1.1538, 6.58602)
-mass = 25.0
-gravity_scale = 0.5
-angular_damp = 2.5
-script = ExtResource("6_1ahxn")
+[node name="Turret" parent="." instance=ExtResource("5_i734r")]
+transform = Transform3D(2.62678, 0, 0, 0, 2.62678, 0, 0, 0, 2.62678, 4.38232, -1.49582, -2.20175)
 
-[node name="HealthBar" parent="Turret4" instance=ExtResource("7_bp1g6")]
-transform = Transform3D(0.375158, 0, 0, 0, 0.375158, 0, 0, 0, 0.375158, 0, 1.1421, 0)
-texture = SubResource("ViewportTexture_2bfxv")
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
 
-[node name="Body" type="Node3D" parent="Turret4"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.8365, -1.67361, -0.352776)
+mesh = SubResource("BoxMesh_y0lkw")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret4/Body"]
-transform = Transform3D(1.33645, 0, 0, 0, 1.33645, 0, 0, 0, 1.33645, 0, 0, 0)
-mesh = SubResource("SphereMesh_lof4i")
-skeleton = NodePath("../..")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.8365, -1.67361, -0.352776)
+shape = SubResource("ConvexPolygonShape3D_u1rjo")
 
-[node name="WeaponHolder" type="Node3D" parent="Turret4/Body"]
-transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
+[node name="Turret2" parent="." instance=ExtResource("5_i734r")]
+transform = Transform3D(2.62678, 0, 0, 0, 2.62678, 0, 0, 0, 2.62678, 5.98194, 0.292071, -1.14791)
 
-[node name="TurretWeapon" parent="Turret4/Body/WeaponHolder" instance=ExtResource("9_o18cq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, -1.09123)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret4/Body/WeaponHolder"]
-transform = Transform3D(-6.40507e-08, 0.17639, 0, -1.46531, -7.71025e-09, 0, 0, 0, 1.46532, 0, 0, 0)
-mesh = SubResource("CylinderMesh_7w1q7")
-skeleton = NodePath("../../..")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Turret4"]
-transform = Transform3D(1.33965, 0, 0, 0, 1.33965, 0, 0, 0, 1.33965, 0, 0, 0)
-shape = SubResource("SphereShape3D_m222q")
-
-[node name="Turret5" type="RigidBody3D" parent="."]
-transform = Transform3D(0.294241, 0, 0, 0, 0.294241, 0, 0, 0, 0.294241, -1.65894, 1.1538, 6.58602)
-mass = 0.5
-angular_damp = 5.0
-script = ExtResource("6_1ahxn")
-HoverForce = 20.0
-
-[node name="HealthBar" parent="Turret5" instance=ExtResource("7_bp1g6")]
-transform = Transform3D(0.375158, 0, 0, 0, 0.375158, 0, 0, 0, 0.375158, 0, 1.1421, 0)
-texture = SubResource("ViewportTexture_ap2i0")
-
-[node name="Body" type="Node3D" parent="Turret5"]
-
-[node name="WeaponHolder" type="Node3D" parent="Turret5/Body"]
-transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
-
-[node name="TurretWeapon" parent="Turret5/Body/WeaponHolder" instance=ExtResource("9_o18cq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, -1.09123)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret5/Body/WeaponHolder"]
-transform = Transform3D(-6.40507e-08, 0.17639, 0, 1.46531, 7.71025e-09, -1.28102e-07, -1.28102e-07, -6.74052e-16, -1.46532, 0, 0, 0)
-mesh = SubResource("CylinderMesh_7w1q7")
-skeleton = NodePath("../../../../..")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Turret5/Body"]
-transform = Transform3D(1.33645, 0, 0, 0, 1.33645, 0, 0, 0, 1.33645, 0, 0, 0)
-mesh = SubResource("SphereMesh_lof4i")
-skeleton = NodePath("../..")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Turret5"]
-transform = Transform3D(1.33965, 0, 0, 0, 1.33965, 0, 0, 0, 1.33965, 0, 0, 0)
-shape = SubResource("SphereShape3D_m222q")
+[node name="Turret3" parent="." instance=ExtResource("5_i734r")]
+transform = Transform3D(2.62678, 0, 0, 0, 2.62678, 0, 0, 0, 2.62678, 1.39303, 0.374085, -0.0960217)

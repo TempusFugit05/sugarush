@@ -3,32 +3,32 @@ using Helpers;
 
 public partial class OrganArm : Organ
 {
-    TestWeapon AttachedWeapon;
+    Weapon AttachedWeapon;
+    Node3D WeaponTransformReference;
     Godot.Collections.Array<CollisionShape3D> WeaponColliders;
     bool WeaponCollidersReparented = false;
-
-    // protected override void OnParentOrganAdded()
-    // {
-    //     DefaultOnParentOrganAdded();
-    //     if (!WeaponCollidersReparented && AttachedWeapon is not null)
-    //     {
-    //         GrabWeapon(AttachedWeapon);
-    //     }
-    // }
 
     public override void OnAddedToCreature()
     {
         GrabWeapon();
     }
 
+    protected override void OnDelete()
+    {
+        AttachedWeapon?.QueueFree();
+    } 
+
     public void GrabWeapon()
 	{
-        Godot.Collections.Array<TestWeapon> childWeapons = HR.GetChildrenOfType<TestWeapon>(this);
+        Godot.Collections.Array<Weapon> childWeapons = HR.GetChildrenOfType<Weapon>(this);
         if (childWeapons.Count == 1)
         {
             AttachedWeapon = childWeapons[0];
-            ColliderBank.CombineColliders(new(HR.GetChildrenOfType<CollisionShape3D>(AttachedWeapon), AttachedWeapon));
+            WeaponTransformReference = GetNodeTransformReference(AttachedWeapon);
+            WeaponColliders = HR.GetChildrenOfType<CollisionShape3D>(AttachedWeapon);
+            OrganBase.MergeColliders(new(HR.GetChildrenOfType<CollisionShape3D>(AttachedWeapon), AttachedWeapon));
             WeaponCollidersReparented = true;
+            AttachedWeapon.Freeze = true;
         }
     }
 
@@ -37,11 +37,11 @@ public partial class OrganArm : Organ
         if (AttachedWeapon is not null)
         {
             WeaponCollidersReparented = false;
-            ColliderBank.ReturnCollider(AttachedWeapon);
+            AttachedWeapon.SetAttachmentMode(Weapon.AttachmentModeEnum.Free);
+            OrganBase.ReturnCollider(AttachedWeapon);
             AttachedWeapon.Freeze = false;
             AttachedWeapon.Reparent(GetTree().Root.GetNode("Main"));
             AttachedWeapon = null;
-
         }
     }
 
@@ -50,22 +50,25 @@ public partial class OrganArm : Organ
         AttachedWeapon?.Shoot();
     }
 
-    protected override void OnKill()
+    protected override void OnDestroy()
     {
         DropWeapon();
     }
 
-    public override void _Ready()
+    protected override void OrganPhysicsProcess(double delta)
     {
-        Health = 1000;
-        Init();
+        if (AttachedWeapon is not null)
+        {
+            CallDeferred("UpdateCollidersOf", WeaponTransformReference.GlobalTransform, WeaponColliders);
+            // CallDeferred("UpdateCollidersOf", WeaponTransformReference.GlobalTransform, WeaponColliders);
+        }
     }
-    public override void _PhysicsProcess(double delta)
+
+    protected override void InitOrgan()
     {
-        DefaultPhysicsProcess();
-        // foreach (CollisionShape3D collider in WeaponColliders)
-        // {
-        //     collider.GlobalBasis = AttachedWeapon.GlobalBasis;
-        // }
+        OrganSettings.Vital = true;
+        OrganSettings.UpdateColliders = true;
+        OrganSettings.DestructMode = DestructModeEnum.Gibs;
+        OrganSettings.MaxHealth = 500;
     }
 }

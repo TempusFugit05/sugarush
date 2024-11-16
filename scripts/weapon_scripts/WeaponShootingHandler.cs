@@ -1,8 +1,8 @@
+using System;
 using Godot;
 using Helpers;
 
-public partial class Weapon : Node3D
-
+public partial class Weapon : RigidBody3D
 {	
 	protected Node3D ProjectileSpawnPoint;
 
@@ -14,15 +14,13 @@ public partial class Weapon : Node3D
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
         Node3D Collider = (Node3D)RayDict["collider"];
-        if (Collider is ICreature || Collider is RigidBody3D)
+        if (Collider is not ICreature && Collider is not RigidBody3D)
 		{
-            return;
+			BulletHole ChildDecal = (BulletHole)WeaponSettings.DecalScene.Instantiate(); // Create decal on the hit node 
+			Collider.AddChild(ChildDecal);
+			ChildDecal.InitDecal((Vector3)RayDict["normal"]);
+			ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
         }
-        Node3D ObjectHit = Collider;
-		BulletHole ChildDecal = (BulletHole)DecalScene.Instantiate(); // Create decal on the hit node 
-		ObjectHit.AddChild(ChildDecal);
-        ChildDecal.InitDecal((Vector3)RayDict["normal"]);
-		ChildDecal.GlobalPosition = (Vector3)RayDict["position"];		
 	}
 
     protected Vector3 GetCameraNormal()
@@ -60,8 +58,7 @@ public partial class Weapon : Node3D
 			
 			// Apply rotation to the camera normal
 			Vector3 dirVector = rotationBasis * CameraNormal;
-
-            Vector3 projectileEndPos = ProjectileStartPos + dirVector * Range;
+            Vector3 projectileEndPos = ProjectileStartPos + dirVector * WeaponSettings.Range;
             
             ShootProjectile(ProjectileStartPos, projectileEndPos);
 			}
@@ -69,7 +66,7 @@ public partial class Weapon : Node3D
 
 		else
 		{
-			Vector3 ProjectileEndPos = ProjectileStartPos + (CameraNormal * Range); // Projcet a normal vector from the middle of the screen and scale the result by the projectile range
+            Vector3 ProjectileEndPos = ProjectileStartPos + (CameraNormal * WeaponSettings.Range); // Projcet a normal vector from the middle of the screen and scale the result by the projectile range
 			ShootProjectile(ProjectileStartPos, ProjectileEndPos);
 		}
 	}
@@ -77,7 +74,7 @@ public partial class Weapon : Node3D
 	protected void ShootFromWeapon()
 	{
 		Vector3 ProjectileStartPos = ProjectileSpawnPoint.GlobalPosition;
-		Vector3 ProjectileEndPos = ProjectileStartPos + (GlobalTransform.Basis.X * Range);
+		Vector3 ProjectileEndPos = ProjectileStartPos + (GlobalTransform.Basis.X * WeaponSettings.Range);
 		ShootProjectile(ProjectileStartPos, ProjectileEndPos);
 	}
 
@@ -89,15 +86,15 @@ public partial class Weapon : Node3D
 		if(ImpactDict is not null)
 		{
 			Node3D HitObject = (Node3D)ImpactDict["collider"];
-		    Vector3 DamagePosition = (Vector3)ImpactDict["position"];
-            float DamageToApply = ApplyDamageFalloff(Damage, GlobalPosition.DistanceTo(DamagePosition));
+			Vector3 DamagePosition = (Vector3)ImpactDict["position"];
+			float DamageToApply = ApplyDamageFalloff(WeaponSettings.Damage, GlobalPosition.DistanceTo(DamagePosition));
 
 			if(HitObject is ICreature creature)
 			{
 				if (creature is RigidBody3D rigidCreature)
 				{
-                    ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)ImpactDict["shape"])).GetInstanceId();
-                    creature.Hurt(DamageToApply, DamagePosition, colliderShapeId);
+					ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)ImpactDict["shape"])).GetInstanceId();
+					creature.Hurt(DamageToApply, DamagePosition, colliderShapeId);
 				}
 				else
 				{
@@ -106,8 +103,16 @@ public partial class Weapon : Node3D
 			}
 			if (HitObject is RigidBody3D body)
 			{
-                body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / Damage), DamagePosition - body.GlobalPosition);
-            }
+				body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / WeaponSettings.Damage), DamagePosition - body.GlobalPosition);
+			}
+
+            GpuParticles3D particle = (GpuParticles3D)WeaponSettings.Metal.Instantiate();
+            HitObject.AddChild(particle);
+            particle.GlobalPosition = DamagePosition;
+            particle.Quaternion = new ((RayInfo.To - RayInfo.From).Reflect((Vector3)ImpactDict["normal"]).Cross(Vector3.Up).Normalized(), Mathf.DegToRad(90));
+			
+			particle.Finished += particle.QueueFree;
+	        particle.Emitting = true;
 		}
 	}
 
@@ -122,17 +127,23 @@ public partial class Weapon : Node3D
             CollideWithAreas = false,
             CollideWithBodies = true,
         };
-		if (ExclusionList is not null)
+
+        if (ExclusionList is not null)
 		{
             QueryParams.Exclude = ExclusionList;
         }
-		
-        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
+		Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
 
 		if(RayDict.Count != 0)
 		{ // If the dictionary is empty, nothing was hit
-			ApplyBulletHoleDecal(RayDict);
-			ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
+			if ((object)RayDict["collider"] is not null)
+			{
+				if (WeaponSettings.EnableDecals)
+				{
+					ApplyBulletHoleDecal(RayDict);	
+				}
+				ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
+			}	
 		}
 	}
 }

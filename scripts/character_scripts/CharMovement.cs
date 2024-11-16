@@ -29,8 +29,7 @@ public partial class Character : CharacterBody3D
 								 Input.GetActionStrength(InputMap[InputMapEnum.StickGoBack])
 								 - Input.GetActionStrength(InputMap[InputMapEnum.StickGoForward]));
 		}
-
-		return (Transform.Basis * new Vector3(InputDirection.X, 0, InputDirection.Y)).Normalized();
+        return (Transform.Basis * new Vector3(InputDirection.X, 0, InputDirection.Y)).Normalized();
 	}
 
 	/// <Summary>
@@ -158,6 +157,7 @@ public partial class Character : CharacterBody3D
 	{
 		float Vel = Direction * MovementAccel * (float)delta; // Speed to add
 		float MaxSpeed = Direction * TargetSpeed;
+		
 		if (Mathf.Abs(Vel + CurrentVel) <= Mathf.Abs(MaxSpeed))
 		{
 			return CurrentVel + Vel;
@@ -209,7 +209,7 @@ public partial class Character : CharacterBody3D
 			}
 		}
 
-		Velocity = CurrentVel;
+        Velocity = CurrentVel;
 		MoveAndSlide();
 	}
 

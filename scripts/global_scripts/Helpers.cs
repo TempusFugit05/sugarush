@@ -83,7 +83,8 @@ namespace Helpers
         {
             if (DecalPool.Count > MaxDecals)
             {
-                DecalPool.First().DeInitNode();
+                
+                DecalPool.First().QueueFree();
             }
             DecalPool.Add(decal);
             return DecalPool.Count - 1;
@@ -92,6 +93,13 @@ namespace Helpers
 		static public void Init(HelperNode helperNode)
 		{
             HelperInstance = helperNode;
+        }
+
+        static public void CreateDamageIndicator(float damage, Vector3 damagePosition)
+        {
+            DamageIndicator Indicator = new(damage); // Create a damage indicator 
+            HelperInstance.GetTree().Root.AddChild(Indicator); // Add it to the scene
+            Indicator.GlobalPosition = damagePosition; // Set position of indicator to a specific position on body (ie bullethole) or object position for non specific damage soruce (ie fall damage)
         }
 
         /// <summary>
@@ -124,6 +132,43 @@ namespace Helpers
         static public Character GetPlayerNode()
         {
             return PlayerNode;
+        }
+
+
+        static public bool RecHasChildOfType<[MustBeVariant] T>(Node parentNode)
+        {
+            foreach (Node child in parentNode.GetChildren())
+            {
+                if (child is T)
+                {
+                    return true;
+                }
+                return RecHasChildOfType<T>(child);
+            }
+            return false;
+        }
+
+        /// <summary>
+        ///     Check if a node has at least one child of the specified type.
+        /// </summary>
+        /// <typeparam name="T">Type of node</typeparam>
+        /// <param name="parentNode">Node to check children for</param>
+        /// <param name="recursive">Recursively check children's children</param>
+        /// <returns>True if it contains child of type, false if not</returns>
+        static public bool HasChildOfType<[MustBeVariant] T>(Node parentNode, bool recursive = false)
+        {
+            if (recursive)
+            {
+                return RecHasChildOfType<T>(parentNode);
+            }
+            foreach (Node child in parentNode.GetChildren())
+            {
+                if (child is T)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -273,12 +318,6 @@ namespace Helpers
             }
             return original;
         }
-
-        public static void BoundRotation(Quaternion toBound, Vector3 limits)
-        {
-            
-        } 
-
 
         /// <summary>
         ///     

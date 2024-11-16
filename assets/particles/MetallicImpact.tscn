@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3 uid="uid://kstoy6cl1cvo"]
+
+[sub_resource type="Curve" id="Curve_1is8w"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.985507, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_7vtho"]
+curve = SubResource("Curve_1is8w")
+
+[sub_resource type="Gradient" id="Gradient_hklp3"]
+colors = PackedColorArray(1, 0, 0, 1, 1, 0.8, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_jac40"]
+gradient = SubResource("Gradient_hklp3")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_nx8pt"]
+lifetime_randomness = 0.45
+particle_flag_align_y = true
+particle_flag_damping_as_friction = true
+angle_min = 1.07288e-05
+angle_max = 45.0
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 4.0
+initial_velocity_max = 5.0
+damping_min = 5.0
+damping_max = 10.0
+scale_min = 0.5
+scale_max = 2.0
+color_ramp = SubResource("GradientTexture1D_jac40")
+alpha_curve = SubResource("CurveTexture_7vtho")
+hue_variation_min = -0.03
+hue_variation_max = 0.15
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_un5t3"]
+transparency = 4
+vertex_color_use_as_albedo = true
+emission_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_31e2w"]
+material = SubResource("StandardMaterial3D_un5t3")
+size = Vector3(0.004, 0.04, 0.004)
+
+[node name="GPUParticles3D" type="GPUParticles3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0213001, 0, 0.000520706)
+emitting = false
+amount = 20
+lifetime = 0.5
+interp_to_end = 0.05
+one_shot = true
+explosiveness = 0.85
+process_material = SubResource("ParticleProcessMaterial_nx8pt")
+draw_pass_1 = SubResource("BoxMesh_31e2w")

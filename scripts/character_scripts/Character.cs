@@ -6,6 +6,7 @@ public partial class Character : CharacterBody3D, ICreature
     public override void _Ready()
 	{
         PlayerCamera = GetNode<Camera3D>("PlayerCamera");
+        InitInteractionHandler();
         InitPickupSphere();
 		InitWeaponHandler();
         HR.SetPlayerNode(this);
@@ -34,5 +35,6 @@ public partial class Character : CharacterBody3D, ICreature
 		SugarHandler(delta);
 		WeaponHandler();
 		MovementHandler(delta);
-	}
+        InteractionHandler();
+    }
 }

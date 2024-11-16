@@ -1,46 +1,76 @@
-[gd_scene load_steps=8 format=3 uid="uid://hepn2aya7iul"]
+[gd_scene load_steps=12 format=3 uid="uid://hepn2aya7iul"]
 
 [ext_resource type="Script" path="res://scripts/character_scripts/Character.cs" id="1_kluek"]
-[ext_resource type="PackedScene" uid="uid://dlc6gir51woxd" path="res://subscenes/weapons/TurretWeapon.tscn" id="2_rucnb"]
-[ext_resource type="Script" path="res://scripts/weapon_scripts/Shotgun.cs" id="3_agn8x"]
+[ext_resource type="Script" path="res://scripts/weapon_scripts/Shotgun.cs" id="2_sidmv"]
+[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="3_fq2hv"]
+[ext_resource type="Material" uid="uid://dogxm2mlkfree" path="res://assets/materials/TrasparancyMaterial.tres" id="4_0swre"]
 [ext_resource type="PackedScene" uid="uid://ddl0obnlx7ke8" path="res://subscenes/ui_subscenes/Ui.tscn" id="4_qc7up"]
+[ext_resource type="AudioStream" uid="uid://bgleoapofvocu" path="res://assets/audio/weapon/untitled.wav" id="5_vfemo"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_pkqkf"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qw0p7"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_hnkbg"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_ynb0j"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_7lp4f"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_ryhfk"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_aqa3f"]
+material = ExtResource("4_0swre")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.75
+radial_segments = 32
+rings = 1
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hx1qq"]
+points = PackedVector3Array(0.108333, 0.380878, 0.0368698, -0.105952, -0.380878, -0.0344888, -0.105952, -0.380878, 0.0368698, -0.105952, 0.380878, -0.0344888, 0.060698, -0.380878, -0.0940383, 0.0368698, -0.380878, 0.108333, -0.0344888, 0.380878, 0.108333, 0.0368698, 0.380878, -0.105952, 0.108333, -0.380878, -0.0344888, -0.0344888, -0.380878, -0.105952, -0.0821242, 0.380878, -0.0821242, 0.0964193, 0.380878, -0.058317, -0.0940383, 0.380878, 0.060698, -0.058317, -0.380878, 0.0964193, 0.0964193, -0.380878, 0.060698, 0.060698, 0.380878, 0.0964193, -0.0821242, -0.380878, -0.0821242, -0.0344888, 0.380878, -0.105952, -0.105952, 0.380878, 0.0368698, 0.0368698, 0.380878, 0.108333, -0.0344888, -0.380878, 0.108333, 0.0368698, -0.380878, -0.105952, 0.108333, 0.380878, -0.0344888, 0.108333, -0.380878, 0.0368698, 0.0964193, -0.380878, -0.058317, -0.058317, 0.380878, 0.0964193, 0.060698, -0.380878, 0.0964193, 0.060698, 0.380878, -0.0940383, -0.0940383, -0.380878, 0.060698, 0.0964193, 0.380878, 0.060698)
 
 [node name="Character" type="CharacterBody3D"]
-transform = Transform3D(1.00377, 0, 0, 0, 1.00377, 0, 0, 0, 1.00377, 0, 0, 0)
 script = ExtResource("1_kluek")
 AirAccel = 25.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_pkqkf")
+mesh = SubResource("CapsuleMesh_qw0p7")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, 0)
-shape = SubResource("BoxShape3D_hnkbg")
+shape = SubResource("BoxShape3D_ynb0j")
 
 [node name="PickupSphere" type="Area3D" parent="."]
 transform = Transform3D(1.0536, 0, 0, 0, 1.0536, 0, 0, 0, 1.0536, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PickupSphere"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-shape = SubResource("SphereShape3D_7lp4f")
+shape = SubResource("SphereShape3D_ryhfk")
 
 [node name="PlayerCamera" type="Camera3D" parent="."]
-transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, -0.0137319, 0.522736, -0.544207)
+transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, 0, 0.523, -0.544)
+
+[node name="InteractRay" type="RayCast3D" parent="PlayerCamera"]
+transform = Transform3D(1.00377, 0, -1.11759e-08, 0, 1.00377, 0, 1.11759e-08, 0, 1.00377, 0, 0, 0)
+target_position = Vector3(0, 0, 0)
 
 [node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="PlayerCamera"]
 
-[node name="Weapon" parent="PlayerCamera" instance=ExtResource("2_rucnb")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.298565, -0.312833, -0.630694)
-script = ExtResource("3_agn8x")
-SpreadAngle = 2.5
-DecalScene = null
-AttachmentMode = 1
+[node name="Weapon" type="RigidBody3D" parent="PlayerCamera"]
+transform = Transform3D(-0.0446831, 0, 0.999001, 0, 1, 0, -0.999001, 0, -0.0446831, -0.417647, -0.353583, -0.0866404)
+script = ExtResource("2_sidmv")
 
-[node name="UiControl" parent="." node_paths=PackedStringArray("PlayerNode") instance=ExtResource("4_qc7up")]
-PlayerNode = NodePath("..")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PlayerCamera/Weapon"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+layers = 2
+material_override = ExtResource("3_fq2hv")
+mesh = SubResource("CylinderMesh_aqa3f")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerCamera/Weapon"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_hx1qq")
+
+[node name="ProjectileSpawnPoint" type="Node3D" parent="PlayerCamera/Weapon"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)
+
+[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="PlayerCamera/Weapon"]
+stream = ExtResource("5_vfemo")
+
+[node name="UiControl" parent="." node_paths=PackedStringArray("CharNode") instance=ExtResource("4_qc7up")]
+CharNode = NodePath("..")
+metadata/_edit_use_anchors_ = true

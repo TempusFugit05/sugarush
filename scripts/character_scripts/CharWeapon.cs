@@ -7,8 +7,10 @@ public partial class Character : CharacterBody3D
 	/// <Summary>
 	private void InitWeaponHandler()
 	{
-		WeaponNode = GetNodeOrNull<TestWeapon>("PlayerCamera/Weapon");
-	}
+		WeaponNode = GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
+	    WeaponNode?.SetAttachmentMode(Weapon.AttachmentModeEnum.Player);
+        WeaponNode.PlayerCameraNode = PlayerCamera;
+    }
 
 	/// <Summary>
 	/// Handles inputs related to shooting
