@@ -85,15 +85,11 @@ public partial class Organ : RigidBody3D, ICreature
     /// </summary>
     private void AmalgamateOrgans()
 	{
-        Hitbox = new();
         foreach (MeshInstance3D mesh in HR.GetChildrenOfType<MeshInstance3D>(this, true))
         {
-            Hitbox.Merge(mesh.GetAabb());
+            Hitbox = Hitbox.Merge(mesh.GetAabb());
         }
-        OrganRids = new()
-        {
-            GetRid()
-        };
+        OrganRids.Add(GetRid());
 
         foreach (RigidBody3D node in HR.GetChildrenOfType<RigidBody3D>(this, true))
 		{

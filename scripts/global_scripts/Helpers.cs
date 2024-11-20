@@ -122,14 +122,14 @@ namespace Helpers
     /// </summary>
     static public partial class HR
     {
-        private static Character PlayerNode;
+        private static Node3D PlayerNode;
         
-        static public void SetPlayerNode(Character node)
+        static public void SetPlayerNode(Node3D node)
         {
             PlayerNode = node;
         }
 
-        static public Character GetPlayerNode()
+        static public Node3D GetPlayerNode()
         {
             return PlayerNode;
         }
@@ -329,7 +329,7 @@ namespace Helpers
         public static Quaternion LookingAtAxis(Node3D lookingNode, Node3D lookedAtNode, Vector3 Axis)
         {
             Quaternion targetRotation;
-            targetRotation = lookingNode.GlobalTransform.LookingAt(lookedAtNode.GlobalPosition, Vector3.Down).Basis.GetRotationQuaternion(); // Get target rotation
+            targetRotation = lookingNode.GlobalTransform.LookingAt(lookedAtNode.GlobalPosition, Vector3.Down, true).Basis.GetRotationQuaternion(); // Get target rotation
             targetRotation = ProjectQuaternion(targetRotation, Axis); // Extract rotation around the given axis
             return targetRotation;
         }

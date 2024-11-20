@@ -11,8 +11,8 @@ public partial class OrganTurret : CreatureBase
 
     protected override void InitOrgan()
     {
-        WeaponHolder = GetNode<OrganArm>("WeaponHolder");
         Body = GetNode<Organ>("Body");
+        WeaponHolder = GetNode<OrganArm>("WeaponHolder");
         OrganSettings.MaxHealth = 500;
     }
     
@@ -21,29 +21,40 @@ public partial class OrganTurret : CreatureBase
         Quaternion targetRotation;
         Quaternion FinalRotation;
 
-        Quaternion = new Quaternion(0, 0, 0, 1); // Maintain rotation of base node
+        // Quaternion = HM.RotateTowards(Quaternion, Quaternion.Identity, Mathf.Tau / 4 * (float)delta); // Maintain rotation of base node
 
-        if (Body.IsAlive())
+        static Quaternion rotateTo(Vector3 from, Vector3 to)
         {
-            /* Rotate body */
-            targetRotation = HM.LookingAtAxis(Body, HR.GetPlayerNode(), GlobalBasis.Y); // Get rotation to look at player on Y axis
-            FinalRotation = HM.RotateTowards(Body.Quaternion, targetRotation, Mathf.Tau / 4 * (float)delta); // Rotate to target
-            Body.Quaternion = HM.ValidateQuaternion(FinalRotation); // Apply rotation
+            Vector3 midWay = (from + to).Normalized();
+
+            return new Quaternion
+            (
+                w: from.Dot(midWay),
+                x: from.Y * midWay.Z - from.Z * midWay.Y,
+                y: from.Z * midWay.X - from.X * midWay.Z,
+                z: from.X * midWay.Y - from.Y * midWay.X
+            );
+        }
+        
+        static Vector3 projectOntoPlane(Vector3 planeVec1, Vector3 planeVec2, Vector3 toProject)
+        {
+            Vector3 planeNormal = planeVec1.Cross(planeVec2); // Normal created by the two plane vectors
+            Vector3 projection = toProject.Project(planeNormal);
+            return toProject - projection;
         }
 
-        if (WeaponHolder.IsAlive())
-        {
-            /* Rotate weapon */
-            Quaternion xComponent = HM.ProjectQuaternion(WeaponHolder.Quaternion, GlobalBasis.X); // Get current rotation on x axis
-            targetRotation = HM.LookingAtAxis(WeaponHolder, HR.GetPlayerNode(), GlobalBasis.X); // Get rotation to look at player on x axis
-            FinalRotation = HM.RotateTowards(xComponent, targetRotation, Mathf.Tau / 4 * (float)delta); // Rotate to target
-            WeaponHolder.Quaternion = HM.ProjectQuaternion(Body.Quaternion, GlobalBasis.X).Inverse() * Body.Quaternion * FinalRotation; // Rotate with body and override rotation on x axis
-        }
+        Vector3 targetRot = WeaponHolder.GlobalTransform.LookingAt(HR.GetPlayerNode().GlobalPosition, -GlobalBasis.Y).Basis.Z; // Forward vector that looks at player
+        Vector3 upDown = projectOntoPlane(Body.Basis.Z, Body.Basis.Y, targetRot); // Project that onto the forward-down plane of main body
+        WeaponHolder.LookAt(-upDown*10000000);
+        GetNode<CsgMesh3D>("foo").LookAt(upDown*100000);
+
+        // Quaternion finalRot = new (WeaponHolder.Basis.Z, upDown); // Rotate from current forward to new forward
+        // WeaponHolder.Quaternion *= finalRot.Normalized();
     }
 
     private void Hover()
     {
-        float distance = GetHeightAboveGround();
+        float distance = GetGroundDistance();
         Vector3 hoverForce = -GetGravity().Normalized() * HoverForce;
         if (distance > 0)
         {
@@ -60,10 +71,10 @@ public partial class OrganTurret : CreatureBase
         Force = Vector3.Zero;
         if (IsPlayerVisible() && OrganState.Alive)
         {
-            WeaponHolder.UseOrgan();
+            // WeaponHolder.UseOrgan();
             RotateTowardsPlayer(delta);
-            Hover();
         }
+        Hover();
         ApplyCentralForce(Force);
     }
 }

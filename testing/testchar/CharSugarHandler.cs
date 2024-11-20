@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Character : CharacterBody3D
+public partial class TestCharacter
 {
     /// <Summary>
     /// Handles everything related to sugar, including speed, sugar halflife and sugarush states
@@ -78,7 +78,7 @@ public partial class Character : CharacterBody3D
 	{
 		CurrentBaseJumps = SugarushNumJumps;
 		
-		if(IsOnFloor())
+		if(IsOnGround())
 		{
 			JumpsRemaining = CurrentBaseJumps;
 		}
