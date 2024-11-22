@@ -28,13 +28,14 @@ public partial class TestCharacter : CreatureBase
 	{
         if (CurrentInput is InputEventMouseMotion MouseMotion)
 		{
-			MouseMovement = MouseMotion.Relative;
+			MouseMovement += MouseMotion.ScreenRelative;
         }
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		SugarHandler(delta);
+        PhysicsMaterialOverride = new(){Friction=0};
+        SugarHandler(delta);
 		WeaponHandler();
         LookHandler(delta);
 		MovementHandler(delta);

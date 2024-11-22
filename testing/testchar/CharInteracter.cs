@@ -3,13 +3,19 @@ using System;
 
 public partial class TestCharacter
 {
+    private RayCast3D InteractRay;
+
 	private void InitInteractionHandler()
 	{
-        InteractRay = PlayerCamera.GetNode<RayCast3D>("InteractRay");
-        InteractRay.AddException(this);
+        InteractRay = new()
+        {
+            TargetPosition = Vector3.Forward * 10,
+            DebugShapeThickness = 0
+        };
+        
+        PlayerCamera.AddChild(InteractRay);
+
         InteractRay.GlobalPosition = PlayerCamera.GlobalPosition;
-        InteractRay.TargetPosition = Vector3.Forward * 10;
-        InteractRay.DebugShapeThickness = 0;
     }
 
 	private void InteractionHandler()

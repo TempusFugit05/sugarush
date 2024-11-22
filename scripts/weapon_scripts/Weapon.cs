@@ -34,7 +34,8 @@ public partial class Weapon : RigidBody3D, IInteractable
         public float Damage = 25.0f;
 		public float MinimumDamage = 1.0f;
 
-		public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Default;
+        public Godot.Collections.Array<Rid> ExclusionList = new();
+        public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Default;
     
 	    public WeaponSettingsStruct(){}
     }
@@ -61,7 +62,7 @@ public partial class Weapon : RigidBody3D, IInteractable
         InitShootingHandler();
     }
 
-	public void SetAttachmentMode(AttachmentModeEnum mode)
+	public void SetAttachmentMode(AttachmentModeEnum mode, Godot.Collections.Array<Rid> exclude = null)
 	{
 
 		if (mode == AttachmentModeEnum.Player || mode == AttachmentModeEnum.Creature)
@@ -71,7 +72,16 @@ public partial class Weapon : RigidBody3D, IInteractable
 			CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
 		} // Disable physics on weapon
 
-		switch (mode)
+		if (exclude is not null)
+		{
+            WeaponSettings.ExclusionList = exclude;
+        }
+		else
+		{
+            WeaponSettings.ExclusionList.Clear();
+        }
+
+        switch (mode)
 		{
             case AttachmentModeEnum.Free:
             {

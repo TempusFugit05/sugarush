@@ -134,7 +134,6 @@ namespace Helpers
             return PlayerNode;
         }
 
-
         static public bool RecHasChildOfType<[MustBeVariant] T>(Node parentNode)
         {
             foreach (Node child in parentNode.GetChildren())
@@ -231,7 +230,6 @@ namespace Helpers
         }
 
     }
-
 
     /// <summary>
     ///     Math Helper.

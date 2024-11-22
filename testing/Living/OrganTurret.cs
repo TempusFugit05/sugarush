@@ -71,7 +71,6 @@ public partial class OrganTurret : CreatureBase
         Force = Vector3.Zero;
         if (IsPlayerVisible() && OrganState.Alive)
         {
-            // WeaponHolder.UseOrgan();
             RotateTowardsPlayer(delta);
         }
         Hover();

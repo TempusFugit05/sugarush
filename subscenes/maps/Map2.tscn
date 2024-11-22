@@ -12,7 +12,8 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_qw0p7"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_ynb0j"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_g3cv8"]
+size = Vector3(1, 1.96174, 1.11206)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ryhfk"]
 
@@ -162,8 +163,8 @@ script = ExtResource("4_txmnv")
 mesh = SubResource("CapsuleMesh_qw0p7")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Character"]
-transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, 0)
-shape = SubResource("BoxShape3D_ynb0j")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.000286102, -0.0560303)
+shape = SubResource("BoxShape3D_g3cv8")
 
 [node name="PickupSphere" type="Area3D" parent="Character"]
 transform = Transform3D(1.0536, 0, 0, 0, 1.0536, 0, 0, 0, 1.0536, 0, 0, 0)
@@ -173,12 +174,8 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 shape = SubResource("SphereShape3D_ryhfk")
 
 [node name="PlayerCamera" type="Camera3D" parent="Character"]
-transform = Transform3D(0.996244, 0, 0, 0, 0.996244, 0, 0, 0, 0.996244, 0, 0.523, -0.544)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.523001, -0.529844)
 current = true
-
-[node name="InteractRay" type="RayCast3D" parent="Character/PlayerCamera"]
-transform = Transform3D(1.00377, 0, -1.11759e-08, 0, 1.00377, 0, 1.11759e-08, 0, 1.00377, 0, 0, 0)
-target_position = Vector3(0, 0, 0)
 
 [node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="Character/PlayerCamera"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0226882)

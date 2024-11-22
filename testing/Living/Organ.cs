@@ -358,6 +358,9 @@ public partial class Organ : RigidBody3D, ICreature
     /// </summary>
     protected void Init()
     {
+        OrganRids.Add(GetRid());
+        OwnColliders = HR.GetChildrenOfType<CollisionShape3D>(this);
+
         if (this is CreatureBase)
         {
             AmalgamateOrgans();
@@ -371,6 +374,8 @@ public partial class Organ : RigidBody3D, ICreature
         DestructionHealth = OrganSettings.MaxDestructionHealth;
 
         CallDeferred("DefferedInit");
+
+        InitOrgan();
     }
 
     private void DeleteCollidersOf(Node node)
@@ -398,8 +403,6 @@ public partial class Organ : RigidBody3D, ICreature
 
     public override void _Ready()
     {
-        OwnColliders = HR.GetChildrenOfType<CollisionShape3D>(this);
-        InitOrgan();
         Init();
     }
     

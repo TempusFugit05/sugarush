@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godot;
 using Helpers;
 
@@ -47,20 +48,19 @@ public partial class Weapon : RigidBody3D
 		{
             for (int i = 0; i < angles.Length; i++)
             {
-
-			// Create rotation around local right axis (pitch)
-			Basis pitchRotation = new(cameraRight, Mathf.DegToRad(angles[i].Y));
-			// Create rotation around local up axis (yaw)
-			Basis yawRotation = new(cameraUp, Mathf.DegToRad(angles[i].X));
-			
-			// Combine rotations
-			rotationBasis = yawRotation * pitchRotation;
-			
-			// Apply rotation to the camera normal
-			Vector3 dirVector = rotationBasis * CameraNormal;
-            Vector3 projectileEndPos = ProjectileStartPos + dirVector * WeaponSettings.Range;
-            
-            ShootProjectile(ProjectileStartPos, projectileEndPos);
+				// Create rotation around local right axis (pitch)
+				Basis pitchRotation = new(cameraRight, Mathf.DegToRad(angles[i].Y));
+				// Create rotation around local up axis (yaw)
+				Basis yawRotation = new(cameraUp, Mathf.DegToRad(angles[i].X));
+				
+				// Combine rotations
+				rotationBasis = yawRotation * pitchRotation;
+				
+				// Apply rotation to the camera normal
+				Vector3 dirVector = rotationBasis * CameraNormal;
+				Vector3 projectileEndPos = ProjectileStartPos + dirVector * WeaponSettings.Range;
+				
+				ShootProjectile(ProjectileStartPos, projectileEndPos);
 			}
         }
 
@@ -120,6 +120,12 @@ public partial class Weapon : RigidBody3D
 	{
         // Create a projectile and apply bullet hole decal on the hit object
         Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
+
+		if (WeaponSettings.ExclusionList is not null)
+		{
+			ExclusionList.AddRange(WeaponSettings.ExclusionList);
+		} // Append user-defined exclusion list
+
         PhysicsRayQueryParameters3D QueryParams = new()
         {
             From = RayStart,
@@ -131,14 +137,16 @@ public partial class Weapon : RigidBody3D
         if (ExclusionList is not null)
 		{
             QueryParams.Exclude = ExclusionList;
+
         }
-		Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
+        
+        Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
 
 		if(RayDict.Count != 0)
 		{ // If the dictionary is empty, nothing was hit
 			if ((object)RayDict["collider"] is not null)
 			{
-				if (WeaponSettings.EnableDecals)
+                if (WeaponSettings.EnableDecals)
 				{
 					ApplyBulletHoleDecal(RayDict);	
 				}

@@ -68,24 +68,22 @@ public partial class TestCharacter
 		}
     }
 
-    private Vector3 FallHandler(Vector3 velocity, double delta)
+    private void FallHandler()
 	{
 		if (IsOnGround())
 		{
 			if (!_RefFallState.IsGrounded)
 			{
-				ApplyFallDamage((_RefFallState.Vel * GetGravity().Normalized()).Y);
+				ApplyFallDamage((_RefFallState.Vel * GetGravity().Normalized()).Length());
 			}
 			_RefFallState.IsGrounded = true;
 		}
 		else
 		{
-            velocity += GetGravity() * (float)delta; // Apply gravity acceleration
             _RefFallState.IsGrounded = false;
         }
 		
 		_RefFallState.Vel = LinearVelocity;
-        return velocity;
     }
 
 	/// <Summary>
@@ -121,21 +119,23 @@ public partial class TestCharacter
 	/// </Summary>
 	private void ApplyFriction(ref Vector3 force, double delta)
 	{
-		float CurrentFriction;
-        Vector3 simForce = force;
+		if (LinearVelocity == Vector3.Zero)
+		{
+            return;
+        }
 
+        Vector3 simForce = force;
+        
         if (IsOnGround())
 		{
-			/*
+            /*
 				Friction is given by F = N * μ
 				N - Normal force
 				μ - Friction coefficient
 			*/
-
-			CurrentFriction = Friction;
 	        Vector3 normalForce = GetGravity() * Mass;
-    	    simForce -= CurrentFriction * normalForce * LinearVelocity.Normalized();
-		}
+    	    simForce -= normalForce.Length() * Friction * LinearVelocity.Normalized();
+        }
 
 		else
 		{
@@ -149,6 +149,7 @@ public partial class TestCharacter
 			*/
 			simForce -= LinearVelocity.Normalized() * (0.5f * 1.3f * Hitbox.GetLongestAxisSize() * LinearVelocity.LengthSquared());
 		}
+		
         Vector3 simSpeed = SimulateSpeed(simForce, delta) + LinearVelocity;
 
         if (simSpeed.LengthSquared() <= MinVel * MinVel)
@@ -157,7 +158,7 @@ public partial class TestCharacter
             return;
         }
 
-        force = simForce;
+        force += simForce;
     }
 
 
@@ -190,19 +191,8 @@ public partial class TestCharacter
 
             else
 			{
-				/*
-					The target force is given by:
-					
-					F = m * a
-					a = F / m
-
-					v = a * t
-					v = F / m * t
-
-					F = v * m / t
-				*/
                 Vector3 targetDirSpeed = TargetSpeed * directionScale * baseDir; // Target speed in the target direction
-                targetForce = (targetDirSpeed - dirSpeed) * Mass / (float)delta; // See derivation
+                targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
                 force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
             } // If it is, calculate a smaller force that will close the gap to the target speed.
         }
@@ -231,6 +221,22 @@ public partial class TestCharacter
         return force / Mass * (float)delta;
     }
 
+	private Vector3 ForceToGetSpeed(Vector3 targetSpeed, double delta)
+	{
+        /*
+			The target force is given by:
+			
+			F = m * a
+			a = F / m
+
+			v = a * t
+			v = F / m * t
+
+			F = v * m / t
+		*/
+        return targetSpeed * Mass / (float)delta;
+    }
+
 	/// <Summary>
 	/// 	Handles all movement-related input events
 	/// </Summary>
@@ -239,7 +245,7 @@ public partial class TestCharacter
         Vector3 force = Vector3.Zero;
 
         JumpHandler();
-        FallHandler(force, delta);
+        FallHandler();
         SprintHandler();
         ApplyFriction(ref force, delta);
         ApplyMovementAccel(ref force, delta);

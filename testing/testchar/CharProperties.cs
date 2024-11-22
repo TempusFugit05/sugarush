@@ -69,7 +69,7 @@ public partial class TestCharacter
 
     private Camera3D PlayerCamera;
     private float CameraRotationDeg = 80.0f;
-	private const float MouseSensitivity = 9.5f;
+	private const float MouseSensitivity = 10f;
 
 	[Export]
 	private float MovementAccel = 100.0f;
@@ -97,12 +97,11 @@ public partial class TestCharacter
     private float FatalFallSpeed = 25.0f;
 
     /* Friction attributes */
-    float Friction = 0.70f;
+    float Friction = 0.85f;
 	float AirFriction = 0.25f;
 	float MinVel = 0.1f;
 
 	private Weapon WeaponNode;
 	private Area3D PickupSphereNode;
-    private RayCast3D InteractRay;
 	public IInteractable InteractingWith { get; private set; }
 }

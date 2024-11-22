@@ -1,5 +1,5 @@
 using Godot;
-using System;
+using Helpers;
 
 public partial class TestCharacter
 {	
@@ -8,8 +8,11 @@ public partial class TestCharacter
 	private void InitWeaponHandler()
 	{
 		WeaponNode = GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
-	    WeaponNode?.SetAttachmentMode(Weapon.AttachmentModeEnum.Player);
-        WeaponNode.PlayerCameraNode = PlayerCamera;
+		if (WeaponNode is not null)
+		{
+			WeaponNode.SetAttachmentMode(Weapon.AttachmentModeEnum.Player, OrganRids);
+			WeaponNode.PlayerCameraNode = PlayerCamera;
+		}
     }
 
 	/// <Summary>
