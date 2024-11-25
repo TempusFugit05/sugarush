@@ -1,33 +1,40 @@
 using Godot;
 using System;
 
-public partial class TestCharacter
+public partial class Character
 {
-    private RayCast3D InteractRay;
+    public class InteractionHandler
+    {
+        private RayCast3D InteractRay;
+	    public IInteractable InteractingWith { get; private set; }
+        private float PickupRange = 10f;
+        Character P;
 
-	private void InitInteractionHandler()
-	{
-        InteractRay = new()
+        public void init(Character character)
         {
-            TargetPosition = Vector3.Forward * 10,
-            DebugShapeThickness = 0
-        };
-        
-        PlayerCamera.AddChild(InteractRay);
+            P = character;
+            InteractRay = new()
+            {
+                TargetPosition = -P.Camera.GlobalBasis.Z.Normalized() * PickupRange,
+                DebugShapeThickness = 0
+            };
+            
+            P.Camera.AddChild(InteractRay);
 
-        InteractRay.GlobalPosition = PlayerCamera.GlobalPosition;
-    }
+            InteractRay.GlobalPosition = P.Camera.GlobalPosition;
+        }
 
-	private void InteractionHandler()
-	{
-		if (InteractRay.IsColliding())
-		{
-            if (InteractRay.GetCollider() is IInteractable interactable)
-			{
-                InteractingWith = interactable;
-                return;
+        public void Run()
+        {
+            if (InteractRay.IsColliding())
+            {
+                if (InteractRay.GetCollider() is IInteractable interactable)
+                {
+                    InteractingWith = interactable;
+                    return;
+                }
             }
-		}
-        InteractingWith = null;
-	}
+            InteractingWith = null;
+        }
+    }
 }

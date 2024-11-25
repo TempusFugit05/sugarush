@@ -13,21 +13,21 @@ public partial class SugarLabel : Label
         CharNode = PlayerNode;
 		if(CharNode is not null)
 		{
-			CharSugar = CharNode.GetSugar();
-			Text = Convert.ToString(CharNode.GetSugar()) + "%";
+			CharSugar = CharNode.GetHealth();
+			Text = Convert.ToString(CharNode.GetHealth()) + "%";
             IsInitialized = true;
         }
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _PhysicsProcess(double delta)
+	public void Run()
 	{
         if (IsInitialized)
         {
-            if (CharNode.GetSugar() != CharSugar)
+            if (CharNode.GetHealth() != CharSugar)
             {
-                CharSugar = CharNode.GetSugar();
-                Text = Convert.ToString($"{CharNode.GetSugar():0.0}") + "%";
+                CharSugar = CharNode.GetHealth();
+                Text = Convert.ToString($"{CharNode.GetHealth():0.0}") + "%";
             }
         }
     }

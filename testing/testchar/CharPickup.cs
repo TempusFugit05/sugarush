@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class TestCharacter
+public partial class Character
 {
 	/// <Summary>
 	/// Initialize the character's area responsible for pickup detection
@@ -22,7 +22,7 @@ public partial class TestCharacter
 
 		if(PickupObj is Food food)
 		{
-			ConsumeSugar(food.GetSugar()); // Consume sugar if object is food
+			sugarHandler.ConsumeSugar(food.GetSugar()); // Consume sugar if object is food
 		}
 	}
 }

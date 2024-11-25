@@ -1,10 +1,10 @@
 [gd_scene load_steps=9 format=3 uid="uid://ddl0obnlx7ke8"]
 
-[ext_resource type="Script" path="res://scripts/ui_scripts/SugarLabel.cs" id="1_7i4lu"]
-[ext_resource type="Script" path="res://scripts/ui_scripts/Ui.cs" id="1_wlq1i"]
-[ext_resource type="Script" path="res://scripts/ui_scripts/SugarushStatus.cs" id="2_6x33i"]
-[ext_resource type="Script" path="res://scripts/ui_scripts/FpsLabel.cs" id="2_848jl"]
-[ext_resource type="Script" path="res://scripts/ui_scripts/InteractionLabel.cs" id="3_13ur8"]
+[ext_resource type="Script" path="res://testing/testchar/ui/CharUi.cs" id="1_0j4iw"]
+[ext_resource type="Script" path="res://testing/testchar/ui/SugarLabel.cs" id="1_7i4lu"]
+[ext_resource type="Script" path="res://testing/testchar/ui/SugarushStatus.cs" id="2_6x33i"]
+[ext_resource type="Script" path="res://testing/testchar/ui/FpsLabel.cs" id="2_848jl"]
+[ext_resource type="Script" path="res://testing/testchar/ui/InteractionLabel.cs" id="3_13ur8"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_g6khy"]
 font_size = 48
@@ -23,7 +23,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("1_wlq1i")
+script = ExtResource("1_0j4iw")
 
 [node name="FpsLabel" type="Label" parent="."]
 layout_mode = 0

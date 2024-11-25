@@ -1,6 +1,6 @@
 {
     // "omnisharp.useGlobalMono": "always",
-    "godotTools.editorPath.godot4": "/usr/bin/godot-mono",
+    "godotTools.editorPath.godot4": "/home/tempus/.local/share/programs/godot/Godot_v4.3-stable_mono_linux.x86_64",
 
     "workbench.colorCustomizations": {
     "editorUnnecessaryCode.border": "#dd7aab"

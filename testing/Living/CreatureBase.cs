@@ -11,7 +11,7 @@ public partial class CreatureBase : Organ
         public CreatureSettingsStruct(){}
     }
     protected CreatureSettingsStruct CreatureSettings = new();
-    private RayCast3D GroundDetectRay;
+    private ShapeCast3D GroundDetectArea;
 
     public void NotifyKilled(Organ killedOrgan, OrganSettingStruct settings)
     {
@@ -30,9 +30,21 @@ public partial class CreatureBase : Organ
     protected float GetGroundDistance()
     {
         float outDistance = float.NegativeInfinity;
-        if (GroundDetectRay.IsColliding())
+        Node3D closestCollider;
+
+        if (GroundDetectArea.IsColliding())
         {
-            outDistance = GroundDetectRay.GetCollisionPoint().DistanceTo(GlobalPosition) - (Hitbox.Size.Y / 2);
+            for (int i = 0; i < GroundDetectArea.GetCollisionCount(); i++)
+            {
+                float distance = GroundDetectArea.GetCollisionPoint(i).DistanceSquaredTo(GlobalPosition);
+
+                if (distance > outDistance)
+                {
+                    outDistance = distance;
+                }
+            }
+
+            outDistance = Mathf.Sqrt(outDistance) - (Hitbox.Size.Y / 2);
         }
         return outDistance;
     }
@@ -81,7 +93,7 @@ public partial class CreatureBase : Organ
             Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
             if (RayDict.Count != 0)
             {
-                if ((Node)RayDict["collider"] is TestCharacter)
+                if ((Node)RayDict["collider"] is Character)
                 {
                     return true;
                 }
@@ -94,19 +106,23 @@ public partial class CreatureBase : Organ
     public override void _Ready()
     {
         Init();
-        GroundDetectRay = new()
+        BoxShape3D detectorShape = new();
+        detectorShape.Size = new Vector3(Hitbox.Size.X, 0.01f, Hitbox.Size.Z);
+        
+        GroundDetectArea = new()
         {
             Enabled = true,
             CollideWithBodies = true,
             CollideWithAreas = false,
             ExcludeParent = true,
+            Shape = detectorShape,
             TargetPosition = -GlobalBasis.Y.Normalized() * (CreatureSettings.GroundDetectionDistance + (Hitbox.Size.Y / 2)),
         };
 
-        AddChild(GroundDetectRay);
+        AddChild(GroundDetectArea);
 
-        GroundDetectRay.GlobalPosition = GlobalPosition;
-        GroundDetectRay.GlobalRotation = GlobalRotation;
+        GroundDetectArea.GlobalPosition = GlobalPosition;
+        GroundDetectArea.GlobalRotation = GlobalRotation;
     }
 
 }

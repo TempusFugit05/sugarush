@@ -1,28 +1,36 @@
 using Godot;
 using Helpers;
 
-public partial class TestCharacter
+public partial class Character
 {	
 
-	/// <Summary>
-	private void InitWeaponHandler()
+	public class WeaponHandler
 	{
-		WeaponNode = GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
-		if (WeaponNode is not null)
-		{
-			WeaponNode.SetAttachmentMode(Weapon.AttachmentModeEnum.Player, OrganRids);
-			WeaponNode.PlayerCameraNode = PlayerCamera;
-		}
-    }
+		Character P;
+		Weapon WeaponNode;
 
-	/// <Summary>
-	/// Handles inputs related to shooting
-	/// </Summary>
-	private void WeaponHandler ()
-	{
-		if(Input.IsActionPressed(InputMap[InputMapEnum.ActionFire]))
+		public void Init(Character character)
 		{
-			WeaponNode?.Shoot();
+			P = character;
+
+			WeaponNode = P.GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
+			if (WeaponNode is not null)
+			{
+				WeaponNode.SetAttachmentMode(Weapon.AttachmentModeEnum.Player, P.OrganRids);
+				WeaponNode.PlayerCameraNode = P.Camera;
+			}
+		}
+
+		/// <Summary>
+		/// Handles inputs related to shooting
+		/// </Summary>
+		public void Run()
+		{
+			
+			if(Input.IsActionPressed("fire"))
+			{
+				WeaponNode?.Shoot();
+			}
 		}
 	}
 }

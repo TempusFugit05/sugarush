@@ -1,255 +1,298 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
-public partial class TestCharacter
+public partial class Character
 {
-    private float ControllerSensitivity = 7.5f;
-
-	/// <summary>
-    /// 	Get the desired direction of movement relative to the global basis.
-    /// </summary>
-    /// <returns>The direction of movement, where X is side and Z is forward</returns>
-    private Vector3 GetMoveDirection ()
+	public class MovementHandler
 	{
-        Vector2 input2D;
-
-        // Get the desired direction of movement input as a vector
-        if (Input.GetJoyAxis(0, JoyAxis.RightX) == 0 && Input.GetJoyAxis(0, JoyAxis.RightY) == 0)
+		public void Init(Character character)
 		{
-			input2D = Input.GetVector(InputMap[InputMapEnum.KeyGoLeft],
-											 InputMap[InputMapEnum.KeyGoRight],
-											 InputMap[InputMapEnum.KeyGoBack],
-											 InputMap[InputMapEnum.KeyGoForward]);
+			P = character;
 		}
 
-		else
+		Character P;
+
+		private bool IsSprinting = false; // Holds the reference state of sprinting. Only used in the SprintHandler function!
+
+		const float JumpVelocity = 8f;
+
+		private (Vector3 Vel, bool IsGrounded) _RefFallState;
+		private float FallDamageStart = 10.0f;
+		private float FatalFallSpeed = 20.0f;
+
+		/* Friction attributes */
+		public float Friction = 1.0f;
+		public float AirFriction = 0.25f;
+
+		public float MinVel = 0.1f;
+		private float MovementAccel = 100.0f;
+
+		private float SprintMultiplier = 2f;
+		private const float DefaultSpeed = 5.0f; // Base speed of the character
+		private float BaseSpeed = DefaultSpeed; // Speed with modifiers applied (i.e, sprinting) 
+		private float TargetSpeed = DefaultSpeed; // Target velocity to reach with oversugar included
+		private int BaseNumJumps = 1; // Number of jumps without sugarush
+		private int CurrentBaseJumps = 1; // Number of jumps currently allowed
+		private int JumpsRemaining = 1;
+        private int SugarushNumJumps = 2; // Number of jumps allowed midair during sugarush 
+
+		public void StartSugarush()
 		{
-            input2D.X = Input.GetActionStrength(InputMap[InputMapEnum.StickGoRight]) - Input.GetActionStrength(InputMap[InputMapEnum.StickGoLeft]);
-            input2D.Y = Input.GetActionStrength(InputMap[InputMapEnum.StickGoBack]) - Input.GetActionStrength(InputMap[InputMapEnum.StickGoForward]);
-        }
+            CurrentBaseJumps = SugarushNumJumps;
+            
+            if(P.IsOnGround())
+            {
+                JumpsRemaining = CurrentBaseJumps;
+            }
+            else
+            {
+                JumpsRemaining = CurrentBaseJumps - 1;
+            }
+		}
 
-        Vector3 input3D = Vector3.Zero;
-        input3D.X = input2D.X;
-        input3D.Z = input2D.Y;
-
-        return input3D.Normalized();
-    }
-
-	/// <Summary>
-	/// 	Increase accelleration on sprint input
-	/// </Summary>
-	private void SprintHandler()
-	{
-		if(Input.IsActionPressed(InputMap[InputMapEnum.ActionSprint]) != SprintReferenceState)
+		public void EndSugarush()
 		{
-			if(!SprintReferenceState)
+			if (JumpsRemaining < CurrentBaseJumps)
 			{
-				CurrentBaseSpeed = BaseSpeed * SprintMultiplier;
+				JumpsRemaining = BaseNumJumps;
+			}
+			CurrentBaseJumps = BaseNumJumps;
+		}
+
+		public void IncreaseSpeed(float amount)
+		{
+			BaseSpeed = DefaultSpeed + amount;
+		}
+
+		public void ResetSpeed()
+		{
+			BaseSpeed = DefaultSpeed;
+		}
+
+		/// <Summary>
+		/// 	Increase accelleration on sprint input
+		/// </Summary>
+		private void SprintHandler()
+		{
+			if(Input.IsActionPressed("sprint") != IsSprinting)
+			{
+				IsSprinting = !IsSprinting;
+			}
+
+			if(IsSprinting)
+			{
+				TargetSpeed = BaseSpeed * SprintMultiplier;
 			}
 
 			else
 			{
-				CurrentBaseSpeed = BaseSpeed;
+				TargetSpeed = BaseSpeed;
+			}
+		}
+
+		private void ApplyFallDamage(float speed)
+		{
+			if (speed >= FallDamageStart)
+			{
+				P.Hurt(((speed - FallDamageStart) / FatalFallSpeed) * Mathf.Max(P.GetHealth(), P.GetMaxHealth()));
+			}
+		}
+
+		private void FallHandler()
+		{
+			if (P.IsOnGround())
+			{
+				if (!_RefFallState.IsGrounded)
+				{
+					ApplyFallDamage((_RefFallState.Vel * P.GetGravity().Normalized()).Length());
+				}
+				_RefFallState.IsGrounded = true;
+			}
+			else
+			{
+				_RefFallState.IsGrounded = false;
+			}
+			
+			_RefFallState.Vel = P.LinearVelocity;
+		}
+
+		/// <Summary>
+		/// 	Handles jump input
+		/// </Summary>
+		private void JumpHandler()
+		{
+			/*Reset jumps if on floor and apply correct amount of jumps when midair*/
+			if(!P.IsOnGround())
+			{
+				if(JumpsRemaining == CurrentBaseJumps)
+				{
+					JumpsRemaining--;
+				}
+			}
+			else
+			{
+				JumpsRemaining = CurrentBaseJumps;
 			}
 
-			// if (CurrentSugar == BaseSugar)
-			// {
-			// }
-			TargetSpeed = CurrentBaseSpeed; 
-			SprintReferenceState = !SprintReferenceState;
-		}
-	}
-
-	private void ApplyFallDamage(float speed)
-	{
-        if (speed >= FallDamageStart)
-		{
-            Hurt(((speed - FallDamageStart) / FatalFallSpeed) * MathF.Max(CurrentBaseSugar, CurrentSugar));
-		}
-    }
-
-    private void FallHandler()
-	{
-		if (IsOnGround())
-		{
-			if (!_RefFallState.IsGrounded)
+			if (Input.IsActionJustPressed("jump") && JumpsRemaining > 0)
 			{
-				ApplyFallDamage((_RefFallState.Vel * GetGravity().Normalized()).Length());
-			}
-			_RefFallState.IsGrounded = true;
-		}
-		else
-		{
-            _RefFallState.IsGrounded = false;
-        }
-		
-		_RefFallState.Vel = LinearVelocity;
-    }
+				Vector3 jumpDir = P.GlobalBasis.Y.Normalized();
+				Vector3 upVelocity = P.LinearVelocity.Project(jumpDir);
+				Vector3 jumpVec = jumpDir * JumpVelocity;
 
-	/// <Summary>
-	/// 	Handles jump input
-	/// </Summary>
-	private void JumpHandler()
-	{
-        /*Reset jumps if on floor and apply correct amount of jumps when midair*/
-        if(!IsOnGround())
-		{
-			if(JumpsRemaining == CurrentBaseJumps)
-			{
+				if (upVelocity.Dot(jumpDir) < 0)
+				{
+					P.ApplyCentralImpulse((jumpVec - upVelocity) * P.Mass);
+				}
+
+				else
+				{
+					P.ApplyCentralImpulse(jumpVec * P.Mass);
+				}
+
 				JumpsRemaining--;
 			}
 		}
-		else
+
+
+		/// <Summary>
+		/// 	Apply friction when on ground/air until full stop
+		/// </Summary>
+		private void ApplyFriction(ref Vector3 force, double delta)
 		{
-			JumpsRemaining = CurrentBaseJumps;
+			if (P.LinearVelocity == Vector3.Zero)
+			{
+				return;
+			}
+
+			Vector3 simForce = force;
+			
+			if (P.IsOnGround())
+			{
+				/*
+					Friction is given by F = N * μ
+					N - Normal force
+					μ - Friction coefficient
+				*/
+				Vector3 normalForce = P.GetGravity() * P.Mass;
+				simForce -= normalForce.Length() * Friction * P.LinearVelocity.Normalized();
+			}
+
+			else
+			{
+				/*
+					https://www.youtube.com/watch?v=1T4hZjBrscQ
+					Drag is given by F = 0.5 * ρ * C * A * v^2
+					ρ - Air density
+					C - Drag coeficcient
+					A - Cross-sectional area of the object
+					v - Object velocity
+				*/
+				simForce -= P.LinearVelocity.Normalized() * (0.5f * 0.6f * P.Hitbox.GetLongestAxisSize() * P.LinearVelocity.LengthSquared());
+			}
+			
+			Vector3 simSpeed = SimulateSpeed(simForce, delta) + P.LinearVelocity;
+
+			if (simSpeed.LengthSquared() <= MinVel * MinVel)
+			{
+				P.LinearVelocity = Vector3.Zero;
+				return;
+			}
+
+			force += simForce;
 		}
 
-		if (Input.IsActionJustPressed(InputMap[InputMapEnum.ActionJump]) && JumpsRemaining > 0)
+
+
+		/// <Summary>
+		/// 	Applly accelleration when moving, until full speed is achieved
+		/// </Summary>
+		private void ApplyMovementAccel(ref Vector3 force, double delta)
 		{
-            Vector3 jumpDir = GlobalBasis.Y.Normalized();
-            LinearVelocity -= LinearVelocity.Project(jumpDir);
-            LinearVelocity += jumpDir * JumpVelocity;
-            JumpsRemaining--;
+			Vector3 moveDirection = P.inputHandler.GetMoveDirection();
+
+			if (moveDirection == Vector3.Zero)
+			{
+				return;
+			}
+
+			void Accelerate(ref Vector3 force, Vector3 baseDir, float directionScale, double delta)
+			{
+				Vector3 dirForce = force.Project(baseDir); // Current force in the target direction
+				Vector3 targetForce = directionScale * baseDir * MovementAccel * P.Mass; // Force to be applied to player
+				
+				Vector3 dirSpeed = P.LinearVelocity.Project(baseDir); // Speed in the target direction
+
+				Vector3 finalSpeed = SimulateSpeed(dirForce + targetForce, delta) + dirSpeed; // Speed after iteration
+
+				if (finalSpeed.LengthSquared() <= TargetSpeed * TargetSpeed)
+				{
+					force += targetForce;
+				} // Apply force if max speed won't be exceeded
+
+				else
+				{
+					Vector3 targetDirSpeed = TargetSpeed * directionScale * baseDir; // Target speed in the target direction
+					targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
+					force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
+				} // If it is, calculate a smaller force that will close the gap to the target speed.
+			}
+
+			if (moveDirection.Z != 0)
+			{
+				Accelerate(ref force, -P.GlobalBasis.Z.Normalized(), moveDirection.Z, delta);
+			} // Apply force on Z (forward & backward)
+			
+			if (moveDirection.X != 0)
+			{
+				Accelerate(ref force, P.GlobalBasis.X.Normalized(), moveDirection.X, delta);
+			} // Apply force on X (left & right)
 		}
-	}
 
-
-	/// <Summary>
-	/// 	Apply friction when on ground/air until full stop
-	/// </Summary>
-	private void ApplyFriction(ref Vector3 force, double delta)
-	{
-		if (LinearVelocity == Vector3.Zero)
-		{
-            return;
-        }
-
-        Vector3 simForce = force;
-        
-        if (IsOnGround())
-		{
-            /*
-				Friction is given by F = N * μ
-				N - Normal force
-				μ - Friction coefficient
-			*/
-	        Vector3 normalForce = GetGravity() * Mass;
-    	    simForce -= normalForce.Length() * Friction * LinearVelocity.Normalized();
-        }
-
-		else
+		private Vector3 SimulateSpeed(Vector3 force, double delta)
 		{
 			/*
-				https://www.youtube.com/watch?v=1T4hZjBrscQ
-				Drag is given by F = 0.5 * ρ * C * A * v^2
-				ρ - Air density
-				C - Drag coeficcient
-				A - Cross-sectional area of the object
-				v - Object velocity
-			*/
-			simForce -= LinearVelocity.Normalized() * (0.5f * 1.3f * Hitbox.GetLongestAxisSize() * LinearVelocity.LengthSquared());
-		}
-		
-        Vector3 simSpeed = SimulateSpeed(simForce, delta) + LinearVelocity;
-
-        if (simSpeed.LengthSquared() <= MinVel * MinVel)
-		{
-            LinearVelocity = Vector3.Zero;
-            return;
-        }
-
-        force += simForce;
-    }
-
-
-
-	/// <Summary>
-	/// 	Applly accelleration when moving, until full speed is achieved
-	/// </Summary>
-	private void ApplyMovementAccel(ref Vector3 force, double delta)
-	{
-        Vector3 moveDirection = GetMoveDirection();
-
-        if (moveDirection == Vector3.Zero)
-		{
-            return;
-        }
-
-        void Accelerate(ref Vector3 force, Vector3 baseDir, float directionScale, double delta)
-        {
-            Vector3 dirForce = force.Project(baseDir); // Current force in the target direction
-            Vector3 targetForce = directionScale * baseDir * MovementAccel * Mass; // Force to be applied to player
-            
-			Vector3 dirSpeed = LinearVelocity.Project(baseDir); // Speed in the target direction
-
-            Vector3 finalSpeed = SimulateSpeed(dirForce + targetForce, delta) + dirSpeed; // Speed after iteration
-
-            if (finalSpeed.LengthSquared() <= TargetSpeed * TargetSpeed)
-            {
-                force += targetForce;
-            } // Apply force if max speed won't be exceeded
-
-            else
-			{
-                Vector3 targetDirSpeed = TargetSpeed * directionScale * baseDir; // Target speed in the target direction
-                targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
-                force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
-            } // If it is, calculate a smaller force that will close the gap to the target speed.
-        }
-
-        if (moveDirection.Z != 0)
-		{
-            Accelerate(ref force, -GlobalBasis.Z.Normalized(), moveDirection.Z, delta);
-		} // Apply force on Z (forward & backward)
-        
-		if (moveDirection.X != 0)
-        {
-            Accelerate(ref force, GlobalBasis.X.Normalized(), moveDirection.X, delta);
-        } // Apply force on X (left & right)
-	}
-
-	private Vector3 SimulateSpeed(Vector3 force, double delta)
-	{
-		/*
-		Derivation (for small time steps):
-		F = m * a
-		a = F / m
-
-		v = a * t
-		v = F / m * t
-		*/
-        return force / Mass * (float)delta;
-    }
-
-	private Vector3 ForceToGetSpeed(Vector3 targetSpeed, double delta)
-	{
-        /*
-			The target force is given by:
-			
+			Derivation (for small time steps):
 			F = m * a
 			a = F / m
 
 			v = a * t
 			v = F / m * t
+			*/
+			return force / P.Mass * (float)delta;
+		}
 
-			F = v * m / t
-		*/
-        return targetSpeed * Mass / (float)delta;
-    }
+		private Vector3 ForceToGetSpeed(Vector3 targetSpeed, double delta)
+		{
+			/*
+				The target force is given by:
+				
+				F = m * a
+				a = F / m
 
-	/// <Summary>
-	/// 	Handles all movement-related input events
-	/// </Summary>
-	private void MovementHandler(double delta)
-	{
-        Vector3 force = Vector3.Zero;
+				v = a * t
+				v = F / m * t
 
-        JumpHandler();
-        FallHandler();
-        SprintHandler();
-        ApplyFriction(ref force, delta);
-        ApplyMovementAccel(ref force, delta);
-        ApplyCentralForce(force);
-    }
+				F = v * m / t
+			*/
+			return targetSpeed * P.Mass / (float)delta;
+		}
 
+		/// <Summary>
+		/// 	Handles all movement-related input events
+		/// </Summary>
+		public void Run(double delta)
+		{
+			Vector3 force = Vector3.Zero;
+
+			JumpHandler();
+			FallHandler();
+			SprintHandler();
+			ApplyFriction(ref force, delta);
+			ApplyMovementAccel(ref force, delta);
+			P.ApplyCentralForce(force);
+		}
+
+	}
 }

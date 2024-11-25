@@ -1,34 +1,15 @@
-[gd_scene load_steps=14 format=3 uid="uid://bu5k1cceik41r"]
+[gd_scene load_steps=5 format=3 uid="uid://bu5k1cceik41r"]
 
+[ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="1_f7gnw"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="1_n1kml"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="2_lc6bq"]
-[ext_resource type="Script" path="res://scripts/weapon_scripts/Shotgun.cs" id="4_3stso"]
-[ext_resource type="Script" path="res://testing/testchar/TestCharacter.cs" id="4_txmnv"]
-[ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="5_l74mu"]
-[ext_resource type="Material" uid="uid://dogxm2mlkfree" path="res://assets/materials/TrasparancyMaterial.tres" id="6_n0at3"]
-[ext_resource type="AudioStream" uid="uid://bgleoapofvocu" path="res://assets/audio/weapon/untitled.wav" id="7_23iak"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_bcqly"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_qw0p7"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_g3cv8"]
-size = Vector3(1, 1.96174, 1.11206)
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_ryhfk"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_aqa3f"]
-material = ExtResource("6_n0at3")
-top_radius = 0.1
-bottom_radius = 0.1
-height = 0.75
-radial_segments = 32
-rings = 1
-
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hx1qq"]
-points = PackedVector3Array(0.108333, 0.380878, 0.0368698, -0.105952, -0.380878, -0.0344888, -0.105952, -0.380878, 0.0368698, -0.105952, 0.380878, -0.0344888, 0.060698, -0.380878, -0.0940383, 0.0368698, -0.380878, 0.108333, -0.0344888, 0.380878, 0.108333, 0.0368698, 0.380878, -0.105952, 0.108333, -0.380878, -0.0344888, -0.0344888, -0.380878, -0.105952, -0.0821242, 0.380878, -0.0821242, 0.0964193, 0.380878, -0.058317, -0.0940383, 0.380878, 0.060698, -0.058317, -0.380878, 0.0964193, 0.0964193, -0.380878, 0.060698, 0.060698, 0.380878, 0.0964193, -0.0821242, -0.380878, -0.0821242, -0.0344888, 0.380878, -0.105952, -0.105952, 0.380878, 0.0368698, 0.0368698, 0.380878, 0.108333, -0.0344888, -0.380878, 0.108333, 0.0368698, -0.380878, -0.105952, 0.108333, 0.380878, -0.0344888, 0.108333, -0.380878, 0.0368698, 0.0964193, -0.380878, -0.058317, -0.058317, 0.380878, 0.0964193, 0.060698, -0.380878, 0.0964193, 0.060698, 0.380878, -0.0940383, -0.0940383, -0.380878, 0.060698, 0.0964193, 0.380878, 0.060698)
-
 [node name="Map2" type="Node3D"]
+
+[node name="Character" parent="." instance=ExtResource("1_f7gnw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.852, 2, 5)
 
 [node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
 use_collision = true
@@ -93,6 +74,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -6.07177, 0.05782
 
 [node name="FoodSpawner2" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 14.8169, 0.0578244)
+visible = false
 
 [node name="Arrow" type="CSGCombiner3D" parent="CSGCombiner3D"]
 
@@ -149,56 +131,6 @@ SpawnType = 2
 [node name="FoodSpawner2" parent="CSGCombiner3D/Platforms" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.1529, 2, 3.95247)
 SpawnType = 2
-
-[node name="Character" type="RigidBody3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -12.5161, 22.5547, 4)
-axis_lock_angular_x = true
-axis_lock_angular_y = true
-axis_lock_angular_z = true
-mass = 60.0
-linear_damp = 1.0
-script = ExtResource("4_txmnv")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Character"]
-mesh = SubResource("CapsuleMesh_qw0p7")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Character"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.000286102, -0.0560303)
-shape = SubResource("BoxShape3D_g3cv8")
-
-[node name="PickupSphere" type="Area3D" parent="Character"]
-transform = Transform3D(1.0536, 0, 0, 0, 1.0536, 0, 0, 0, 1.0536, 0, 0, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Character/PickupSphere"]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-shape = SubResource("SphereShape3D_ryhfk")
-
-[node name="PlayerCamera" type="Camera3D" parent="Character"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.523001, -0.529844)
-current = true
-
-[node name="CameraSoundPlayer" type="AudioStreamPlayer3D" parent="Character/PlayerCamera"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0226882)
-
-[node name="Weapon" type="RigidBody3D" parent="Character/PlayerCamera"]
-transform = Transform3D(-0.0446831, 0, 0.999001, 0, 1, 0, -0.999001, 0, -0.0446831, -0.417647, -0.353583, -0.0866404)
-script = ExtResource("4_3stso")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Character/PlayerCamera/Weapon"]
-transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
-layers = 2
-material_override = ExtResource("5_l74mu")
-mesh = SubResource("CylinderMesh_aqa3f")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Character/PlayerCamera/Weapon"]
-transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
-shape = SubResource("ConvexPolygonShape3D_hx1qq")
-
-[node name="ProjectileSpawnPoint" type="Node3D" parent="Character/PlayerCamera/Weapon"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)
-
-[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="Character/PlayerCamera/Weapon"]
-stream = ExtResource("7_23iak")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.984903, -0.0513468, 0.165318, 0.171269, -0.150191, 0.973709, -0.0251676, 0.987323, 0.156718, 0, 20.222, 0)

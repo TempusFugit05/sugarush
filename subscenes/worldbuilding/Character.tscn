@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://hepn2aya7iul"]
 
-[ext_resource type="Script" path="res://scripts/character_scripts/Character.cs" id="1_kluek"]
+[ext_resource type="Script" path="res://testing/testchar/Character.cs" id="1_y5lxn"]
 [ext_resource type="Script" path="res://scripts/weapon_scripts/Shotgun.cs" id="2_sidmv"]
 [ext_resource type="Material" uid="uid://d0quiptp1hdt7" path="res://assets/materials/ProtoDot.tres" id="3_fq2hv"]
 [ext_resource type="Material" uid="uid://dogxm2mlkfree" path="res://assets/materials/TrasparancyMaterial.tres" id="4_0swre"]
@@ -10,6 +10,7 @@
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_qw0p7"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ynb0j"]
+size = Vector3(1, 1, 1.06934)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ryhfk"]
 
@@ -28,14 +29,13 @@ points = PackedVector3Array(0.108333, 0.380878, 0.0368698, -0.105952, -0.380878,
 axis_lock_angular_x = true
 axis_lock_angular_y = true
 axis_lock_angular_z = true
-script = ExtResource("1_kluek")
-AirAccel = 25.0
+script = ExtResource("1_y5lxn")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_qw0p7")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, 0)
+transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, -0.0371304)
 shape = SubResource("BoxShape3D_ynb0j")
 
 [node name="PickupSphere" type="Area3D" parent="."]
@@ -76,6 +76,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.512504, 0, 0)
 [node name="AudioPlayer" type="AudioStreamPlayer3D" parent="PlayerCamera/Weapon"]
 stream = ExtResource("5_vfemo")
 
-[node name="UiControl" parent="." node_paths=PackedStringArray("CharNode") instance=ExtResource("4_qc7up")]
-CharNode = NodePath("..")
+[node name="CharUi" parent="." instance=ExtResource("4_qc7up")]
 metadata/_edit_use_anchors_ = true
