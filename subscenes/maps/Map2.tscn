@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://bu5k1cceik41r"]
+[gd_scene load_steps=6 format=3 uid="uid://bu5k1cceik41r"]
 
 [ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="1_f7gnw"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="1_n1kml"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="2_lc6bq"]
+[ext_resource type="PackedScene" uid="uid://dhb24lpskawns" path="res://subscenes/worldbuilding/Liquid.tscn" id="4_t4l4m"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_bcqly"]
 
@@ -97,7 +98,7 @@ size = Vector3(8, 120, 9)
 material = ExtResource("1_n1kml")
 
 [node name="FoodSpawner2" parent="CSGCombiner3D/Platforms/CSGBox3D" instance=ExtResource("2_lc6bq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.73397, 60.4308, -0.354182)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.38545, 60.4308, -0.354182)
 SpawnType = 3
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="CSGCombiner3D/Platforms"]
@@ -132,5 +133,13 @@ SpawnType = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.1529, 2, 3.95247)
 SpawnType = 2
 
+[node name="CSGBox3D" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, -9.96745e-06, 3.34423e-05, -9.49645e-06, 0.84444, 0.535651, -3.35791e-05, -0.535651, 0.84444, -11.3211, -3.88359, -6.83601)
+size = Vector3(7.8833, 1, 15.5005)
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.984903, -0.0513468, 0.165318, 0.171269, -0.150191, 0.973709, -0.0251676, 0.987323, 0.156718, 0, 20.222, 0)
+
+[node name="StaticBody3D" parent="." instance=ExtResource("4_t4l4m")]
+transform = Transform3D(64.058, 0, 0, 0, 1.01025, 0, 0, 0, 11.3749, 20.5078, -3.19059, 3.87411)
+DamagePerSecond = 100000.0

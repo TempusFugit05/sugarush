@@ -112,13 +112,14 @@ public partial class Character
 			{
 				input2D.X = Input.GetActionStrength(InputMap[InputMapEnum.StickGoRight]) - Input.GetActionStrength(InputMap[InputMapEnum.StickGoLeft]);
 				input2D.Y = Input.GetActionStrength(InputMap[InputMapEnum.StickGoBack]) - Input.GetActionStrength(InputMap[InputMapEnum.StickGoForward]);
+				input2D = input2D.Normalized();
 			}
 
 			Vector3 input3D = Vector3.Zero;
 			input3D.X = input2D.X;
 			input3D.Z = input2D.Y;
 
-			return input3D.Normalized();
+			return input3D;
 		}
 
         public void Run(double delta)

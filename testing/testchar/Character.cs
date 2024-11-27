@@ -3,19 +3,21 @@ using Helpers;
 
 public partial class Character : CreatureBase
 {
+    private Camera3D Camera;
 
-    MovementHandler movementHandler = new();
-    SugarHandler sugarHandler = new();
-    InteractionHandler interactionHandler = new();
-    InputHandler inputHandler = new();
-    WeaponHandler weaponHandler = new();
-    CharUi Ui;
+    private MovementHandler movementHandler = new();
+    private SugarHandler sugarHandler = new();
+    private InteractionHandler interactionHandler = new();
+    private InputHandler inputHandler = new();
+    private WeaponHandler weaponHandler = new();
+    private CharUi Ui;
 
-    protected override void InitOrgan()
+    protected override void InitCreature()
     {
         PhysicsMaterialOverride = new(){Friction=0};
         LinearDamp = 0;
         Mass = 75.0f;
+
         Camera = GetNode<Camera3D>("PlayerCamera");
         HR.SetPlayerNode(this);
         Ui = GetNode<CharUi>("CharUi");
@@ -29,14 +31,18 @@ public partial class Character : CreatureBase
         InitPickupSphere();
     }
     
-	public new void Hurt(float Damage, Vector3 DamagePosition = default, ulong colliderId = default)
+	public override void Hurt(float Damage, Vector3 DamagePosition = default, ulong colliderId = default)
 	{
 		sugarHandler.ConsumeSugar(-Damage);
+        if (sugarHandler.CurrentSugar <= 0)
+        {
+            Kill();
+        }
 	}
 
-	public new void Kill()
+	public override void Kill()
 	{
-        QueueFree();
+        // GD.Print("Oh no I totally died!!!!1!");
     }
 
     public float GetHealth()

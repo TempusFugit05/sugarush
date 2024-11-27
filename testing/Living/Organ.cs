@@ -207,17 +207,17 @@ public partial class Organ : RigidBody3D, ICreature
         }
         OnKill();
 
-        if (OrganBase is CreatureBase creature)
-        {
-            creature.NotifyKilled(this, OrganSettings);
-        }
+        // if (OrganBase is CreatureBase creature)
+        // {
+        //     creature.NotifyKilled(this, OrganSettings);
+        // }
     }
 
     /// <summary>
     ///     Kill organ.
     ///     Part of ICreature.
     /// </summary>
-    public void Kill()
+    public virtual void Kill()
     {
         if (OrganState.Alive)
         {
@@ -240,10 +240,10 @@ public partial class Organ : RigidBody3D, ICreature
                 HP.CreateDamageIndicator(damage, (damagePosition == default) ? GlobalPosition : damagePosition);
             }
 
-            if (OrganBase is CreatureBase creature)
-            {
-                creature.ApplyDamage(damage * (OrganSettings.Shielding / 100), createIndicator: false);
-            }
+            // if (OrganBase is CreatureBase creature)
+            // {
+            //     creature.ApplyDamage(damage * (OrganSettings.Shielding / 100), createIndicator: false);
+            // }
 
             Health -= damage;
             if (Health <= 0)
@@ -298,15 +298,15 @@ public partial class Organ : RigidBody3D, ICreature
     /// </summary>
 	protected void TurnToGibs()
 	{
-        if (this is not CreatureBase && OrganBase is not null)
-        {
-            OrganBase?.ReturnCollider(this); // If organ has its own colliders
-            AddCollisionExceptionWith(OrganBase);
-            Freeze = false;
-            AmalgamateOrgans();
-            OrganBase = null;
-            Reparent(GetTree().Root.GetNode("Main"));
-        }
+        // if (this is not CreatureBase && OrganBase is not null)
+        // {
+        //     OrganBase?.ReturnCollider(this); // If organ has its own colliders
+        //     AddCollisionExceptionWith(OrganBase);
+        //     Freeze = false;
+        //     AmalgamateOrgans();
+        //     OrganBase = null;
+        //     Reparent(GetTree().Root.GetNode("Main"));
+        // }
         GetTree().CreateTimer(OrganSettings.GibsFadeStart).Timeout += FadeBranch;
     }
 

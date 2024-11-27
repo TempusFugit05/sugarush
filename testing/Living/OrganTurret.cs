@@ -9,12 +9,12 @@ public partial class OrganTurret : CreatureBase
     float HoverHeight = 3;
     Vector3 Force;
 
-    protected override void InitOrgan()
-    {
-        Body = GetNode<Organ>("Body");
-        WeaponHolder = GetNode<OrganArm>("WeaponHolder");
-        OrganSettings.MaxHealth = 500;
-    }
+    // protected override void InitCreature()
+    // {
+    //     Body = GetNode<Organ>("Body");
+    //     WeaponHolder = GetNode<OrganArm>("WeaponHolder");
+    //     OrganSettings.MaxHealth = 500;
+    // }
     
 	private void RotateTowardsPlayer(double delta)
 	{       
@@ -66,14 +66,14 @@ public partial class OrganTurret : CreatureBase
         }
     }
 
-    protected override void OrganPhysicsProcess(double delta)
-    {
-        Force = Vector3.Zero;
-        if (IsPlayerVisible() && OrganState.Alive)
-        {
-            RotateTowardsPlayer(delta);
-        }
-        Hover();
-        ApplyCentralForce(Force);
-    }
+    // protected override void OrganPhysicsProcess(double delta)
+    // {
+    //     Force = Vector3.Zero;
+    //     if (IsPlayerVisible() && OrganState.Alive)
+    //     {
+    //         RotateTowardsPlayer(delta);
+    //     }
+    //     Hover();
+    //     ApplyCentralForce(Force);
+    // }
 }

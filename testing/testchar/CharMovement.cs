@@ -9,21 +9,23 @@ public partial class Character
 		public void Init(Character character)
 		{
 			P = character;
+			P.AddChild(JumpResetTimer);
+			JumpResetTimer.OneShot = true;
 		}
 
 		Character P;
+		Timer JumpResetTimer = new();
 
 		private bool IsSprinting = false; // Holds the reference state of sprinting. Only used in the SprintHandler function!
 
 		const float JumpVelocity = 8f;
 
 		private (Vector3 Vel, bool IsGrounded) _RefFallState;
-		private float FallDamageStart = 10.0f;
-		private float FatalFallSpeed = 20.0f;
+		private float FallDamageStart = 15.0f;
+		private float FatalFallSpeed = 25.0f;
 
 		/* Friction attributes */
 		public float Friction = 1.0f;
-		public float AirFriction = 0.25f;
 
 		public float MinVel = 0.1f;
 		private float MovementAccel = 100.0f;
@@ -32,32 +34,35 @@ public partial class Character
 		private const float DefaultSpeed = 5.0f; // Base speed of the character
 		private float BaseSpeed = DefaultSpeed; // Speed with modifiers applied (i.e, sprinting) 
 		private float TargetSpeed = DefaultSpeed; // Target velocity to reach with oversugar included
-		private int BaseNumJumps = 1; // Number of jumps without sugarush
-		private int CurrentBaseJumps = 1; // Number of jumps currently allowed
-		private int JumpsRemaining = 1;
+
+		private const int DefaultNumJumps = 1; // Number of jumps without sugarush
+		private int NumJumps = DefaultNumJumps; // Number of jumps currently allowed
+		private int JumpsRemaining = DefaultNumJumps;
         private int SugarushNumJumps = 2; // Number of jumps allowed midair during sugarush 
+		private const float JumpResetTime = 0.2f;
 
 		public void StartSugarush()
 		{
-            CurrentBaseJumps = SugarushNumJumps;
+            NumJumps = SugarushNumJumps;
             
             if(P.IsOnGround())
             {
-                JumpsRemaining = CurrentBaseJumps;
+                JumpsRemaining = NumJumps;
             }
             else
             {
-                JumpsRemaining = CurrentBaseJumps - 1;
+                JumpsRemaining = NumJumps - 1;
             }
 		}
 
 		public void EndSugarush()
 		{
-			if (JumpsRemaining < CurrentBaseJumps)
+			if (JumpsRemaining < NumJumps)
 			{
-				JumpsRemaining = BaseNumJumps;
+				JumpsRemaining = DefaultNumJumps;
 			}
-			CurrentBaseJumps = BaseNumJumps;
+
+			NumJumps = DefaultNumJumps;
 		}
 
 		public void IncreaseSpeed(float amount)
@@ -95,7 +100,7 @@ public partial class Character
 		{
 			if (speed >= FallDamageStart)
 			{
-				P.Hurt(((speed - FallDamageStart) / FatalFallSpeed) * Mathf.Max(P.GetHealth(), P.GetMaxHealth()));
+				P.Hurt(speed / FatalFallSpeed * Mathf.Max(P.GetHealth(), P.GetMaxHealth()));
 			}
 		}
 
@@ -122,36 +127,29 @@ public partial class Character
 		/// </Summary>
 		private void JumpHandler()
 		{
-			/*Reset jumps if on floor and apply correct amount of jumps when midair*/
 			if(!P.IsOnGround())
 			{
-				if(JumpsRemaining == CurrentBaseJumps)
+				if(JumpsRemaining == NumJumps)
 				{
 					JumpsRemaining--;
 				}
 			}
-			else
+			else if(JumpResetTimer.IsStopped())
 			{
-				JumpsRemaining = CurrentBaseJumps;
+				JumpsRemaining = NumJumps;
 			}
+
 
 			if (Input.IsActionJustPressed("jump") && JumpsRemaining > 0)
 			{
 				Vector3 jumpDir = P.GlobalBasis.Y.Normalized();
 				Vector3 upVelocity = P.LinearVelocity.Project(jumpDir);
 				Vector3 jumpVec = jumpDir * JumpVelocity;
-
-				if (upVelocity.Dot(jumpDir) < 0)
-				{
-					P.ApplyCentralImpulse((jumpVec - upVelocity) * P.Mass);
-				}
-
-				else
-				{
-					P.ApplyCentralImpulse(jumpVec * P.Mass);
-				}
+				P.ApplyCentralImpulse((jumpVec - upVelocity) * P.Mass);
 
 				JumpsRemaining--;
+				JumpResetTimer.Start(JumpResetTime);
+				GD.Print("JUMP");
 			}
 		}
 
@@ -289,8 +287,10 @@ public partial class Character
 			JumpHandler();
 			FallHandler();
 			SprintHandler();
+
 			ApplyFriction(ref force, delta);
 			ApplyMovementAccel(ref force, delta);
+			
 			P.ApplyCentralForce(force);
 		}
 

@@ -35,7 +35,7 @@ script = ExtResource("1_y5lxn")
 mesh = SubResource("CapsuleMesh_qw0p7")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, -0.0371304)
+transform = Transform3D(1.07103, 0, 0, 0, 2.0789, 0, 0, 0, 1.07103, 0, 0, 0)
 shape = SubResource("BoxShape3D_ynb0j")
 
 [node name="PickupSphere" type="Area3D" parent="."]

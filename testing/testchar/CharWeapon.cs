@@ -3,7 +3,6 @@ using Helpers;
 
 public partial class Character
 {	
-
 	public class WeaponHandler
 	{
 		Character P;
@@ -16,7 +15,7 @@ public partial class Character
 			WeaponNode = P.GetNodeOrNull<Weapon>("PlayerCamera/Weapon");
 			if (WeaponNode is not null)
 			{
-				WeaponNode.SetAttachmentMode(Weapon.AttachmentModeEnum.Player, P.OrganRids);
+				WeaponNode.SetAttachmentMode(Weapon.AttachmentModeEnum.Player, new (){P.GetRid()});
 				WeaponNode.PlayerCameraNode = P.Camera;
 			}
 		}

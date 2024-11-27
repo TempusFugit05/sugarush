@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
@@ -237,6 +238,8 @@ namespace Helpers
     /// </summary>
     static public partial class HM
     {
+        public const float Epsilon = 1e-6f;
+
         /// <summary>
         ///     Rotate a quaternion towards a target quaternion at a constant angle.
         ///     Useful for rotating a quaternion by a constant angular speed.
@@ -344,6 +347,92 @@ namespace Helpers
                 return quatToCheck;
             }
             return new Quaternion(0, 0, 0, 1); // Return new normalized quaternion
+        }
+    }
+
+    public class GenericCache
+    {
+        private class FunctionCache
+        {
+            public string FuncName;
+            public bool WasRan = false;
+            public object CachedValue = null;
+
+            public FunctionCache(string funcName)
+            {
+                FuncName = funcName;
+            }
+        }
+
+        private List <FunctionCache> Cache = new();
+        private ulong IterationNum = 0;
+
+        private bool GetUpdateRan(string funcName)
+        {
+            for (int i = 0; i < Cache.Count; i++)
+            {
+                var item = Cache[i];
+
+                if (item.FuncName == funcName)
+                {
+                    bool ret = item.WasRan;
+                    item.WasRan = true;
+                    return ret;
+                }
+            }
+            Cache.Add(new(funcName));
+
+            return false;
+        }
+
+        public void UpdateCache(string funcName, object toCache)
+        {
+            for (int i = 0; i < Cache.Count; i++)
+            {
+                var item = Cache[i];
+                if (item.FuncName == funcName)
+                {
+                    item.CachedValue = toCache;
+                }
+            }
+        }
+
+        public object GetCachedItem(string funcName)
+        {
+            for (int i = 0; i < Cache.Count; i++)
+            {
+                var item = Cache[i];
+                if (item.FuncName == funcName)
+                {
+                    return item.CachedValue;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        ///     Check if an iteration has passed since last call to this function.
+        ///     Used for caching purposes.
+        /// </summary>
+        /// <returns>true if this is the same iteration; false if not</returns>
+        public bool IsSameIteration(string funcName)
+        {
+            ulong currentFrame = Engine.GetPhysicsFrames(); // Get current physics iteration
+
+            if (IterationNum != currentFrame)
+            {
+                IterationNum = currentFrame;
+                // GD.Print("NEW");
+                for (int i = 0; i < Cache.Count; i++)
+                {
+                    var item = Cache[i];
+                    item.WasRan = false;
+                }
+
+                return false;
+            }
+            // GD.Print("OLD");
+            return GetUpdateRan(funcName);
         }
     }
 }
