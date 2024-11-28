@@ -45,6 +45,11 @@ public partial class Character : CreatureBase
         // GD.Print("Oh no I totally died!!!!1!");
     }
 
+    public IInteractable GetInteractingNode()
+    {
+        return interactionHandler.InteractingWith;
+    }
+
     public float GetHealth()
     {
         return sugarHandler.CurrentSugar;
@@ -68,8 +73,21 @@ public partial class Character : CreatureBase
         }
 	}
 
+    private struct Box
+    {
+        public Vector3 X;
+        public Vector3 Y;
+        public Vector3 Z;
+        // public Box(Aabb bounds)
+        // {
+        //     X = bounds.Position * bounds.Size;
+        // }
+    }
+
 	public override void _PhysicsProcess(double delta)
 	{
+        // Aabb bound = GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
+        // GD.Print((bound * GlobalTransform).Position);
 		weaponHandler.Run();
         interactionHandler.Run();
         Ui.Run();

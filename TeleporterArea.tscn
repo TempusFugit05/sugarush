@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxkt0344kbh0l"]
+
+[ext_resource type="Script" path="res://TeleporterArea.cs" id="1_b6ecm"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_geqld"]
+
+[node name="TeleporterArea" type="Area3D"]
+script = ExtResource("1_b6ecm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_geqld")

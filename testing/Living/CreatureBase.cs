@@ -206,8 +206,6 @@ public partial class CreatureBase : RigidBody3D, ICreature
 
         GroundDetectArea.GlobalPosition = GlobalPosition - ((GroundDetectArea.TargetPosition - GlobalPosition).Normalized() * 0.01f);
         GroundDetectArea.GlobalRotation = GlobalRotation;
-        GD.Print(GroundDetectArea.GlobalPosition);
-        GD.Print(GlobalPosition);
 
         InitCreature(); // User defined initializer
     }

@@ -5,33 +5,22 @@ using System;
 public partial class Food : RigidBody3D, IPickable
 {
 
-	public enum FoodType
-	{
-		SugarCube,
-		GummyBear,
-		Cupcake,
-		Cake
-	}
-
-	[Export]
-	public FoodType PickupFoodType = FoodType.Cake;
-
-	[Export]
+	// public enum FoodType
+	// {
+	// 	SugarCube,
+	// 	GummyBear,
+	// 	Cupcake,
+	// 	Cake
+	// }
+	// public FoodType PickupFoodType = FoodType.Cake;
+	
 	private Vector3 BobOffset = new (0, 0.1f, 0);
-
-	[Export]
 	private float BobAnimationCycleTime = 1f;
-
-	[Export]
 	private float SpinAnimationCycleTime = 2f;
-
-	[Export]
 	private float SpawnFadeTime = 0.75f;
-
-    [Export]
-    public bool DisablePhysics = true;
-
-    private float SugarAmount = 0;
+   
+    [Export] public bool DisablePhysics = true;
+    [Export] private float SugarAmount = 0;
 
 	public Vector3 InitialPosition;
 
@@ -39,12 +28,11 @@ public partial class Food : RigidBody3D, IPickable
 
 	MeshInstance3D MeshInstance;
 
-	public void SetSpawner(FoodSpawner spawner) { Spawner = spawner; }
+	public void SetSpawner(FoodSpawner spawner) 
+	{
+		Spawner = spawner;
+	}
 
-	/// <summary>
-	/// Returns the amount of sugar this pickup holds
-	/// </summary>
-	/// <returns>The amount of sugar</returns>
 	public float GetSugar()
 	{
 		return SugarAmount;
@@ -72,22 +60,6 @@ public partial class Food : RigidBody3D, IPickable
 		}
 	}
 
-
-    /// <summary>
-    ///     Create the pickup and collision boxes of the node.
-    /// </summary>
-    private void CreateCollisionBox()
-    {
-        void CreateBoxShape(CollisionShape3D Node)
-        {
-            BoxShape3D Box = (BoxShape3D)Node.GetShape();
-            Box.Size = (MeshInstance.GetAabb()*MeshInstance.GlobalTransform).Size;
-        }
-        CreateBoxShape(GetNode<CollisionShape3D>("FoodPickupRange/PickupBox")); // Create box shape for player pickup
-        CreateBoxShape(GetNode<CollisionShape3D>("CollisionShape3D")); // Create box shape for ccollisions
-        // GetNode<CollisionShape3D>("CollisionShape3D").;
-    }
-
 	private void InitNode()
 	{
 		MeshInstance = GetNode<MeshInstance3D>("MeshInstance3D");
@@ -96,33 +68,27 @@ public partial class Food : RigidBody3D, IPickable
 		{
 			GlobalPosition = InitialPosition + BobOffset;
 		}
-		
-		switch (PickupFoodType)
-		{
-			case FoodType.SugarCube:
-				SugarAmount = 5;
-				break;
-			case FoodType.GummyBear:
-				SugarAmount = 15;
-				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/models/gummy_bear.obj");
-				MeshInstance.Scale = new Vector3(0.15f, 0.15f, 0.15f);
-				break;
-			case FoodType.Cupcake:
-				SugarAmount = 50;
-				break;
-			case FoodType.Cake:
-				SugarAmount = 100;
-				MeshInstance.Mesh = ResourceLoader.Load<Mesh>("res://assets/models/cake.obj");
-				MeshInstance.Scale = new Vector3(0.75f, 0.75f, 0.75f);
-				break;
-		}
+
 		if (DisablePhysics)
 		{
             AddToGroup("GIgnoreWeapons");
         }
         CollisionLayer = 2;
-        CreateCollisionBox();
-        InitTweens();
+
+
+		BoxShape3D pickupShape = new();
+		Aabb boundingBox = GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
+		pickupShape.Size = boundingBox.Size;
+
+		CollisionShape3D pickupRange = new();
+		pickupRange.Shape = pickupShape;
+		pickupRange.Position = (boundingBox.End + boundingBox.Position)/2;
+
+		Area3D pickupArea = new();
+		AddChild(pickupArea);
+		pickupArea.AddChild(pickupRange);
+
+		InitTweens();
 	}
 	
 
@@ -137,15 +103,7 @@ public partial class Food : RigidBody3D, IPickable
 		{
             ConstantForce = Vector3.Zero;
         }
-		else
-		{
-        	ConstantForce = GetGravity();
-		}
     }
-
-    /// <summary>
-    /// Notify pickup that it has been picked up
-    /// </summary>
     
 
 	/// <summary>

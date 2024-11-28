@@ -1,11 +1,11 @@
 [gd_scene load_steps=9 format=3 uid="uid://dsyaxk5fxx2qh"]
 
-[ext_resource type="Texture2D" uid="uid://7mtuoifcr57a" path="res://assets/kenney_prototype_textures/orange/texture_05.png" id="1_g4tgb"]
+[ext_resource type="Texture2D" uid="uid://7mtuoifcr57a" path="res://assets/kenney_prototype_textures/orange/texture_05.png" id="1_vej2e"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_6w4sd"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fh1aj"]
-albedo_texture = ExtResource("1_g4tgb")
+albedo_texture = ExtResource("1_vej2e")
 uv1_scale = Vector3(5, 5, 5)
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_7omah"]

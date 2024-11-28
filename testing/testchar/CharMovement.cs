@@ -1,5 +1,5 @@
 using Godot;
-using System;
+using Helpers;
 using System.Collections.Generic;
 
 public partial class Character
@@ -149,7 +149,6 @@ public partial class Character
 
 				JumpsRemaining--;
 				JumpResetTimer.Start(JumpResetTime);
-				GD.Print("JUMP");
 			}
 		}
 
@@ -214,38 +213,28 @@ public partial class Character
 			{
 				return;
 			}
-
-			void Accelerate(ref Vector3 force, Vector3 baseDir, float directionScale, double delta)
-			{
-				Vector3 dirForce = force.Project(baseDir); // Current force in the target direction
-				Vector3 targetForce = directionScale * baseDir * MovementAccel * P.Mass; // Force to be applied to player
-				
-				Vector3 dirSpeed = P.LinearVelocity.Project(baseDir); // Speed in the target direction
-
-				Vector3 finalSpeed = SimulateSpeed(dirForce + targetForce, delta) + dirSpeed; // Speed after iteration
-
-				if (finalSpeed.LengthSquared() <= TargetSpeed * TargetSpeed)
-				{
-					force += targetForce;
-				} // Apply force if max speed won't be exceeded
-
-				else
-				{
-					Vector3 targetDirSpeed = TargetSpeed * directionScale * baseDir; // Target speed in the target direction
-					targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
-					force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
-				} // If it is, calculate a smaller force that will close the gap to the target speed.
-			}
-
-			if (moveDirection.Z != 0)
-			{
-				Accelerate(ref force, -P.GlobalBasis.Z.Normalized(), moveDirection.Z, delta);
-			} // Apply force on Z (forward & backward)
 			
-			if (moveDirection.X != 0)
+			Vector3 forward = moveDirection.Z * P.GlobalBasis.Z.Normalized();
+			Vector3 side = moveDirection.X * P.GlobalBasis.X.Normalized();
+			Vector3 baseDir = forward + side;
+
+			Vector3 dirForce = HM.projectOntoPlane(P.GlobalBasis.X.Normalized(), P.GlobalBasis.Z.Normalized(), force);
+			Vector3 dirSpeed = HM.projectOntoPlane(P.GlobalBasis.X.Normalized(), P.GlobalBasis.Z.Normalized(), P.LinearVelocity); // Speed in the target direction
+
+			Vector3 targetForce = baseDir * MovementAccel * P.Mass; // Force to be applied to player
+			Vector3 finalSpeed = SimulateSpeed(dirForce + targetForce, delta) + dirSpeed; // Speed after iteration
+
+			if (finalSpeed.LengthSquared() <= TargetSpeed * TargetSpeed)
 			{
-				Accelerate(ref force, P.GlobalBasis.X.Normalized(), moveDirection.X, delta);
-			} // Apply force on X (left & right)
+				force += targetForce;
+			} // Apply force if max speed won't be exceeded
+
+			else
+			{
+				Vector3 targetDirSpeed = TargetSpeed * baseDir; // Target speed in the target direction
+				targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
+				force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
+			} // If it is, calculate a smaller force that will close the gap to the target speed.
 		}
 
 		private Vector3 SimulateSpeed(Vector3 force, double delta)

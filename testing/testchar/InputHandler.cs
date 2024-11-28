@@ -117,7 +117,7 @@ public partial class Character
 
 			Vector3 input3D = Vector3.Zero;
 			input3D.X = input2D.X;
-			input3D.Z = input2D.Y;
+			input3D.Z = -input2D.Y;
 
 			return input3D;
 		}

@@ -25,5 +25,6 @@ public partial class CharUi : Control
 	{
 		sugarushStatus.Run();
 		sugarLabel.Run();
+		interactionLabel.Run();
 	}
 }

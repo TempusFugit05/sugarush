@@ -348,6 +348,13 @@ namespace Helpers
             }
             return new Quaternion(0, 0, 0, 1); // Return new normalized quaternion
         }
+    
+        public static Vector3 projectOntoPlane(Vector3 planeVec1, Vector3 planeVec2, Vector3 toProject)
+        {
+            Vector3 planeNormal = planeVec1.Cross(planeVec2); // Normal created by the two plane vectors
+            Vector3 projection = toProject.Project(planeNormal);
+            return toProject - projection;
+        }
     }
 
     public class GenericCache
@@ -435,4 +442,5 @@ namespace Helpers
             return GetUpdateRan(funcName);
         }
     }
+
 }

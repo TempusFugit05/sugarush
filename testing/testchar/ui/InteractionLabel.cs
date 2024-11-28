@@ -10,14 +10,14 @@ public partial class InteractionLabel : Label
     }
     public void Run()
     {
-        // if (CharNode.InteractingWith is not null)
-		// {
-        //     Text = "WAAAAAAAAAAA!!!!";
-        //     VisibleCharacters = -1;
-        // }
-		// else
-		// {
-        //     VisibleCharacters = 0;
-        // }
+        if (CharNode.GetInteractingNode() is not null)
+		{
+            Text = "WAAAAAAAAAAA!!!!";
+            VisibleCharacters = -1;
+        }
+		else
+		{
+            VisibleCharacters = 0;
+        }
     }
 }
