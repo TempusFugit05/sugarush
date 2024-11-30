@@ -3,9 +3,8 @@ using Godot;
 
 public partial class Shotgun : Weapon
 {
-
-    [Export]
-    private float SpreadAngle = 2.5f;
+    private const float SpreadAngle = 2.5f;
+	Vector2[] Angles = {new(SpreadAngle, 0), new(-SpreadAngle, 0), new(0, SpreadAngle), new(0, -SpreadAngle), new(SpreadAngle, SpreadAngle), new(-SpreadAngle, -SpreadAngle), new(-SpreadAngle, SpreadAngle), new(SpreadAngle, -SpreadAngle), new(0, 0)};
 
     protected override void InitWeapon()
     {
@@ -20,8 +19,6 @@ public partial class Shotgun : Weapon
 		{
 			if(WeaponSettings.AttachmentMode is AttachmentModeEnum.Player && PlayerCameraNode is not null)
 			{
-                Vector2[] Angles = {new(SpreadAngle, 0), new(-SpreadAngle, 0), new(0, SpreadAngle), new(0, -SpreadAngle),
-								 new(SpreadAngle, SpreadAngle), new(-SpreadAngle, -SpreadAngle), new(-SpreadAngle, SpreadAngle), new(SpreadAngle, -SpreadAngle), new(0, 0)};
                 ShootFromCamera(Angles);
             }
 

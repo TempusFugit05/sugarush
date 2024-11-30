@@ -6,17 +6,20 @@ public partial class Character
     public class SugarHandler
     {
         Character P;
-        public void Init(Character character)
+        CreatureState PState;
+
+        public void Init(Character character, CreatureState state)
         {
             P = character;
+            PState = state;
+            SugarushThreshold = 1.5f * PState.MaxHealth;
+            SugarushCalmdownThreshold = 1.25f * PState.MaxHealth;
         }
 
-        public const float BaseSugar = 100.0f;
-        public float CurrentSugar {get; private set;} = BaseSugar;        
         private float SugarHalfLife = 2; // Time in seconds at which oversugar amount will be cut in half
         private const float MinOverSugar = 1.0f; // Oversugar at which sugar will be set to the default value 
-        private float SugarushThreshold = 1.5f * BaseSugar; // Threshold at which sugarush will be activated
-        private float SugarushCalmdownThreshold = 1.25f * BaseSugar; // Threshold at which sugar will be deactivated
+        private float SugarushThreshold; // Threshold at which sugarush will be activated
+        private float SugarushCalmdownThreshold; // Threshold at which sugar will be deactivated
         public bool Sugarush {get; private set;} = false;
     	private float SugarSpeedRatio = 0.025f; // How much speed oversugar grants you
 
@@ -25,19 +28,19 @@ public partial class Character
         /// </<returns>>
         public void ConsumeSugar(float Amount)
         {
-            CurrentSugar += Amount;
+            PState.Health += Amount;
         }
 
         public float GetSugar()
         {
-            return CurrentSugar;
+            return PState.Health;
         }
 
         public void SetSugar(float sugar)
         {
             if (sugar >= 0)
             {
-                CurrentSugar = sugar;
+                PState.Health = sugar;
             }
         }
         public bool GetSugarush()
@@ -50,9 +53,9 @@ public partial class Character
         /// </Summary>
         void ApplySugarSpeed()
         {
-            if (CurrentSugar > BaseSugar)
+            if (PState.Health > PState.MaxHealth)
             {
-                P.movementHandler.IncreaseSpeed(SugarSpeedRatio * (CurrentSugar - BaseSugar));
+                P.movementHandler.IncreaseSpeed(SugarSpeedRatio * (PState.Health - PState.MaxHealth));
             }
             else
             {
@@ -65,12 +68,12 @@ public partial class Character
         /// </Summary>
         void ApplySugarHalfLife(double delta)
         {
-            float SugarOverhead = CurrentSugar - BaseSugar; // How much sugar is above baseline
-            CurrentSugar -= SugarOverhead / (2 * SugarHalfLife / (float)delta); // Apply sugar halflife
+            float SugarOverhead = PState.Health - PState.MaxHealth; // How much sugar is above baseline
+            PState.Health -= SugarOverhead / (2 * SugarHalfLife / (float)delta); // Apply sugar halflife
 
-            if (CurrentSugar - BaseSugar <= MinOverSugar)
+            if (PState.Health - PState.MaxHealth <= MinOverSugar)
             {
-                CurrentSugar = BaseSugar;
+                PState.Health = PState.MaxHealth;
             }
         }
 
@@ -94,12 +97,12 @@ public partial class Character
 
         private void SugarushStateHandler()
         {
-            if (!Sugarush && CurrentSugar >= SugarushThreshold)
+            if (!Sugarush && PState.Health >= SugarushThreshold)
             {
                 EnterSugarush();
             }
 
-            if (Sugarush && CurrentSugar <= SugarushCalmdownThreshold)
+            if (Sugarush && PState.Health <= SugarushCalmdownThreshold)
             {
                 ExitSugarush();
             }
@@ -112,9 +115,9 @@ public partial class Character
         {
             SugarushStateHandler();
 
-            if (CurrentSugar != BaseSugar)
+            if (PState.Health != PState.MaxHealth)
             {
-                if (CurrentSugar > BaseSugar)
+                if (PState.Health > PState.MaxHealth)
                 {
                     ApplySugarHalfLife(delta);
                 }

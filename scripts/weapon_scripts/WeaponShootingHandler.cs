@@ -15,7 +15,7 @@ public partial class Weapon : RigidBody3D
     protected void ApplyBulletHoleDecal(Godot.Collections.Dictionary RayDict)
 	{
         Node3D Collider = (Node3D)RayDict["collider"];
-        if (Collider is not ICreature && Collider is not RigidBody3D)
+        if (Collider is not ICreature && Collider is not RigidBody3D && Collider is not SoftBody3D)
 		{
 			BulletHole ChildDecal = (BulletHole)WeaponSettings.DecalScene.Instantiate(); // Create decal on the hit node 
 			Collider.AddChild(ChildDecal);
@@ -24,40 +24,23 @@ public partial class Weapon : RigidBody3D
         }
 	}
 
-    protected Vector3 GetCameraNormal()
-	{
-		return PlayerCameraNode.ProjectRayNormal(PlayerCameraNode.GetViewport().GetVisibleRect().GetCenter());
-    }
-
     protected void ShootFromCamera(Vector2[] angles = null)
 	{
-        Vector3 CameraNormal = GetCameraNormal();
+        Vector3 CameraNormal = PlayerCameraNode.ProjectRayNormal(PlayerCameraNode.GetViewport().GetVisibleRect().GetCenter());
         Vector3 ProjectileStartPos = PlayerCameraNode.ProjectRayOrigin(PlayerCameraNode.GetViewport().GetMousePosition()); // Convert the middle of the screen into a point in 3d space
-		
-		// Create a basis for rotation
-		Basis rotationBasis;
-		
-		// Get the camera's right vector (X axis)
-		Vector3 cameraRight = CameraNormal.Cross(Vector3.Up).Normalized();
-		
-		// Get the camera's up vector (Y axis)
-		Vector3 cameraUp = cameraRight.Cross(CameraNormal).Normalized();
-		
+				
+		Vector3 cameraRight = PlayerCameraNode.GlobalBasis.X.Normalized();
+		Vector3 cameraUp = PlayerCameraNode.GlobalBasis.Y.Normalized();
 
 		if (angles is not null)
 		{
             for (int i = 0; i < angles.Length; i++)
-            {
-				// Create rotation around local right axis (pitch)
-				Basis pitchRotation = new(cameraRight, Mathf.DegToRad(angles[i].Y));
-				// Create rotation around local up axis (yaw)
-				Basis yawRotation = new(cameraUp, Mathf.DegToRad(angles[i].X));
-				
-				// Combine rotations
-				rotationBasis = yawRotation * pitchRotation;
-				
-				// Apply rotation to the camera normal
-				Vector3 dirVector = rotationBasis * CameraNormal;
+            {				
+				Quaternion rotLeftRight = new(cameraRight, Mathf.DegToRad(angles[i].X));
+				Quaternion rotUpDown = new(cameraUp, Mathf.DegToRad(angles[i].Y));
+
+				Vector3 dirVector = CameraNormal * (rotUpDown * rotLeftRight);
+
 				Vector3 projectileEndPos = ProjectileStartPos + dirVector * WeaponSettings.Range;
 				
 				ShootProjectile(ProjectileStartPos, projectileEndPos);
@@ -116,27 +99,24 @@ public partial class Weapon : RigidBody3D
 		}
 	}
 
-	public void ShootProjectile(Vector3 RayStart, Vector3 RayEnd)
+	private void ShootBullet(Godot.Collections.Array<Rid> ignoreList, Vector3 start, Vector3 end)
 	{
-        // Create a projectile and apply bullet hole decal on the hit object
-        Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
-
 		if (WeaponSettings.ExclusionList is not null)
 		{
-			ExclusionList.AddRange(WeaponSettings.ExclusionList);
+			ignoreList.AddRange(WeaponSettings.ExclusionList);
 		} // Append user-defined exclusion list
 
         PhysicsRayQueryParameters3D QueryParams = new()
         {
-            From = RayStart,
-            To = RayEnd,
+            From = start,
+            To = end,
             CollideWithAreas = false,
             CollideWithBodies = true,
         };
 
-        if (ExclusionList is not null)
+        if (ignoreList is not null)
 		{
-            QueryParams.Exclude = ExclusionList;
+            QueryParams.Exclude = ignoreList;
 
         }
         
@@ -153,5 +133,17 @@ public partial class Weapon : RigidBody3D
 				ApplyBulletImpacts(RayDict, QueryParams); // Return ray info
 			}	
 		}
+	}
+
+	public void ShootProjectile(Vector3 start, Vector3 end)
+	{
+        // Create a projectile and apply bullet hole decal on the hit object
+        Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
+		// switch ()
+		// {
+			
+		// 	default:
+		// }
+
 	}
 }

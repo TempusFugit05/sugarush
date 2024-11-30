@@ -13,7 +13,6 @@ public partial class SugarLabel : Label
         CharNode = PlayerNode;
 		if(CharNode is not null)
 		{
-			CharSugar = CharNode.GetHealth();
 			Text = Convert.ToString(CharNode.GetHealth()) + "%";
             IsInitialized = true;
         }

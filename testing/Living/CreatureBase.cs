@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Godot;
 using Helpers;
 
@@ -9,24 +10,48 @@ public partial class CreatureBase : RigidBody3D, ICreature
     {
         public float GroundDetectionDistance = 100.0f;
         public float GroundDetectionSafeMargin = 0.35f;
-        public bool GroundSnapping = true;
+
+        public bool RecursiveHitbox = false;
+        public bool GroundDetectFromColliders = true;
+        public bool GroundDetectFromRecursive = false;
+
         public float GroundSnapStart = 0.25f;
         public float GroundSnapEnd = 0.15f;
         public float GroundSnapMargin = 0.1f;
-
+        public Godot.Collections.Array<Rid> ExcludeRids = new();
         public CreatureSettingsStruct(){}
     }
 
+    public class CreatureState
+    {
+        public bool IsAlive = true;
+        public float Health = 100.0f;
+        public float MaxHealth = 100.0f;
+        public float Armor = 0.0f;
+        public CreatureState(){}
+    }
+
     protected CreatureSettingsStruct CreatureSettings = new();
+    protected CreatureState State = new();
+    protected Aabb Hitbox = new();
+    protected Aabb GroundDetectRec = new(Vector3.Zero, 0.01f, 0.01f, 0.01f);
+
     private ShapeCast3D GroundDetectArea;
     private Timer GroundSnapTimer;
-
-    public float Health {get; private set;} = 100.0f;
-    protected Aabb Hitbox = new();
 
     protected virtual void InitCreature(){}
 
     private GenericCache Cache = new();
+
+    public float GetHealth()
+    {
+        return State.Health;
+    }
+
+    public float GetMaxHealth()
+    {
+        return State.MaxHealth;
+    }
 
     public virtual void Kill()
     {
@@ -35,10 +60,22 @@ public partial class CreatureBase : RigidBody3D, ICreature
 
     public virtual void Hurt(float damage, Vector3 damagePosition, ulong colliderId)
     {
-        Health -= damage;
-        if (Health <= 0)
+        State.Health -= damage;
+        if (State.Health <= 0)
         {
             Kill();
+        }
+    }
+
+    public virtual void Heal(float amount)
+    {
+        if (State.Health < State.MaxHealth)
+        {
+            State.Health += amount;
+            if (State.Health > State.MaxHealth)
+            {
+                State.Health = State.MaxHealth;
+            }
         }
     }
 
@@ -173,41 +210,92 @@ public partial class CreatureBase : RigidBody3D, ICreature
     //     return false;
     // }
 
-    private void GetHitBox()
+    private void GetHitbox()
     {
-        foreach (MeshInstance3D mesh in HR.GetChildrenOfType<MeshInstance3D>(this, true))
+        if (CreatureSettings.RecursiveHitbox)
         {
-            Hitbox = Hitbox.Merge(mesh.GetAabb());
+            foreach (MeshInstance3D mesh in HR.GetChildrenOfType<MeshInstance3D>(this, true))
+            {
+                Hitbox = Hitbox.Merge(mesh.GetAabb());
+            } // Create hitbox form all meshes in node
+        }
+        else
+        {
+            MeshInstance3D mesh = GetNodeOrNull<MeshInstance3D>("MeshInstance3D");
+            if (mesh == null)
+            {
+                CreatureSettings.RecursiveHitbox = true;
+                GD.PushWarning("Could not construct hitbox from child mesh. Attempting recursive...");
+                GetHitbox();
+            }
+            Hitbox = mesh.GetAabb();
         }
     }
 
-    public override void _Ready()
+    private BoxShape3D GetGroundDetectRec()
     {
-        GetHitBox();
+        Godot.Collections.Array<CollisionShape3D> colliders;
+        
+        if (CreatureSettings.GroundDetectFromRecursive)
+        {
+            colliders = HR.GetChildrenOfType<CollisionShape3D>(this, true);
+        }
+        else
+        {
+            colliders = HR.GetChildrenOfType<CollisionShape3D>(this, false);
+        }
 
-        GroundSnapTimer = new();
-        AddChild(GroundSnapTimer);
-        GroundSnapTimer.OneShot = true;
+        Aabb colliderBoundss = colliders[0].Shape.GetDebugMesh().GetAabb() * colliders[0].GlobalTransform.AffineInverse();
+        colliderBoundss.Size *= colliders[0].GlobalBasis.Scale;
+        GroundDetectRec = colliderBoundss;
+
+        foreach (var collider in colliders)
+        {
+            if (CreatureSettings.GroundDetectFromColliders)
+            {
+                Aabb colliderBounds = collider.Shape.GetDebugMesh().GetAabb();
+                colliderBounds.Size *= collider.GlobalBasis.Scale;
+                GroundDetectRec.Merge(colliderBounds);
+            }
+
+            Rid colliderRid = collider.Shape.GetRid();
+            CreatureSettings.ExcludeRids.Add(colliderRid);
+            GroundDetectArea.AddExceptionRid(colliderRid);
+        }
+        
+        if (!CreatureSettings.GroundDetectFromColliders)
+        {
+            GroundDetectRec = Hitbox;
+        }
 
         BoxShape3D detectorShape = new();
-        detectorShape.Size = new Vector3(Hitbox.Size.X, 0.01f, Hitbox.Size.Z);
-        
+        detectorShape.Size = new Vector3(GroundDetectRec.Size.X, 0.01f, GroundDetectRec.Size.Z);
+
+        return detectorShape;
+    }
+
+    private void SetupColliders()
+    {
         GroundDetectArea = new()
         {
             Enabled = true,
             CollideWithBodies = true,
             CollideWithAreas = false,
             ExcludeParent = true,
-            Shape = detectorShape,
-            TargetPosition = -GlobalBasis.Y.Normalized() * (CreatureSettings.GroundDetectionDistance + (Hitbox.Size.Y / 2)),
+            TargetPosition = -GlobalBasis.Y.Normalized() * (CreatureSettings.GroundDetectionDistance + (GroundDetectRec.Size.Y / 2)),
         };
 
+        GroundDetectArea.Shape = GetGroundDetectRec();
+
+        GetHitbox();
         AddChild(GroundDetectArea);
 
         GroundDetectArea.GlobalPosition = GlobalPosition - ((GroundDetectArea.TargetPosition - GlobalPosition).Normalized() * 0.01f);
-        GroundDetectArea.GlobalRotation = GlobalRotation;
-
-        InitCreature(); // User defined initializer
     }
 
+    public override void _Ready()
+    {
+        InitCreature(); // User defined initializer
+        SetupColliders();
+    }
 }

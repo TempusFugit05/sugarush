@@ -12,31 +12,50 @@ public partial class Weapon : RigidBody3D, IInteractable
 		Default = Free,
 	}
 
+	public enum ProjectileTypeEnum
+	{
+		HitScan,
+		RigidBody,
+		ShapeCast,
+		Default = HitScan
+	}
+
+	public enum ProjectileHitTypeEnum
+	{
+		Bullet,
+		Explosive
+	}
+	
     public struct WeaponSettingsStruct
     {
+		/*Decal Settings*/
         public const string DefaultDecalScenePath = "res://subscenes/ui_subscenes/BulletDecal.tscn";
         public string DecalPath = DefaultDecalScenePath;
         public PackedScene DecalScene = null;
         public bool EnableDecals = true;
 
+		/*Sound Settings*/
         public const string DefaultSoundEffectPath = "res://assets/audio/weapon/untitled.wav";
         public string SoundEffectPath = DefaultSoundEffectPath;
         public float RandPitchScaleMin = 0.95f;
         public float RandPitchScaleMax = 1.05f;
 
+		/*Particle Settings*/
         public const string DefaultMetallicHit = "res://assets/particles/MetallicImpact.tscn";
         public string MetallicHit = DefaultMetallicHit;
         public PackedScene Metal = null;
 
+		/*Weapon Attributes*/
         public float Range = 75.0f;
         public float DamageFalloffStart = 10;
         public float FireRate = 8f; // Bullets per second
         public float Damage = 25.0f;
 		public float MinimumDamage = 1.0f;
 
+		/*Weapon State*/
         public Godot.Collections.Array<Rid> ExclusionList = new();
         public AttachmentModeEnum AttachmentMode = AttachmentModeEnum.Default;
-    
+
 	    public WeaponSettingsStruct(){}
     }
 

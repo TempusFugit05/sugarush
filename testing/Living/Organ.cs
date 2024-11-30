@@ -225,6 +225,18 @@ public partial class Organ : RigidBody3D, ICreature
         }
     }
 
+    public virtual void Heal(float amount)
+    {
+        if (Health < OrganSettings.MaxHealth)
+        {
+            Health += amount;
+            if (Health > OrganSettings.MaxHealth)
+            {
+                Health = OrganSettings.MaxHealth;
+            }
+        }
+    }
+
     /// <summary>
     ///     Apply damage to organ.
     ///     Part of ICreature.
@@ -361,10 +373,10 @@ public partial class Organ : RigidBody3D, ICreature
         OrganRids.Add(GetRid());
         OwnColliders = HR.GetChildrenOfType<CollisionShape3D>(this);
 
-        if (this is CreatureBase)
-        {
-            AmalgamateOrgans();
-        }
+        // if (this is CreatureBase)
+        // {
+        //     AmalgamateOrgans();
+        // }
         
         TransformReference = GetNodeTransformReference(this);
         

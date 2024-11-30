@@ -1,7 +1,7 @@
 [gd_scene load_steps=51 format=4 uid="uid://ciko4vknptkjp"]
 
-[ext_resource type="Script" path="res://testing/Living/OrganTurret.cs" id="1_my3yc"]
 [ext_resource type="Material" uid="uid://dng4ko0mw1s8d" path="res://assets/materials/Metallic.tres" id="1_nk4tc"]
+[ext_resource type="Script" path="res://testing/Living/OrganicCreature.cs" id="1_xgdyx"]
 [ext_resource type="Script" path="res://testing/Living/OrganArm.cs" id="2_xqiri"]
 [ext_resource type="Script" path="res://scripts/weapon_scripts/Weapon.cs" id="4_040u3"]
 [ext_resource type="Script" path="res://testing/Living/OrganStractural.cs" id="4_ilv2h"]
@@ -162,13 +162,13 @@ points = PackedVector3Array(-1.52359, 1.29968, -0.634834, -0.141268, 1.99026, -0
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_n1eeh"]
 points = PackedVector3Array(-1.14265, 1.55349, -0.761905, -0.380965, 1.1726, -1.65071, -0.380965, 1.23618, -1.65071, -0.126984, 1.74394, -0.761905, -1.20621, 1.1726, -0.761905, -0.126984, 1.1726, -1.46017, -0.253974, 1.80744, -1.01595, -1.14265, 1.23618, -1.26973, -0.698506, 1.617, -1.14297, -1.46032, 1.1726, -0.825503, -0.444525, 1.87095, -0.761905, -0.126984, 1.68043, -1.20631, -0.126984, 1.23618, -1.65071, -0.952226, 1.68043, -0.825503, -0.190545, 1.68043, -0.761905, -0.761936, 1.23618, -1.52369, -0.444525, 1.55349, -1.33324, -1.26977, 1.42662, -0.889013, -0.126984, 1.87095, -0.889013, -1.14265, 1.1726, -1.26973, -0.952226, 1.49013, -1.14297, -0.571516, 1.80744, -0.889013, -1.46032, 1.23618, -0.761905, -1.39676, 1.23618, -0.952524, -0.888665, 1.42662, -1.26973, -0.126984, 1.87095, -0.761905, -0.317535, 1.68043, -1.20631, -0.634946, 1.49013, -1.33324, -0.126984, 1.1726, -1.65071, -0.761936, 1.1726, -1.52369, -0.444525, 1.87095, -0.825503, -0.571516, 1.74394, -1.01595)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_v55df"]
-top_radius = 0.0
+[sub_resource type="BoxShape3D" id="BoxShape3D_twdmi"]
+size = Vector3(0.3, 0.001, 0.3)
 
 [node name="Turret" type="RigidBody3D"]
 gravity_scale = 0.0
 angular_damp = 2.0
-script = ExtResource("1_my3yc")
+script = ExtResource("1_xgdyx")
 
 [node name="WeaponHolder" type="RigidBody3D" parent="."]
 mass = 0.5
@@ -469,6 +469,7 @@ shape = SubResource("ConvexPolygonShape3D_b3rio")
 transform = Transform3D(-4.2483e-09, 0.0971898, 0, -0.0971898, -4.2483e-09, 0, 0, 0, 0.0971898, 0, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_n1eeh")
 
-[node name="foo" type="CSGMesh3D" parent="."]
-transform = Transform3D(0.0827846, 0, 0, 0, -9.76009e-08, 0.0827846, 0, -2.23285, -3.61863e-09, 0, 0, 0)
-mesh = SubResource("CylinderMesh_v55df")
+[node name="ShapeCast3D" type="ShapeCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.205986, 0)
+shape = SubResource("BoxShape3D_twdmi")
+target_position = Vector3(0, 0, 0)

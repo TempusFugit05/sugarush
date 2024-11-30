@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://bu5k1cceik41r"]
+[gd_scene load_steps=10 format=3 uid="uid://bu5k1cceik41r"]
 
 [ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="1_f7gnw"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="1_n1kml"]
 [ext_resource type="PackedScene" uid="uid://csiue2n015dws" path="res://subscenes/worldbuilding/FoodSpawner.tscn" id="2_lc6bq"]
 [ext_resource type="Script" path="res://TeleporterArea.cs" id="4_jiakv"]
 [ext_resource type="PackedScene" uid="uid://b5fqc507larpx" path="res://subscenes/pickup_subscenes/PickupCake.tscn" id="4_n7hom"]
+[ext_resource type="PackedScene" uid="uid://bl1fny47hjg0p" path="res://subscenes/pickup_subscenes/PickupGummy.tscn" id="4_ye7yq"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_bcqly"]
 
@@ -71,19 +72,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.182854, 29.1838, -0.0469246
 
 [node name="FoodSpawner" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 9.81693, 0.0578244)
+FoodScene = ExtResource("4_ye7yq")
 
 [node name="FoodSpawner3" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.178612, 5.53061, 0.0578244)
+FoodScene = ExtResource("4_ye7yq")
 
 [node name="FoodSpawner4" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -0.0717793, 0.0578244)
+FoodScene = ExtResource("4_ye7yq")
 
 [node name="FoodSpawner5" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0651627, -6.07177, 0.0578244)
+FoodScene = ExtResource("4_ye7yq")
 
 [node name="FoodSpawner2" parent="CSGCombiner3D/ConeDrop/DropFood" instance=ExtResource("2_lc6bq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25309, 14.8169, 0.0578244)
 visible = false
+FoodScene = ExtResource("4_ye7yq")
 
 [node name="Arrow" type="CSGCombiner3D" parent="CSGCombiner3D"]
 
@@ -165,6 +171,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.9262, 1.84974, 4.14597)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.95946, -114.732, -17.3016)
 script = ExtResource("4_jiakv")
 Endpoint = NodePath("../Node3D")
+ExitBehavior = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TeleporterArea"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.9356, 0, 80.521)

@@ -23,7 +23,7 @@ public partial class Character : CreatureBase
         Ui = GetNode<CharUi>("CharUi");
 
         Ui.init(this);
-        sugarHandler.Init(this);
+        sugarHandler.Init(this, State);
         movementHandler.Init(this);
         interactionHandler.init(this);
         weaponHandler.Init(this);
@@ -34,7 +34,7 @@ public partial class Character : CreatureBase
 	public override void Hurt(float Damage, Vector3 DamagePosition = default, ulong colliderId = default)
 	{
 		sugarHandler.ConsumeSugar(-Damage);
-        if (sugarHandler.CurrentSugar <= 0)
+        if (State.MaxHealth <= 0)
         {
             Kill();
         }
@@ -50,21 +50,6 @@ public partial class Character : CreatureBase
         return interactionHandler.InteractingWith;
     }
 
-    public float GetHealth()
-    {
-        return sugarHandler.CurrentSugar;
-    }
-
-    public float GetMaxHealth()
-    {
-        return SugarHandler.BaseSugar;
-    }
-
-    public bool GetSugarush()
-    {
-        return sugarHandler.Sugarush;
-    }
-
 	public override void _Input(InputEvent CurrentInput)
 	{
         if (CurrentInput is InputEventMouseMotion MouseMotion)
@@ -73,21 +58,13 @@ public partial class Character : CreatureBase
         }
 	}
 
-    private struct Box
+    public bool GetSugarush()
     {
-        public Vector3 X;
-        public Vector3 Y;
-        public Vector3 Z;
-        // public Box(Aabb bounds)
-        // {
-        //     X = bounds.Position * bounds.Size;
-        // }
+        return sugarHandler.Sugarush;
     }
 
 	public override void _PhysicsProcess(double delta)
 	{
-        // Aabb bound = GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
-        // GD.Print((bound * GlobalTransform).Position);
 		weaponHandler.Run();
         interactionHandler.Run();
         Ui.Run();
