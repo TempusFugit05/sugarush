@@ -35,9 +35,12 @@ public partial class Weapon : RigidBody3D
 		if (angles is not null)
 		{
             for (int i = 0; i < angles.Length; i++)
-            {				
-				Quaternion rotLeftRight = new(cameraRight, Mathf.DegToRad(angles[i].X));
-				Quaternion rotUpDown = new(cameraUp, Mathf.DegToRad(angles[i].Y));
+            {
+				/*Apply user-defined rotations*/
+				float randRotX = (GD.Randf() - 0.5f) * 2 * WeaponSettings.RandSpreadX;
+				float randRotY = (GD.Randf() - 0.5f) * 2 * WeaponSettings.RandSpreadY;
+				Quaternion rotLeftRight = new(cameraRight, Mathf.DegToRad(angles[i].X + randRotX));
+				Quaternion rotUpDown = new(cameraUp, Mathf.DegToRad(angles[i].Y + randRotY));
 
 				Vector3 dirVector = CameraNormal * (rotUpDown * rotLeftRight);
 
@@ -61,51 +64,49 @@ public partial class Weapon : RigidBody3D
 		ShootProjectile(ProjectileStartPos, ProjectileEndPos);
 	}
 
+	protected virtual void EmitImpactParticle(Godot.Collections.Dictionary impactDict, PhysicsRayQueryParameters3D rayInfo, Node3D obj, Vector3 hitPos)
+	{
+		GpuParticles3D particle = (GpuParticles3D)WeaponSettings.Metal.Instantiate();
+		obj.AddChild(particle);
+		particle.GlobalPosition = hitPos;
+		particle.Quaternion = new ((rayInfo.To - rayInfo.From).Reflect((Vector3)impactDict["normal"]).Cross(Vector3.Up).Normalized(), Mathf.DegToRad(90)); // Simulate "reflection" of partices off of the surface
+		particle.Finished += particle.QueueFree; // Delete after emmision is done
+		particle.Emitting = true;
+	}
+
 	/// <Summary>
 	/// 	Apply damage to the object that was hit
 	/// </Summary>
-	protected virtual void ApplyBulletImpacts(Godot.Collections.Dictionary ImpactDict, PhysicsRayQueryParameters3D RayInfo)
+	protected virtual void ApplyBulletImpacts(Godot.Collections.Dictionary impactDict, PhysicsRayQueryParameters3D rayInfo)
 	{
-		if(ImpactDict is not null)
+		if(impactDict is not null)
 		{
-			Node3D HitObject = (Node3D)ImpactDict["collider"];
-			Vector3 DamagePosition = (Vector3)ImpactDict["position"];
-			float DamageToApply = ApplyDamageFalloff(WeaponSettings.Damage, GlobalPosition.DistanceTo(DamagePosition));
+			Node3D hitObject = (Node3D)impactDict["collider"];
+			Vector3 damagePosition = (Vector3)impactDict["position"];
+			float damageToApply = ApplyDamageFalloff(WeaponSettings.Damage, GlobalPosition.DistanceTo(damagePosition));
 
-			if(HitObject is ICreature creature)
+			if(hitObject is ICreature creature)
 			{
 				if (creature is RigidBody3D rigidCreature)
 				{
-					ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)ImpactDict["shape"])).GetInstanceId();
-					creature.Hurt(DamageToApply, DamagePosition, colliderShapeId);
+					ulong colliderShapeId = rigidCreature.ShapeOwnerGetOwner(rigidCreature.ShapeFindOwner((int)impactDict["shape"])).GetInstanceId();
+					creature.Hurt(damageToApply, damagePosition, colliderShapeId);
 				}
 				else
 				{
-					creature.Hurt(DamageToApply, DamagePosition);
+					creature.Hurt(damageToApply, damagePosition);
 				}
 			}
-			if (HitObject is RigidBody3D body)
+			if (hitObject is RigidBody3D body)
 			{
-				body.ApplyImpulse((DamagePosition - RayInfo.From).Normalized() * (DamageToApply / WeaponSettings.Damage), DamagePosition - body.GlobalPosition);
+				body.ApplyImpulse((damagePosition - rayInfo.From).Normalized() * (damageToApply / WeaponSettings.Damage), damagePosition - body.GlobalPosition);
 			}
-
-            GpuParticles3D particle = (GpuParticles3D)WeaponSettings.Metal.Instantiate();
-            HitObject.AddChild(particle);
-            particle.GlobalPosition = DamagePosition;
-            particle.Quaternion = new ((RayInfo.To - RayInfo.From).Reflect((Vector3)ImpactDict["normal"]).Cross(Vector3.Up).Normalized(), Mathf.DegToRad(90));
-			
-			particle.Finished += particle.QueueFree;
-	        particle.Emitting = true;
+			EmitImpactParticle(impactDict, rayInfo, hitObject, damagePosition);
 		}
 	}
 
 	private void ShootBullet(Godot.Collections.Array<Rid> ignoreList, Vector3 start, Vector3 end)
 	{
-		if (WeaponSettings.ExclusionList is not null)
-		{
-			ignoreList.AddRange(WeaponSettings.ExclusionList);
-		} // Append user-defined exclusion list
-
         PhysicsRayQueryParameters3D QueryParams = new()
         {
             From = start,
@@ -139,11 +140,16 @@ public partial class Weapon : RigidBody3D
 	{
         // Create a projectile and apply bullet hole decal on the hit object
         Godot.Collections.Array<Rid> ExclusionList = HP.GetDefaultExclusionList();
-		// switch ()
-		// {
-			
-		// 	default:
-		// }
+		ExclusionList.AddRange(WeaponSettings.ExclusionList);
+
+		switch (WeaponSettings.ProjectileType)
+		{
+			case ProjectileTypeEnum.HitScan:
+			{
+				ShootBullet(ExclusionList, start, end);
+				break;
+			}
+		}
 
 	}
 }

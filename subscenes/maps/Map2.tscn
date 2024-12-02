@@ -14,7 +14,7 @@ transparency = 1
 albedo_color = Color(1, 1, 1, 0.482353)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_geqld"]
-size = Vector3(181.521, 1, 197.899)
+size = Vector3(448.753, 1, 378.814)
 
 [node name="Map2" type="Node3D"]
 
@@ -174,5 +174,5 @@ Endpoint = NodePath("../Node3D")
 ExitBehavior = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TeleporterArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.9356, 0, 80.521)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.6927, 0, 116.185)
 shape = SubResource("BoxShape3D_geqld")

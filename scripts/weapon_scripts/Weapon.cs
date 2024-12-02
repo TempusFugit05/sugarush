@@ -17,13 +17,14 @@ public partial class Weapon : RigidBody3D, IInteractable
 		HitScan,
 		RigidBody,
 		ShapeCast,
-		Default = HitScan
+		Default = HitScan,
 	}
 
-	public enum ProjectileHitTypeEnum
+	public enum ImpactTypeEnum
 	{
 		Bullet,
-		Explosive
+		Explosive,
+		Default = Bullet,
 	}
 	
     public struct WeaponSettingsStruct
@@ -51,6 +52,12 @@ public partial class Weapon : RigidBody3D, IInteractable
         public float FireRate = 8f; // Bullets per second
         public float Damage = 25.0f;
 		public float MinimumDamage = 1.0f;
+		public ProjectileTypeEnum ProjectileType = ProjectileTypeEnum.Default;
+		public ImpactTypeEnum ImpactType = ImpactTypeEnum.Default;
+
+		/*Random spread*/
+		public float RandSpreadY = 0;
+		public float RandSpreadX = 0;
 
 		/*Weapon State*/
         public Godot.Collections.Array<Rid> ExclusionList = new();

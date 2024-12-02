@@ -11,6 +11,8 @@ public partial class Shotgun : Weapon
         WeaponSettings.FireRate = 2f;
         WeaponSettings.Damage = 50f;
         WeaponSettings.SoundEffectPath = "res://assets/audio/weapon/ShotgunSoundPlaceholder.wav";
+		WeaponSettings.RandSpreadX = 1f;
+		WeaponSettings.RandSpreadY = 1f;
     }
 
 	public override bool Shoot()
