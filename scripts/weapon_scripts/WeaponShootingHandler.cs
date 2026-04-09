@@ -84,7 +84,6 @@ public partial class Weapon : RigidBody3D
 			Node3D hitObject = (Node3D)impactDict["collider"];
 			Vector3 damagePosition = (Vector3)impactDict["position"];
 			float damageToApply = ApplyDamageFalloff(WeaponSettings.Damage, GlobalPosition.DistanceTo(damagePosition));
-
 			if(hitObject is ICreature creature)
 			{
 				if (creature is RigidBody3D rigidCreature)
@@ -122,9 +121,10 @@ public partial class Weapon : RigidBody3D
         }
         
         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(QueryParams);
-
+		
+		// If the dictionary is empty, nothing was hit
 		if(RayDict.Count != 0)
-		{ // If the dictionary is empty, nothing was hit
+		{ 
 			if ((object)RayDict["collider"] is not null)
 			{
                 if (WeaponSettings.EnableDecals)

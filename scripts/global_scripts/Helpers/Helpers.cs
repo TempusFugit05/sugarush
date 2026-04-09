@@ -429,7 +429,6 @@ namespace Helpers
             if (IterationNum != currentFrame)
             {
                 IterationNum = currentFrame;
-                // GD.Print("NEW");
                 for (int i = 0; i < Cache.Count; i++)
                 {
                     var item = Cache[i];
@@ -438,7 +437,6 @@ namespace Helpers
 
                 return false;
             }
-            // GD.Print("OLD");
             return GetUpdateRan(funcName);
         }
     }

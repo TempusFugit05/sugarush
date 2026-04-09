@@ -24,14 +24,7 @@ public partial class Liquid : Area3D
 	void foo()
 	{
 		HitBox = GetNode<MeshInstance3D>("MeshInstance3D").GetAabb();
-		GD.Print(HitBox.Size);
-		GD.Print(HitBox.Position);
-		GD.Print(GlobalPosition);
 		HitBox.Position = GlobalPosition + HitBox.Position;
-		GD.Print(HitBox.Position);
-
-		// GD.Print((HitBox*GlobalTransform).Size);
-		// GD.Print((HitBox*GlobalTransform).Position);
 
 		HitBox = new Aabb(GlobalPosition, HitBox.Size * GlobalBasis.Scale);
 
@@ -69,7 +62,6 @@ public partial class Liquid : Area3D
 				{
 					Aabb bodyBounds = bodyMesh.GetAabb();
 					bodyBounds = new(body.GlobalPosition, bodyBounds.Size);
-					GD.Print(HitBox.Intersection(bodyBounds).Volume);
 					body.ApplyCentralForce(-body.GetGravity() * HitBox.Intersection(bodyBounds).Volume * Density);
 				}
 			}

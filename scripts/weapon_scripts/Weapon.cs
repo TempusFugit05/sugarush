@@ -91,12 +91,13 @@ public partial class Weapon : RigidBody3D, IInteractable
 	public void SetAttachmentMode(AttachmentModeEnum mode, Godot.Collections.Array<Rid> exclude = null)
 	{
 
+		// Disable physics on weapon
 		if (mode == AttachmentModeEnum.Player || mode == AttachmentModeEnum.Creature)
 		{
 			FreezeMode = FreezeModeEnum.Static;
 			Freeze = true;
 			CollisionLayer = (int)GlobalEnums.CollisionLayersEnum.NoCollide;
-		} // Disable physics on weapon
+		} 
 
 		if (exclude is not null)
 		{
@@ -143,22 +144,23 @@ public partial class Weapon : RigidBody3D, IInteractable
     }
 
 	/// <summary>
-    /// 	Apply damage falloff based on range to targert
+    /// 	Apply damage falloff based on range to target
     /// </summary>
     /// <param name="damage">The input damage to which falloff should be applied</param>
     /// <param name="distanceToTarget">The distance to the target that was hit</param>
     /// <returns>Modified damage</returns>
 	protected virtual float ApplyDamageFalloff(float damage, float distanceToTarget)
 	{        
+		if(distanceToTarget > WeaponSettings.Range)
+			return 0;
+
 		if(distanceToTarget > WeaponSettings.DamageFalloffStart)
 		{
-            damage -= (damage / WeaponSettings.Range) * distanceToTarget;
+            damage -= damage / (WeaponSettings.Range / distanceToTarget);
         }
 
 		if (damage < WeaponSettings.MinimumDamage && damage > 0)
-        {
             return WeaponSettings.MinimumDamage;
-        }
 
         return damage;
     }
@@ -189,7 +191,6 @@ public partial class Weapon : RigidBody3D, IInteractable
 			{
                 ShootFromCamera();
 			}			
-
 			else
 			{
                 ShootFromWeapon();

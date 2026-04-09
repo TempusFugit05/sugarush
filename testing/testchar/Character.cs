@@ -42,7 +42,7 @@ public partial class Character : CreatureBase
 
 	public override void Kill()
 	{
-        // GD.Print("Oh no I totally died!!!!1!");
+        GD.Print("Oh no I totally died!!!!1!");
     }
 
     public IInteractable GetInteractingNode()

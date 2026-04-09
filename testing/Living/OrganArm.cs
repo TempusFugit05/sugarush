@@ -28,7 +28,7 @@ public partial class OrganArm : Organ
             WeaponColliders = HR.GetChildrenOfType<CollisionShape3D>(AttachedWeapon);
             OrganBase.MergeColliders(new(HR.GetChildrenOfType<CollisionShape3D>(AttachedWeapon), AttachedWeapon));
             WeaponCollidersReparented = true;
-            AttachedWeapon.Freeze = true;
+            // AttachedWeapon.Freeze = true;
         }
     }
 
@@ -39,7 +39,7 @@ public partial class OrganArm : Organ
             WeaponCollidersReparented = false;
             AttachedWeapon.SetAttachmentMode(Weapon.AttachmentModeEnum.Free);
             OrganBase.ReturnCollider(AttachedWeapon);
-            AttachedWeapon.Freeze = false;
+            // AttachedWeapon.Freeze = false;
             AttachedWeapon.Reparent(GetTree().Root.GetNode("Main"));
             AttachedWeapon = null;
         }

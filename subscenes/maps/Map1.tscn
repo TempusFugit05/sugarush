@@ -133,15 +133,12 @@ shape = SubResource("ConvexPolygonShape3D_lf5e1")
 
 [node name="FoodSpawner4" parent="." instance=ExtResource("4_0oqvd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.6488, 3.00272, -74.6526)
-SpawnType = 2
 
 [node name="FoodSpawner3" parent="." instance=ExtResource("4_0oqvd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.7106, 1.50136, -18.7242)
-SpawnType = 2
 
 [node name="FoodSpawner2" parent="." instance=ExtResource("4_0oqvd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.2715, 0.750681, -20.1758)
-SpawnType = 3
 
 [node name="Turret" parent="." instance=ExtResource("3_mn2es")]
 transform = Transform3D(-0.999966, 0, -0.00820294, 0, 1, 0, 0.00820294, 0, -0.999966, 92.1943, 1.13117, -37.7821)

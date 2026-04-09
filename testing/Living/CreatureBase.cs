@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using Godot;
 using Helpers;
 
@@ -41,7 +38,7 @@ public partial class CreatureBase : RigidBody3D, ICreature
 
     protected virtual void InitCreature(){}
 
-    private GenericCache Cache = new();
+    // private GenericCache Cache = new();
 
     public float GetHealth()
     {
@@ -91,7 +88,6 @@ public partial class CreatureBase : RigidBody3D, ICreature
     //             float targetDistance = CreatureSettings.GroundSnapMargin + (Hitbox.Size.Y / 2);
 
     //             GlobalPosition = closestCollision - (dir * targetDistance);
-    //             GD.Print(outDistance);
     //             GroundSnapTimer.Start(0.5f);
     //         }
     //     }
@@ -104,22 +100,18 @@ public partial class CreatureBase : RigidBody3D, ICreature
     /// <returns>The distance of the creature from the ground or negative infinity when nothing is detected.</returns>
     protected float GetGroundDistance()
     {
-        const string funcName = nameof(GetGroundDistance);
-
-        if (Cache.IsSameIteration(funcName))
-        {
-            return (float)Cache.GetCachedItem(funcName);
-        }
-
+        // const string funcName = nameof(GetGroundDistance);
+        // if (Cache.IsSameIteration(funcName))
+        // {
+        //     return (float)Cache.GetCachedItem(funcName);
+        // }
         float outDistance = float.NegativeInfinity;
-
-        if (GroundDetectArea.IsColliding())
+        if (GroundDetectArea.CollisionResult.Count > 0)
         {
             for (int i = 0; i < GroundDetectArea.GetCollisionCount(); i++)
             {
                 Vector3 collisionPoint = GroundDetectArea.GetCollisionPoint(i);
                 float distance = collisionPoint.DistanceSquaredTo(GlobalPosition);
-
                 if (distance > outDistance)
                 {
                     outDistance = distance;
@@ -127,9 +119,8 @@ public partial class CreatureBase : RigidBody3D, ICreature
             }
 
             outDistance = Mathf.Sqrt(outDistance) - (Hitbox.Size.Y / 2);
-
         }
-        Cache.UpdateCache(funcName, outDistance);
+
         return outDistance;
     }
 
@@ -140,12 +131,12 @@ public partial class CreatureBase : RigidBody3D, ICreature
     /// <returns>True if creature is on ground, false if not.</returns>
     protected bool IsOnGround()
     {
-        const string funcName = nameof(IsOnGround);
+        // const string funcName = nameof(IsOnGround);
 
-        if (Cache.IsSameIteration(funcName))
-        {
-            return (bool)Cache.GetCachedItem(funcName);
-        }
+        // if (Cache.IsSameIteration(funcName))
+        // {
+        //     return (bool)Cache.GetCachedItem(funcName);
+        // }
 
         bool onGround;
         float height = GetGroundDistance();
@@ -171,7 +162,7 @@ public partial class CreatureBase : RigidBody3D, ICreature
             }
         }
 
-        Cache.UpdateCache(funcName, onGround);
+        // Cache.UpdateCache(funcName, onGround);
         return onGround;
     }
 
@@ -183,32 +174,6 @@ public partial class CreatureBase : RigidBody3D, ICreature
         }
         return false;
     }
-
-    // protected bool IsPlayerVisible()
-    // {
-    //     if (HR.GetPlayerNode() is not null)
-    //     {
-    //         PhysicsRayQueryParameters3D Query = new()
-    //         {
-    //             From = GlobalPosition,
-    //             To = HR.GetPlayerNode().GlobalPosition,
-    //             Exclude = OrganRids,
-    //             CollideWithAreas = false,
-    //             CollideWithBodies = true,
-    //         };
-
-    //         Godot.Collections.Dictionary RayDict = GetWorld3D().DirectSpaceState.IntersectRay(Query);
-    //         if (RayDict.Count != 0)
-    //         {
-    //             if ((Node)RayDict["collider"] is Character)
-    //             {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-        
-    //     return false;
-    // }
 
     private void GetHitbox()
     {
@@ -268,8 +233,10 @@ public partial class CreatureBase : RigidBody3D, ICreature
             GroundDetectRec = Hitbox;
         }
 
-        BoxShape3D detectorShape = new();
-        detectorShape.Size = new Vector3(GroundDetectRec.Size.X, 0.01f, GroundDetectRec.Size.Z);
+        BoxShape3D detectorShape = new()
+        {
+            Size = new Vector3(GroundDetectRec.Size.X, 0.01f, GroundDetectRec.Size.Z)
+        };
 
         return detectorShape;
     }

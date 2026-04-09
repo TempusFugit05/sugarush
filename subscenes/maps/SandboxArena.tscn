@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bgfxcvvj7e27"]
+[gd_scene load_steps=12 format=3 uid="uid://bgfxcvvj7e27"]
 
 [ext_resource type="PackedScene" uid="uid://hepn2aya7iul" path="res://subscenes/worldbuilding/Character.tscn" id="1_lpdap"]
 [ext_resource type="Material" uid="uid://cxa8jc5o4sctx" path="res://assets/materials/ProtoFloor.tres" id="3_xuxrd"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b5fqc507larpx" path="res://subscenes/pickup_subscenes/PickupCake.tscn" id="6_t85lo"]
 [ext_resource type="PackedScene" uid="uid://dfaq6af80psgv" path="res://subscenes/pickup_subscenes/BasePickup.tscn" id="7_h0d4f"]
 [ext_resource type="PackedScene" uid="uid://ciko4vknptkjp" path="res://subscenes/enemy_subscenes/turret.tscn" id="8_4k5yw"]
+[ext_resource type="PackedScene" uid="uid://c6smq66kbbfvq" path="res://subscenes/enemy_subscenes/Turret.tscn" id="9_o3e38"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_y0lkw"]
 size = Vector3(0.5, 6, 6)
@@ -85,3 +86,6 @@ shape = SubResource("ConvexPolygonShape3D_u1rjo")
 
 [node name="Turret" parent="." instance=ExtResource("8_4k5yw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, -11)
+
+[node name="Turret2" parent="." instance=ExtResource("9_o3e38")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.975709, 0.305984, -8.22828)

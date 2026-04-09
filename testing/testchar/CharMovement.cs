@@ -25,7 +25,7 @@ public partial class Character
 		private float FatalFallSpeed = 25.0f;
 
 		/* Friction attributes */
-		public float Friction = 1.0f;
+		public float Friction = 1.4f;
 
 		public float MinVel = 0.1f;
 		private float MovementAccel = 100.0f;
@@ -173,7 +173,7 @@ public partial class Character
 					μ - Friction coefficient
 				*/
 				Vector3 normalForce = P.GetGravity() * P.Mass;
-				simForce -= normalForce.Length() * Friction * P.LinearVelocity.Normalized();
+				simForce -= normalForce.Length() * P.LinearVelocity.Normalized() * Friction;
 			}
 
 			else
@@ -203,7 +203,7 @@ public partial class Character
 
 
 		/// <Summary>
-		/// 	Applly accelleration when moving, until full speed is achieved
+		/// 	Apply acceleration when moving, until full speed is achieved
 		/// </Summary>
 		private void ApplyMovementAccel(ref Vector3 force, double delta)
 		{
@@ -224,17 +224,19 @@ public partial class Character
 			Vector3 targetForce = baseDir * MovementAccel * P.Mass; // Force to be applied to player
 			Vector3 finalSpeed = SimulateSpeed(dirForce + targetForce, delta) + dirSpeed; // Speed after iteration
 
+			// Apply force if max speed won't be exceeded
 			if (finalSpeed.LengthSquared() <= TargetSpeed * TargetSpeed)
 			{
 				force += targetForce;
-			} // Apply force if max speed won't be exceeded
+			}
 
+			// If it is, calculate a smaller force that will close the gap to the target speed.
 			else
 			{
 				Vector3 targetDirSpeed = TargetSpeed * baseDir; // Target speed in the target direction
 				targetForce = ForceToGetSpeed(targetDirSpeed - dirSpeed, delta);
 				force += targetForce - dirForce; // Apply remainder to achieve target speed next iteration 
-			} // If it is, calculate a smaller force that will close the gap to the target speed.
+			} 
 		}
 
 		private Vector3 SimulateSpeed(Vector3 force, double delta)

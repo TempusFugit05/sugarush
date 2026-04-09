@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="sugarush"
 run/main_scene="res://subscenes/maps/World.tscn"
-config/features=PackedStringArray("4.3", "C#", "Forward Plus")
+config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 run/max_fps=1000
 config/icon="res://icon.svg"
 
@@ -133,7 +137,7 @@ interact={
 [physics]
 
 common/physics_ticks_per_second=120
-3d/physics_engine="JoltPhysics3D"
+3d/physics_engine="Jolt Physics"
 3d/default_gravity=17.5
 common/physics_interpolation=true
 

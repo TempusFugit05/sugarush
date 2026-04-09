@@ -18,7 +18,7 @@ public partial class GameManager : Node
 	{
 		// Engine.MaxFps = (int)DisplayServer.ScreenGetRefreshRate();
 		Engine.MaxFps = -1;
-		DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+		DisplayServer.WindowSetMode(DisplayServer.WindowMode.ExclusiveFullscreen);
 		Input.MouseMode = Input.MouseModeEnum.Captured; // Disable cursor
         CallDeferred("InitHelper");
     }

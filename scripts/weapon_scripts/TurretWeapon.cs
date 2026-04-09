@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class TestTurretWeapon : Weapon
+public partial class TurretWeapon : Weapon
 {
 	public override void _Ready()
 	{
